@@ -26,7 +26,8 @@
 - Envoy/Istio - service mesh + sidecar
 - Vault для секретов (если сложно поднимать, подумать про альтернативу)
 - Etcd (https://etcd.io/) конфиг - централизованное включение/отключение авторизации при ЧС (в админке), также юзкейс для i2i
-- i2i use-cases: kafka, postgres, clickhouse, etcd, ...
+- i2i use-cases: kafka, postgres, clickhouse, etcd, prometheus (metrics ??) ...
+
 
 
 Ильяс (про services mesh, discovery, resolver, ...: https://habr.com/ru/companies/ozontech/articles/779266/):
