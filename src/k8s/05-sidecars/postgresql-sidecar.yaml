@@ -16,7 +16,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: sidecar
-          image: your-registry/sidecar:latest
+          image: bmstu-sidecar:latest
           env:
             - name: SERVICE_TYPE
               value: "postgresql"

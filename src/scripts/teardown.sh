@@ -1,3 +1,3 @@
 #!/bin/bash
 
-k3d cluster delete mycluster
+k3d cluster delete bmstucluster

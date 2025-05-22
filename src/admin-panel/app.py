@@ -4,7 +4,7 @@ import requests
 app = Flask(__name__)
 
 SERVICES = {
-    "postgresql": {"port": 5432, "auth": False},
+    "postgresql": {"port": 5434, "auth": False},
     "kafka": {"port": 9092, "auth": False},
     "redis": {"port": 6379, "auth": False}
 }
