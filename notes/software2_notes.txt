@@ -33,3 +33,5 @@ k describe po my-pod - выводит всю инфу про под, напри�
 
 
 postgres, redis, ... - PaaS? or DBaaS?
+
+containers: resources (requests, limits: cpu, memory)
