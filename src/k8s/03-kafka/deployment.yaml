@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: bitnami/kafka:3.4
+          env:
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: "localhost:2181"
+            - name: KAFKA_CFG_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xmx256M -Xms128M"
+          ports:
+            - containerPort: 9092
+          volumeMounts:
+            - name: config
+              mountPath: /opt/bitnami/kafka/config/kafka.properties
+              subPath: kafka.properties
+          resources:
+            limits:
+              memory: "384Mi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          configMap:
+            name: kafka-config
