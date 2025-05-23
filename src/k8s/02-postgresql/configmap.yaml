@@ -8,3 +8,4 @@ data:
     shared_buffers = 128MB
     work_mem = 4MB
     maintenance_work_mem = 32MB
+    max_connections = 10

@@ -7,6 +7,11 @@ spec:
   selector:
     app: postgresql
   ports:
-    - protocol: TCP
+    - name: postgresql
+      protocol: TCP
       port: 5434
       targetPort: 5434
+    - name: sidecar
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
