@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: zookeeper
+          image: bitnami/zookeeper:latest
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+          ports:
+            - containerPort: 2181
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+        - name: kafka
+          image: bitnami/kafka:3.4
+          env:
+            - name: KAFKA_CFG_ZOOKEEPER_CONNECT
+              value: "localhost:2181"
+            - name: KAFKA_CFG_LISTENERS
+              value: "PLAINTEXT://:9092"
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xmx256M -Xms128M"
+          ports:
+            - containerPort: 9092
+          volumeMounts:
+            - name: config
+              mountPath: /opt/bitnami/kafka/config/kafka.properties
+              subPath: kafka.properties
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          configMap:
+            name: kafka-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  namespace: kafka
+spec:
+  ports:
+    - port: 2181
+      targetPort: 2181
+  selector:
+    app: zookeeper

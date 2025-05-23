@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:6
+          ports:
+            - containerPort: 6379
+        - name: sidecar
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest
+          env:
+            - name: SERVICE_TYPE
+              value: "redis"
+            - name: AUTH_ENABLED
+              value: "false"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: redis
+spec:
+  selector:
+    app: redis
+  ports:
+    - name: redis
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+    - name: sidecar
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
