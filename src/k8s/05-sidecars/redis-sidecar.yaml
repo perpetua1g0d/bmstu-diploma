@@ -5,11 +5,17 @@ metadata:
   namespace: redis
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: redis-sidecar
   template:
+    metadata:
+      labels:
+        app: redis-sidecar
     spec:
       containers:
         - name: sidecar
-          image: bmstu-sidecar:latest
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest
           env:
             - name: SERVICE_TYPE
               value: "redis"

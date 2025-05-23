@@ -25,6 +25,13 @@ spec:
             - name: config
               mountPath: /etc/postgresql/postgresql.conf
               subPath: postgresql.conf
+          # resources:
+          #   limits:
+          #     memory: "256Mi"  # Для основных сервисов
+          #     cpu: "250m"
+          #   requests:
+          #     memory: "128Mi"
+          #     cpu: "100m"
           resources:
             limits:
               memory: "256Mi"

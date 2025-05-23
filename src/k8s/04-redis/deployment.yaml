@@ -19,7 +19,7 @@ spec:
           ports:
             - containerPort: 6379
         - name: sidecar
-          image: bmstu-sidecar:latest
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest
           env:
             - name: SERVICE_TYPE
               value: "redis"
@@ -37,9 +37,11 @@ spec:
   selector:
     app: redis
   ports:
-    - protocol: TCP
+    - name: redis
+      protocol: TCP
       port: 6379
       targetPort: 6379
-    - protocol: TCP
+    - name: sidecar
+      protocol: TCP
       port: 8080
       targetPort: 8080

@@ -14,6 +14,17 @@ spec:
         app: kafka
     spec:
       containers:
+        - name: zookeeper
+          image: bitnami/zookeeper:latest
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+          ports:
+            - containerPort: 2181
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
         - name: kafka
           image: bitnami/kafka:3.4
           env:
@@ -31,9 +42,21 @@ spec:
               subPath: kafka.properties
           resources:
             limits:
-              memory: "384Mi"
+              memory: "512Mi"
               cpu: "500m"
       volumes:
         - name: config
           configMap:
             name: kafka-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  namespace: kafka
+spec:
+  ports:
+    - port: 2181
+      targetPort: 2181
+  selector:
+    app: zookeeper
