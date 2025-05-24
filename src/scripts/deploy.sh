@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Создаем кластер
 k3d cluster create bmstucluster \
   --api-port 6443 \
   --servers-memory 4G \
@@ -12,33 +11,35 @@ k3d cluster create bmstucluster \
   --k3s-arg "--kubelet-arg=fail-swap-on=false@server:*" \
   --kubeconfig-update-default
 
-# Собираем и загружаем образ
-docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest ./sidecar
-k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest -c bmstucluster --keep-tools
+# run sidecar code in sidecar containter:
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
+k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest -c bmstucluster --keep-tools
 
-# Применяем манифесты
-kubectl apply -f k8s/00-namespaces/
+kubectl apply -f k8s/namespaces/
+# kubectl apply -k k8s/namespaces/
 
-if ! kubectl get secret ghcr-secret -n postgresql >/dev/null 2>&1; then
-  echo "Создаем секрет для ghcr.io"
-  kubectl create secret docker-registry ghcr-secret \
-    --docker-server=ghcr.io \
-    --docker-username=perpetua1g0d \
-    --docker-password="$GH_PAT" \
-    --namespace=postgresql
-else
-  echo "Секрет уже существует, пропускаем создание"
-fi
+namespaces=("postgres-a" "postgres-b" "talos")
+for ns in "${namespaces[@]}"; do
+  if ! kubectl get secret ghcr-secret -n "$ns" >/dev/null 2>&1; then
+    kubectl create secret docker-registry ghcr-secret \
+      --docker-server=ghcr.io \
+      --docker-username=perpetua1g0d \
+      --docker-password="$GH_PAT" \
+      --namespace="$ns"
+    echo "Secret GHCR created in namespace: $ns"
+  else
+    echo "Secret already exists in namespace: $ns"
+  fi
+done
 
-kubectl apply -f k8s/01-talos/
-kubectl apply -f k8s/02-postgresql/
-# kubectl apply -f k8s/03-kafka/
-# kubectl apply -f k8s/04-redis/
-# kubectl apply -f k8s/05-sidecars/kafka-sidecar.yaml
-# kubectl apply -f k8s/05-sidecars/postgresql-sidecar.yaml
-kubectl apply -f k8s/06-admin-panel/
+kubectl apply -f k8s/talos/
+kubectl apply -f k8s/postgresql/postgres-a/
+kubectl apply -f k8s/postgresql/postgres-b/
+# kubectl apply -f k8s/kafka/
+# kubectl apply -f k8s/redis/
+# kubectl apply -f k8s/admin-panel/
 
-echo "Система развернута. Доступные сервисы:"
 echo "- Админ-панель: kubectl port-forward -n admin-panel svc/admin-panel 8080:80"
 echo "- PostgreSQL: kubectl port-forward -n postgresql svc/postgresql 5434:5434"
 echo "- Sidecar: kubectl port-forward -n postgresql svc/postgresql 8080:8080"

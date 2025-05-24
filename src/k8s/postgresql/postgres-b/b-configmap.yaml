@@ -2,9 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgresql-config
-  namespace: postgresql
+  namespace: postgres-b
 data:
+  auth-enabled: "false"
   postgresql.conf: |
+    port = 5435
     shared_buffers = 128MB
     work_mem = 4MB
     maintenance_work_mem = 32MB

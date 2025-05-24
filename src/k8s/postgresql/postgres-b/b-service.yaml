@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-b
+  namespace: postgres-b
+spec:
+  selector:
+    app: postgres-b
+  ports:
+    - name: postgres
+      port: 5435
+      targetPort: 5435
+    - name: sidecar
+      port: 8080
+      targetPort: 8080

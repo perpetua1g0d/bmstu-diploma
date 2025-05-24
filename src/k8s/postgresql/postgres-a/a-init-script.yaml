@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: postgres-a
+data:
+  init.sql: |
+    CREATE TABLE IF NOT EXISTS log (
+        id SERIAL PRIMARY KEY,
+        message TEXT
+    );

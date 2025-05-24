@@ -1,0 +1,23 @@
+kubectl get pods -A [-w // watching]
+k3d cluster <start, stop, list>
+
+# check logs of pod:
+kubectl logs -n postgresql postgresql-sidecar-64f84f579c-gkjm9
+kubectl logs -n postgres-a -c postgres postgres-a-646d699889-cl79z
+kubectl describe pod -n postgresql postgresql-sidecar-5c5bb7478c-7r7np
+kubectl get events
+
+
+kubectl exec -it postgres-b-848c677fd8-vp4db -n postgres-b -c postgres -- psql -U admin -d appdb -c "SELECT * FROM log"
+
+
+docker-ghcr:
+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
+
+
+# GHCR.io
+echo $GH_PAT | docker login ghcr.io -u perpetua1g0d --password-stdin
+
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
+
