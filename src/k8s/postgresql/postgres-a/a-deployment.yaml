@@ -20,12 +20,16 @@ spec:
         - name: postgres
           image: postgres:13-alpine
           env:
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
             - name: POSTGRES_PASSWORD
               value: "password"
             - name: POSTGRES_USER
               value: "admin"
             - name: POSTGRES_DB
               value: "appdb"
+            - name: POSTGRES_PORT
+              value: "5434"
           ports:
             - containerPort: 5434
           volumeMounts:
@@ -34,13 +38,16 @@ spec:
             - name: config
               mountPath: /etc/postgresql/postgresql.conf
               subPath: postgresql.conf
+            - name: init-script
+              subPath: init.sql
+              mountPath: /docker-entrypoint-initdb.d/init.sql
           resources:
             limits:
               memory: "256Mi"
               cpu: "250m"
 
         - name: sidecar
-          image: ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest # todo: postgres-sidecar
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest # todo: postgres-sidecar
           env:
             - name: SERVICE_NAME
               value: "postgres-a"
@@ -71,3 +78,6 @@ spec:
         - name: config
           configMap:
             name: postgresql-config
+        - name: init-script
+          configMap:
+            name: postgres-init-script

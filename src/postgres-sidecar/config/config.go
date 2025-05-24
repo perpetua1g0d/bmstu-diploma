@@ -35,11 +35,11 @@ func GetConfig() *Config {
 			ServiceEndpoint:  getEnv("SERVICE_ENDPOINT", "/query"),
 			AuthEnabled:      getEnv("AUTH_ENABLED", "false") == "true",
 			JWTSecret:        getEnv("JWT_SECRET", "default-secret-256-bit"),
-			PostgresHost:     getEnv("PG_HOST", "localhost"),
+			PostgresHost:     getEnv("PG_HOST", "not_found_env_db_host"),
 			PostgresPort:     getEnv("PG_PORT", "5432"),
-			PostgresUser:     getEnv("PG_USER", "postgres"),
-			PostgresPassword: getEnv("PG_PASSWORD", ""),
-			PostgresDB:       getEnv("PG_DBNAME", "postgres"),
+			PostgresUser:     getEnv("POSTGRES_USER", "not_found_env_db_user"),
+			PostgresPassword: getEnv("POSTGRES_PASSWORD", ""),
+			PostgresDB:       getEnv("POSTGRES_DB", "not_found_postgres_db"),
 		}
 	})
 	return instance

@@ -20,12 +20,16 @@ spec:
         - name: postgres
           image: postgres:13-alpine
           env:
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums" # --config-file=/etc/postgresql/postgresql.conf
             - name: POSTGRES_PASSWORD
               value: "password"
             - name: POSTGRES_USER
               value: "admin"
             - name: POSTGRES_DB
               value: "appdb"
+            - name: POSTGRES_PORT
+              value: "5435"
           ports:
             - containerPort: 5435
           volumeMounts:
@@ -34,22 +38,25 @@ spec:
             - name: config
               mountPath: /etc/postgresql/postgresql.conf
               subPath: postgresql.conf
+            - name: init-script
+              subPath: init.sql
+              mountPath: /docker-entrypoint-initdb.d/init.sql
           resources:
             limits:
               memory: "256Mi"
               cpu: "250m"
 
         - name: sidecar
-          image: ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest # todo: postgres-sidecar
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest # todo: postgres-sidecar
           env:
             - name: SERVICE_NAME
               value: "postgres-b"
             - name: AUTH_ENABLED
               value: "false"
             - name: INIT_TARGET_SERVICE
-              value: "postgres-b"
+              value: "postgres-a"
             - name: INIT_SQL_QUERY
-              value: "INSERT INTO log (message) VALUES ('Init from A')"
+              value: "INSERT INTO log (message) VALUES ('Init from B')"
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -71,3 +78,10 @@ spec:
         - name: config
           configMap:
             name: postgresql-config
+        - name: init-script
+          configMap:
+            name: postgres-init-script
+            items:
+              - key: init.sql
+                path: init.sql
+                mode: 0644

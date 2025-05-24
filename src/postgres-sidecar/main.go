@@ -22,8 +22,10 @@ func main() {
 	// Автоматический начальный запрос
 	if cfg.InitTarget != "" && cfg.InitQuery != "" {
 		go func() {
-			time.Sleep(5 * time.Second)
-			sendInitialQuery(cfg)
+			for {
+				time.Sleep(5 * time.Second)
+				sendInitialQuery(cfg)
+			}
 		}()
 	}
 
@@ -36,19 +38,20 @@ func main() {
 func sendInitialQuery(cfg *config.Config) {
 	target := fmt.Sprintf("http://%s.%s.svc.cluster.local:8080%s",
 		cfg.InitTarget,
-		cfg.Namespace,
+		cfg.InitTarget,
 		cfg.ServiceEndpoint,
 	)
 
 	reqBody, _ := json.Marshal(map[string]interface{}{
-		"sql":    cfg.InitQuery,
-		"params": []interface{}{},
+		"sql":    `INSERT INTO log (message) VALUES ($1)`,
+		"params": []interface{}{fmt.Sprintf("Init from %s, ts: %s", cfg.Namespace, time.Now())},
 	})
 
 	req, _ := http.NewRequest("POST", target, bytes.NewBuffer(reqBody))
 	if cfg.AuthEnabled {
 		req.Header.Set("X-I2I-Token", os.Getenv("TOKEN_JWT"))
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)

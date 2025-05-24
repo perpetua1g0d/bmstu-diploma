@@ -13,7 +13,7 @@ k3d cluster create bmstucluster \
 
 # run sidecar code in sidecar containter:
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar # todo: postgresql-sidecar
-k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest -c bmstucluster --keep-tools
+k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest -c bmstucluster --keep-tools
 
 kubectl apply -f k8s/namespaces/
 # kubectl apply -k k8s/namespaces/

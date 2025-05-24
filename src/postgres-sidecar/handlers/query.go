@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -20,6 +21,8 @@ type QueryRequest struct {
 }
 
 func QueryHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Incoming request: %s %s", r.Method, r.URL)
+
 	cfg := config.GetConfig()
 
 	// Динамическая проверка авторизации

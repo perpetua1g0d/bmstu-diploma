@@ -6,6 +6,7 @@ metadata:
 data:
   auth-enabled: "false"
   postgresql.conf: |
+    port = 5435
     shared_buffers = 128MB
     work_mem = 4MB
     maintenance_work_mem = 32MB

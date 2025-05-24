@@ -19,7 +19,7 @@ spec:
           ports:
             - containerPort: 6379
         - name: sidecar
-          image: ghcr.io/perpetua1g0d/bmstu-diploma/sidecar:latest
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/redis-sidecar:latest
           env:
             - name: SERVICE_TYPE
               value: "redis"
