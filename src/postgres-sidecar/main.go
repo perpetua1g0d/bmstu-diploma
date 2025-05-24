@@ -89,6 +89,7 @@ func getPublicKeyForJWT() (*rsa.PublicKey, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error reading token: %w", err)
 	}
+	// log.Printf("token: %s", string(token))
 
 	req, _ := http.NewRequest("GET", "https://kubernetes.default.svc/openid/v1/jwks", nil)
 	req.Header.Add("Authorization", "Bearer "+string(token))
@@ -111,6 +112,7 @@ func getPublicKeyForJWT() (*rsa.PublicKey, error) {
 
 	// Берем первый ключ (можно добавить поиск по kid)
 	key := jwks.Keys[0]
+	// log.Printf("key: %v", key)
 
 	nBytes, err := base64.RawURLEncoding.DecodeString(key.N)
 	if err != nil {
