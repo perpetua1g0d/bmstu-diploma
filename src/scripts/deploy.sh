@@ -9,7 +9,9 @@ k3d cluster create bmstucluster \
   --k3s-arg "--kubelet-arg=image-gc-high-threshold=90@server:*" \
   --k3s-arg "--kubelet-arg=image-gc-low-threshold=80@server:*" \
   --k3s-arg "--kubelet-arg=fail-swap-on=false@server:*" \
-  --kubeconfig-update-default
+  --kubeconfig-update-default \
+  --k3s-arg "--kube-apiserver-arg=service-account-jwks-uri=https://kubernetes.default.svc/openid/v1/jwks@server:*" \
+  --k3s-arg "--kube-apiserver-arg=service-account-issuer=https://kubernetes.default.svc@server:*"
 
 # run sidecar code in sidecar containter:
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
