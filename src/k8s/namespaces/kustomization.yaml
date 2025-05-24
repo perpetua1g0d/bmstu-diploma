@@ -1,0 +1,13 @@
+# apiVersion: kustomize.config.k8s.io/v1beta1
+# kind: Kustomization
+
+# secretGenerator:
+#   - name: ghcr-secret
+#     type: kubernetes.io/dockerconfigjson
+#     literals:
+#       - .dockerconfigjson={"auths":{"ghcr.io":{"username":"perpetua1g0d","password":"$GHCR_PAT"}}}
+
+# resources:
+#   - talos
+#   - postgres-a
+#   - postgres-b

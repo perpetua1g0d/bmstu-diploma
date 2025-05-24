@@ -1,17 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgresql
-  namespace: postgresql
+  name: postgres-a
+  namespace: postgres-a
 spec:
   selector:
-    app: postgresql
+    app: postgres-a
   ports:
-    - name: postgresql
-      protocol: TCP
+    - name: postgres
       port: 5434
       targetPort: 5434
     - name: sidecar
-      protocol: TCP
       port: 8080
       targetPort: 8080

@@ -6,19 +6,24 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: postgresql
+  name: postgres-a
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: kafka
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: redis
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: admin-panel
+  name: postgres-b
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: kafka
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: redis
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: admin-panel
