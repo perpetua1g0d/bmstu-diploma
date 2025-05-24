@@ -3,9 +3,10 @@ package main
 import (
 	"log"
 	"net/http"
-	"talos/handlers"
-	"talos/pkg/config"
-	"talos/pkg/jwks"
+
+	"github.com/perpetua1g0d/bmstu-diploma/talos/handlers"
+	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
 )
 
 func main() {

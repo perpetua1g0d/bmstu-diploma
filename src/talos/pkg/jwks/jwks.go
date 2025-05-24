@@ -3,8 +3,8 @@ package jwks
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
+	"encoding/base64"
+	"math/big"
 )
 
 type KeyPair struct {
@@ -20,11 +20,17 @@ func GenerateKeyPair() *KeyPair {
 	}
 }
 
-func (k *KeyPair) PublicPEM() string {
-	pubASN1 := x509.MarshalPKCS1PublicKey(k.PublicKey)
-	pubBytes := pem.EncodeToMemory(&pem.Block{
-		Type:  "RSA PUBLIC KEY",
-		Bytes: pubASN1,
-	})
-	return string(pubBytes)
+func (k *KeyPair) JWKSPublicKey() map[string]interface{} {
+	return map[string]interface{}{
+		"kty": "RSA",
+		"alg": "RS256",
+		"n":   base64.RawURLEncoding.EncodeToString(k.PublicKey.N.Bytes()),
+		"e":   base64.RawURLEncoding.EncodeToString(big.NewInt(int64(k.PublicKey.E)).Bytes()),
+		"kid": "talos-key-1",
+	}
+}
+
+func GenerateJWT(keys *KeyPair, claims map[string]interface{}) string {
+	// Реализация подписи JWT
+	return "signed-jwt-token"
 }
