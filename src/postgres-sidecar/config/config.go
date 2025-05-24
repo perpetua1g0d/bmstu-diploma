@@ -1,0 +1,53 @@
+package config
+
+import (
+	"os"
+	"sync"
+)
+
+type Config struct {
+	ServiceName      string
+	Namespace        string
+	InitTarget       string
+	InitQuery        string
+	ServiceEndpoint  string
+	AuthEnabled      bool
+	JWTSecret        string
+	PostgresHost     string
+	PostgresPort     string
+	PostgresUser     string
+	PostgresPassword string
+	PostgresDB       string
+}
+
+var (
+	instance *Config
+	once     sync.Once
+)
+
+func GetConfig() *Config {
+	once.Do(func() {
+		instance = &Config{
+			ServiceName:      getEnv("SERVICE_NAME", "postgres"),
+			Namespace:        getEnv("POD_NAMESPACE", "default"),
+			InitTarget:       os.Getenv("INIT_TARGET_SERVICE"),
+			InitQuery:        os.Getenv("INIT_SQL_QUERY"),
+			ServiceEndpoint:  getEnv("SERVICE_ENDPOINT", "/query"),
+			AuthEnabled:      getEnv("AUTH_ENABLED", "false") == "true",
+			JWTSecret:        getEnv("JWT_SECRET", "default-secret-256-bit"),
+			PostgresHost:     getEnv("PG_HOST", "localhost"),
+			PostgresPort:     getEnv("PG_PORT", "5432"),
+			PostgresUser:     getEnv("PG_USER", "postgres"),
+			PostgresPassword: getEnv("PG_PASSWORD", ""),
+			PostgresDB:       getEnv("PG_DBNAME", "postgres"),
+		}
+	})
+	return instance
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
