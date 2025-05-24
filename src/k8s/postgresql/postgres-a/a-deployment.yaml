@@ -41,13 +41,30 @@ spec:
             - name: init-script
               subPath: init.sql
               mountPath: /docker-entrypoint-initdb.d/init.sql
+            - name: shared-env
+              mountPath: /etc/postgres-env
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - |
+                    echo $POSTGRES_USER > /etc/postgres-env/POSTGRES_USER
+                    echo $POSTGRES_PASSWORD > /etc/postgres-env/POSTGRES_PASSWORD
+                    echo $POSTGRES_DB > /etc/postgres-env/POSTGRES_DB
+                    echo $POSTGRES_HOST > /etc/postgres-env/POSTGRES_HOST
+                    echo $POSTGRES_PORT > /etc/postgres-env/POSTGRES_PORT
           resources:
             limits:
               memory: "256Mi"
               cpu: "250m"
 
         - name: sidecar
-          image: ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest # todo: postgres-sidecar
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
+          volumeMounts:
+            - name: shared-env
+              mountPath: /etc/postgres-env
           env:
             - name: SERVICE_NAME
               value: "postgres-a"
@@ -57,14 +74,11 @@ spec:
               value: "postgres-b"
             - name: INIT_SQL_QUERY
               value: "INSERT INTO log (message) VALUES ('Init from A')"
+
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            # - name: POSTGRES_HOST
-            #   value: "localhost"
-            # - name: POSTGRES_PORT
-            #   value: "5434"
           ports:
             - containerPort: 8080
           resources:
@@ -81,3 +95,5 @@ spec:
         - name: init-script
           configMap:
             name: postgres-init-script
+        - name: shared-env
+          emptyDir: {}

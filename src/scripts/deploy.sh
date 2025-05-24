@@ -12,7 +12,8 @@ k3d cluster create bmstucluster \
   --kubeconfig-update-default
 
 # run sidecar code in sidecar containter:
-docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar # todo: postgresql-sidecar
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
 k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest -c bmstucluster --keep-tools
 
 kubectl apply -f k8s/namespaces/

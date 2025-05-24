@@ -16,8 +16,8 @@ import (
 )
 
 type QueryRequest struct {
-	SQL    string        `json:"sql"`
-	Params []interface{} `json:"params"`
+	SQL    string `json:"sql"`
+	Params []any  `json:"params"`
 }
 
 func QueryHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +69,7 @@ func QueryHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req QueryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondError(w, "invalid request", http.StatusBadRequest)
+		respondError(w, fmt.Sprintf("invalid request: %v", err), http.StatusBadRequest)
 		return
 	}
 
@@ -90,7 +90,15 @@ func QueryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func respondError(w http.ResponseWriter, message string, code int) {
+	if code != http.StatusOK {
+		log.Printf("request failed: status: %d, message %s", code, message)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{"error": message})
+	json.NewEncoder(w).Encode(RespErr{Error: message})
+}
+
+type RespErr struct {
+	Error string `json:"error"`
 }

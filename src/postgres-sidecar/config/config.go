@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"sync"
 )
@@ -35,13 +36,14 @@ func GetConfig() *Config {
 			ServiceEndpoint:  getEnv("SERVICE_ENDPOINT", "/query"),
 			AuthEnabled:      getEnv("AUTH_ENABLED", "false") == "true",
 			JWTSecret:        getEnv("JWT_SECRET", "default-secret-256-bit"),
-			PostgresHost:     getEnv("PG_HOST", "not_found_env_db_host"),
-			PostgresPort:     getEnv("PG_PORT", "5432"),
+			PostgresHost:     getEnv("POSTGRES_HOST", "not_found_env_db_host"),
+			PostgresPort:     getEnv("POSTGRES_PORT", "5432"),
 			PostgresUser:     getEnv("POSTGRES_USER", "not_found_env_db_user"),
 			PostgresPassword: getEnv("POSTGRES_PASSWORD", ""),
 			PostgresDB:       getEnv("POSTGRES_DB", "not_found_postgres_db"),
 		}
 	})
+	log.Printf("sidecar config: %v", instance)
 	return instance
 }
 

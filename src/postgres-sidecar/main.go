@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,7 +24,7 @@ func main() {
 	if cfg.InitTarget != "" && cfg.InitQuery != "" {
 		go func() {
 			for {
-				time.Sleep(5 * time.Second)
+				time.Sleep(15 * time.Second)
 				sendInitialQuery(cfg)
 			}
 		}()
@@ -55,13 +56,17 @@ func sendInitialQuery(cfg *config.Config) {
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
+
+	errMsg := handlers.RespErr{}
+	respBytes, _ := io.ReadAll(resp.Body)
+	_ = json.Unmarshal(respBytes, &errMsg)
 	if err != nil {
-		log.Printf("Initial query failed: %v", err)
+		log.Printf("Initial query failed: %v; errMsg: %s", err, errMsg.Error)
 		return
 	}
 	defer resp.Body.Close()
 
-	log.Printf("Initial query to %s status: %s", target, resp.Status)
+	log.Printf("Initial query to %s status: %s; errMsg: %s", target, resp.Status, errMsg.Error)
 }
 
 // Функция для получения Kubernetes SA токена

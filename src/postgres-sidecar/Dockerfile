@@ -14,5 +14,10 @@ COPY --from=builder /app/config ./config
 COPY --from=builder /app/auth ./auth
 COPY --from=builder /app/handlers ./handlers
 
+COPY postgres-setup.sh /postgres-setup.sh
+RUN chmod +x /postgres-setup.sh
 EXPOSE 8080
-CMD ["./postgres-sidecar"]
+ENTRYPOINT ["/postgres-setup.sh"]
+
+# EXPOSE 8080
+# CMD ["./postgres-sidecar"]
