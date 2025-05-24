@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: talos
+  namespace: talos
+spec:
+  selector:
+    app: talos
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
