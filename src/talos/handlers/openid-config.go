@@ -13,7 +13,7 @@ func OpenIDConfigHandler(cfg *config.Config) http.HandlerFunc {
 			"issuer":                                cfg.Issuer,
 			"token_endpoint":                        cfg.Issuer + "/protocol/openid-connect/token",
 			"jwks_uri":                              cfg.Issuer + "/protocol/openid-connect/certs",
-			"grant_types_supported":                 []string{"urn:ietf:params:oauth:grant-type:token-exchange"},
+			"grant_types_supported":                 []string{grantTypeTokenExchange},
 			"id_token_signing_alg_values_supported": []string{"RS256"},
 		}
 

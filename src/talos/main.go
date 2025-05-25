@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -10,11 +11,18 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	cfg := config.Load()
 	keyPair := jwks.GenerateKeyPair()
 
+	tokenHandler, err := handlers.NewTokenHandler(ctx, cfg, keyPair)
+	if err != nil {
+		log.Fatalf("Failed to create token handler: %v", err)
+	}
+
 	http.HandleFunc("/realms/infra2infra/.well-known/openid-configuration", handlers.OpenIDConfigHandler(cfg))
-	http.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", handlers.TokenHandler(cfg, keyPair))
+	http.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", tokenHandler)
 	http.HandleFunc("/realms/infra2infra/protocol/openid-connect/certs", handlers.CertsHandler(keyPair))
 
 	log.Printf("Talos OIDC server started on %s", cfg.Address)

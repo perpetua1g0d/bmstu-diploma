@@ -1,11 +1,20 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
 	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
+	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/k8s"
+)
+
+const (
+	grantTypeTokenExchange = "urn:ietf:params:oauth:grant-type:token-exchange" // RFC 8693
+	k8sTokenType           = "urn:ietf:params:oauth:token-type:jwt:kubernetes"
 )
 
 type TokenRequest struct {
@@ -15,38 +24,60 @@ type TokenRequest struct {
 	Scope            string `form:"scope"`
 }
 
-func TokenHandler(cfg *config.Config, keys *jwks.KeyPair) http.HandlerFunc {
-	rolesDB := map[string]map[string][]string{
-		"postgres-a": {
-			"postgres-b": {"RW"},
-		},
-		"postgres-b": {
-			"postgres-a": {"RO"},
-		},
+func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair) (http.HandlerFunc, error) {
+	issuer, err := NewIssuer(cfg, keys)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create issued: %w", err)
+	}
+
+	k8sVerifier, err := k8s.NewVerifier(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create k8s verifier: %w", err)
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Псевдокод для примера
-		namespace := "postgres-a" // Должно извлекаться из k8s токена
-		targetScope := r.FormValue("scope")
+		if err := r.ParseForm(); err != nil {
+			log.Printf("failed to parse form request params: %v", err)
+			http.Error(w, `{"error":"invalid_request"}`, http.StatusBadRequest)
+			return
+		}
 
-		// Проверка прав
-		if allowedRoles, ok := rolesDB[namespace][targetScope]; !ok {
+		req := TokenRequest{
+			GrantType:        r.FormValue("grant_type"),
+			SubjectTokenType: r.FormValue("subject_token_type"),
+			SubjectToken:     r.FormValue("subject_token"),
+			Scope:            r.FormValue("scope"),
+		}
+
+		if req.GrantType != grantTypeTokenExchange {
+			log.Printf("unexpected grant_type: %s", req.GrantType)
+			http.Error(w, `{"error":"unsupported_grant_type"}`, http.StatusBadRequest)
+			return
+		} else if req.SubjectTokenType != k8sTokenType {
+			log.Printf("unexpected subject_token_type: %s", req.GrantType)
+			http.Error(w, `{"error":"unsupported_subject_token_type"}`, http.StatusBadRequest)
+			return
+		}
+
+		clientID, _, err := k8sVerifier.VerifyWithClient(req.SubjectToken)
+		if err != nil {
+			log.Printf("failed to verify k8s token: %v", err)
+			http.Error(w, `{"error":"token_not_verified"}`, http.StatusBadRequest)
+			return
+		}
+
+		token, err := issuer.IssueToken(clientID, req.Scope)
+		if err != nil {
+			log.Printf("failed to issue talos token: %v", err)
 			http.Error(w, `{"error":"access_denied"}`, http.StatusForbidden)
 			return
-		} else {
-			token := jwks.GenerateJWT(keys, map[string]interface{}{
-				"iss":   cfg.Issuer,
-				"sub":   namespace,
-				"aud":   targetScope,
-				"roles": allowedRoles,
-			})
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]string{
-				"access_token": token,
-				"token_type":   "Bearer",
-			})
 		}
-	}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"access_token": token,
+			"token_type":   "Bearer",
+			"expires_in":   issuer.config.TokenTTL.String(),
+		})
+	}, nil
 }
