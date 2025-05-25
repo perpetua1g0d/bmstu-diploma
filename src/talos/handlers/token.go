@@ -42,6 +42,8 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 			return
 		}
 
+		log.Printf("Incoming request: Method=%s, URL=%s, Body=%s", r.Method, r.URL, r.Form)
+
 		req := TokenRequest{
 			GrantType:        r.FormValue("grant_type"),
 			SubjectTokenType: r.FormValue("subject_token_type"),
@@ -66,7 +68,7 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 			return
 		}
 
-		token, err := issuer.IssueToken(clientID, req.Scope)
+		issueResp, err := issuer.IssueToken(clientID, req.Scope)
 		if err != nil {
 			log.Printf("failed to issue talos token: %v", err)
 			http.Error(w, `{"error":"access_denied"}`, http.StatusForbidden)
@@ -74,10 +76,13 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"access_token": token,
-			"token_type":   "Bearer",
-			"expires_in":   issuer.config.TokenTTL.String(),
-		})
+		json.NewEncoder(w).Encode(issueResp)
+		// json.NewEncoder(w).Encode(map[string]string{
+		// 	"access_token": token,
+		// 	"token_type":   "Bearer",
+		// 	"expires_in":   issuer.config.TokenTTL.String(),
+		// })
+
+		log.Printf("token issued, clientID: %s, scope: %s", clientID, req.Scope)
 	}, nil
 }
