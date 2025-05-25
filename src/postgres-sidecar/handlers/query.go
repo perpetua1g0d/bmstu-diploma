@@ -42,7 +42,10 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 			if verifyErr := authClient.VerifyToken(token, []string{requiredRole}); verifyErr != nil {
 				log.Printf("failed to verify token: %v", verifyErr)
 				respondError(w, "forbidden: token has no required roles", http.StatusUnauthorized)
+				return
 			}
+
+			log.Printf("successfully verified incoming token")
 		}
 
 		db, err := sql.Open("postgres", fmt.Sprintf(
