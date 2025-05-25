@@ -9,6 +9,7 @@ API - центральная точка кубера, является REST
 
 кубер - не совсем оркестратор, он полноценная кластерная-операционная система (lect2, 36:00)
 
+OAuth Token Exchange (RFC 8693)
 
 kube spray [installer]?
 
@@ -74,3 +75,7 @@ containers: resources (requests, limits: cpu, memory)
 Позволит детально продемонстрировать логику авторизации
 
 Будет работать на слабом железе
+
+
+kubectl get --raw /openid/v1/jwks
+{"keys":[{"use":"sig","kty":"RSA","kid":"ScTeo5TofAdww284ofdrtbzLdsT___4pNhp7uOQcYB8","alg":"RS256","n":"xo-9nsCMRWG9opN3Z75SW9M1AbqW8P1G5hwfUNo7LTSTyPC6GpwvLJGB-SVsNZqBy_kVZS-1lPLZp_l2_36ekpmP_MuW3iue6eIXjdQoYBo7oZSk2pdI0svAEG2eqSW2jp5o-a9B5U0L2E0AHWlUiylrv0p_Lj6r0-dBGIaKCItQcafnIbDp4vZ4k2Q2FYHqf6IyCN-_Hb9hwt1uMPGkahnMq5tMWZfAv_HxwIzyXFm3lxzsAru_UHFYpCilskR8viopCU4M2cedP4fyAvq56OlVtOs1yxNC4W9fHfEeklZqB6lhOGU4KpEy1Y467qHwc5izzjkJtFQxfPyWVzihkQ","e":"AQAB"}]}

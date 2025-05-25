@@ -1,0 +1,34 @@
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImcxSm9WYTdZcTN4YnFld0ZqR0tKTjAwTDJicjd3eU8yZ25wYnhNU1R0TmsifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiLCJrM3MiXSwiZXhwIjoxNzc5NjM4NDUwLCJpYXQiOjE3NDgxMDI0NTAsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiNzYwZDA5M2QtYzI2YS00NTNjLTg1OTYtZDU3MTQzMzA1OTIxIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJwb3N0Z3Jlcy1hIiwibm9kZSI6eyJuYW1lIjoiazNkLWJtc3R1Y2x1c3Rlci1zZXJ2ZXItMCIsInVpZCI6IjdjNjQ1NDMzLWQxYTMtNGZhNC04ZmI2LWI3ZTI3ZmI4OGVlZCJ9LCJwb2QiOnsibmFtZSI6InBvc3RncmVzLWEtNjc5NGZjYjVmNy1iZmp3cSIsInVpZCI6IjY1NDBlMTM5LWNjNGUtNDgxMC1hNjNiLTRlMWQ3ODc1MjhmMCJ9LCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiZGVmYXVsdCIsInVpZCI6ImEwYWIwZTRmLWQzZWYtNGFkOC04ODQ1LTgyMWJhZTMyZTJlZCJ9LCJ3YXJuYWZ0ZXIiOjE3NDgxMDYwNTd9LCJuYmYiOjE3NDgxMDI0NTAsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpwb3N0Z3Jlcy1hOmRlZmF1bHQifQ.TKOX3WQJAeYR3f3OohF7adtSyYft6Us7C5csichRxFdOOBMSH4V5DlvWh6cDD45ggyQOrQ1-1LKR0b19lZJ5Qyebhr_k_BK56hDrRArKs2OufNERQN0k-FWlbu0k6xCcVW0HAqSedN8wS2WhgcZwcsRUZ8meGZJn1KLrB2kYHvhhFb_fL9hhCDY8jc1Myxv25MGD8jsdqDJqy1_wGbFTpBpFSdLNS1RUZT-FFLqFGqpT-TU4mGVpBiX6fJ9Fuf4axhGxfrMiS1X4ib7Oy8pW6vGdGepRPE9gWfBOL9Y5-UYzW8qQrstf6E7uPXsf03Z36aF4i1CTtVrUuEWVY_4cbw
+
+{
+  "alg": "RS256",
+  "kid": "g1JoVa7Yq3xbqewFjGKJN00L2br7wyO2gnpbxMSTtNk"
+}
+{
+  "aud": [
+    "https://kubernetes.default.svc.cluster.local",
+    "k3s"
+  ],
+  "exp": 1779638450,
+  "iat": 1748102450,
+  "iss": "https://kubernetes.default.svc.cluster.local",
+  "jti": "760d093d-c26a-453c-8596-d57143305921",
+  "kubernetes.io": {
+    "namespace": "postgres-a",
+    "node": {
+      "name": "k3d-bmstucluster-server-0",
+      "uid": "7c645433-d1a3-4fa4-8fb6-b7e27fb88eed"
+    },
+    "pod": {
+      "name": "postgres-a-6794fcb5f7-bfjwq",
+      "uid": "6540e139-cc4e-4810-a63b-4e1d787528f0"
+    },
+    "serviceaccount": {
+      "name": "default",
+      "uid": "a0ab0e4f-d3ef-4ad8-8845-821bae32e2ed"
+    },
+    "warnafter": 1748106057
+  },
+  "nbf": 1748102450,
+  "sub": "system:serviceaccount:postgres-a:default"
+}
