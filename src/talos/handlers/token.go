@@ -18,7 +18,10 @@ type TokenRequest struct {
 func TokenHandler(cfg *config.Config, keys *jwks.KeyPair) http.HandlerFunc {
 	rolesDB := map[string]map[string][]string{
 		"postgres-a": {
-			"postgres-b": {"read", "write"},
+			"postgres-b": {"RW"},
+		},
+		"postgres-b": {
+			"postgres-a": {"RO"},
 		},
 	}
 

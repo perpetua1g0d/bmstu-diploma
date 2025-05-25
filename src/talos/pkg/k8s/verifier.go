@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	// "github.com/golang-jwt/jwt/v5"
 	"github.com/golang-jwt/jwt/v5"
-	// "github.com/go-jose/go-jose/v3/jwt"
 )
 
 type Verifier struct {
@@ -38,10 +36,6 @@ func (v *Verifier) VerifyWithClient(k8sToken string) (string, jwt.Claims, error)
 		return "", nil, fmt.Errorf("parsing jwt: %v", err)
 	}
 
-	// claims, ok := token.Claims.(privateClaims)
-	// if !ok {
-	// 	return "", claims, fmt.Errorf("token cannot be converted to known one, which means it is invalid")
-	// } else
 	if !token.Valid {
 		return "", claims, fmt.Errorf("token cannot be converted to known one, which means it is invalid")
 	}
@@ -49,7 +43,6 @@ func (v *Verifier) VerifyWithClient(k8sToken string) (string, jwt.Claims, error)
 	podName := claims.Kubernetes.Pod.Name
 	namespace := claims.Kubernetes.Namespace
 
-	// Namespace is validated here to provide readable error instead of default invalid client error.
 	if podName == "" || namespace == "" {
 		return "", claims, fmt.Errorf("invalid k8s token claims (pod: %s, namespace: %s)", podName, namespace)
 	} else if !strings.HasPrefix(podName+"-", namespace) {
