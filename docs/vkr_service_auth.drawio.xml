@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.0.9" pages="3">
+  <diagram name="service_auth" id="54lsZpafb0ExBUTTxi75">
+    <mxGraphModel dx="1218" dy="832" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Zl3XHoA7NFCcO_3Ox7Tb-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sWibhx2PSDwDiNYnFAUT-1" target="Zl3XHoA7NFCcO_3Ox7Tb-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sWibhx2PSDwDiNYnFAUT-1" value="начало" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="292.5" y="110" width="145" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sWibhx2PSDwDiNYnFAUT-2" value="конец" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="281.25" y="610" width="167.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Zl3XHoA7NFCcO_3Ox7Tb-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zl3XHoA7NFCcO_3Ox7Tb-3" target="Zl3XHoA7NFCcO_3Ox7Tb-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zl3XHoA7NFCcO_3Ox7Tb-3" value="получить k8s токен из секретов пода по пути&lt;div&gt;/var/run/secrets/kubernetes.io/serviceaccount/token&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="220" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Zl3XHoA7NFCcO_3Ox7Tb-4" value="при успешном получении вставить в параметр исходящего запроса к другому сервису" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="480" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Zl3XHoA7NFCcO_3Ox7Tb-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Zl3XHoA7NFCcO_3Ox7Tb-5" target="Zl3XHoA7NFCcO_3Ox7Tb-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Zl3XHoA7NFCcO_3Ox7Tb-5" value="сформировать запрос к idP с k8s токеном в параметре" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="350" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Zl3XHoA7NFCcO_3Ox7Tb-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="Zl3XHoA7NFCcO_3Ox7Tb-4" target="sWibhx2PSDwDiNYnFAUT-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="pY7dpZU4o9uowNbvrJ9s" name="k8s_verify">
+    <mxGraphModel dx="1218" dy="832" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="35LIaQAZ5SoQzXWMKRYL-2" target="35LIaQAZ5SoQzXWMKRYL-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-2" value="начало" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="322.5" y="10" width="145" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-3" value="конец" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.terminator;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="311.25" y="720" width="167.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="35LIaQAZ5SoQzXWMKRYL-5" target="35LIaQAZ5SoQzXWMKRYL-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-5" value="получить k8s токен из секретов пода по пути&lt;div&gt;/var/run/secrets/kubernetes.io/serviceaccount/token&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="120" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="35LIaQAZ5SoQzXWMKRYL-10" target="35LIaQAZ5SoQzXWMKRYL-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-10" value="получить CA сертификат из секретов пода по пути&lt;div&gt;/var/run/secrets/kubernetes.io/serviceaccount/ca.crt&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="240" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="35LIaQAZ5SoQzXWMKRYL-11" target="35LIaQAZ5SoQzXWMKRYL-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-11" value="получить JWKs ключи, используя CA сертификат и k8s токен в качестве параметра запроса к https://kubernetes.default.svc/openid/v1/jwks" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="360" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="35LIaQAZ5SoQzXWMKRYL-12" target="35LIaQAZ5SoQzXWMKRYL-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-12" value="расшифровать клиентский k8s токен, используя JWKs ключи" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="480" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-13" value="проверить клеймы и соответствие namespace == clientID" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="600" width="310" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="35LIaQAZ5SoQzXWMKRYL-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="35LIaQAZ5SoQzXWMKRYL-13" target="35LIaQAZ5SoQzXWMKRYL-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="UXjdFsgDvAfH3RClTLo4" name="k8s_exchange">
+    <mxGraphModel dx="1218" dy="832" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
