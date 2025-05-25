@@ -1,0 +1,58 @@
+\documentclass{bmstu}
+
+\usepackage{pdfpages}
+\usepackage{tocloft}
+
+\setlength{\cftbeforetoctitleskip}{0pt}
+\renewcommand{\contentsname}{СОДЕРЖАНИЕ}
+\renewcommand{\cfttoctitlefont}{\hfill\normalsize\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill\mbox{}}
+\renewcommand{\cftsecindent}{0.5em}
+\renewcommand{\cftsubsecindent}{1em}
+\renewcommand{\cftsubsubsecindent}{0em}
+\renewcommand{\cftsecfont}{\normalsize}
+\renewcommand{\cftsubsecfont}{\normalsize}
+\renewcommand{\cftsubsubsecfont}{\normalsize}
+\setlength{\cftbeforetoctitleskip}{-20pt}
+
+%\addbibresource{inc/biblio/sources.bib}
+
+\begin{document}
+
+%\makethesistitle
+%    {Информатика и системы управления}
+%    {Программное обеспечение ЭВМ и информационные технологии}
+%    {Система авторизации инфраструктурных сервисов}
+%    {Васильев~А.~И./ИУ7-82Б}
+%    {Клорикьян~П.~В.}
+%    {}
+%    { }
+
+\setcounter{page}{5}
+
+%\setcounter{page}{3}
+
+%\pagebreak
+%\maketableofcontents
+
+\include{02-abbreviations}
+\include{03-introduction}
+\include{04-analysis}
+
+
+\include{06-implementation}
+\include{07-research}
+
+%\include{practice-intro}
+%\include{practice-tech}
+%\include{practice-research}
+%\include{practice-conclusion}
+
+{\centering {\center\printbibliography[title=СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ]}}
+\addcontentsline{toc}{chapter}{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}
+
+{\centering \chapter*{ПРИЛОЖЕНИЕ А}}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ А Презентация}
+\centering \textbf{Презентация}
+
+\end{document}
