@@ -1,7 +1,3 @@
-package tokens
-
-import "time"
-
 type Claims struct {
 	Exp      time.Time `json:"exp"`
 	Iat      time.Time `json:"iat"`

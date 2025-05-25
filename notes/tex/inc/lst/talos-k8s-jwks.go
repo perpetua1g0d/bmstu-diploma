@@ -1,18 +1,3 @@
-package k8s
-
-import (
-	"crypto/rsa"
-	"crypto/tls"
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"math/big"
-	"net/http"
-	"os"
-)
-
 type JWKS struct {
 	Keys []JWK `json:"keys"`
 }
@@ -27,7 +12,8 @@ type JWK struct {
 }
 
 func getPublicKey() (*rsa.PublicKey, error) {
-	caCert, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+	k8sCertPath := "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+	caCert, err := os.ReadFile(k8sCertPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading CA cert: %w", err)
 	}
@@ -43,7 +29,8 @@ func getPublicKey() (*rsa.PublicKey, error) {
 		},
 	}
 
-	token, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+	k8sTokenPath := "/var/run/secrets/kubernetes.io/serviceaccount/token"
+	token, err := os.ReadFile(k8sTokenPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading token: %w", err)
 	}

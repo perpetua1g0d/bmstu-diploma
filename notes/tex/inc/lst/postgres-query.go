@@ -1,21 +1,3 @@
-package handlers
-
-import (
-	"context"
-	"database/sql"
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-	"strings"
-	"time"
-
-	auth_client "github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/client"
-	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
-
-	_ "github.com/lib/pq"
-)
-
 type QueryRequest struct {
 	SQL    string `json:"sql"`
 	Params []any  `json:"params"`
@@ -35,7 +17,8 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 			}
 
 			requiredRole := "RO"
-			if !strings.Contains(strings.ToUpper(r.URL.Query().Get("sql")), "SELECT") {
+			sqlQuery := strings.ToUpper(r.URL.Query().Get("sql")
+			if !strings.Contains(sqlQuery), "SELECT") {
 				requiredRole = "RW"
 			}
 
@@ -81,18 +64,4 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 			"latency": time.Since(start).String(),
 		})
 	}
-}
-
-func respondError(w http.ResponseWriter, message string, code int) {
-	if code != http.StatusOK {
-		log.Printf("request failed: status: %d, message %s", code, message)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(RespErr{Error: message})
-}
-
-type RespErr struct {
-	Error string `json:"error"`
 }

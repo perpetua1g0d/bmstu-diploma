@@ -1,14 +1,3 @@
-package k8s
-
-import (
-	"context"
-	"crypto/rsa"
-	"fmt"
-	"strings"
-
-	"github.com/golang-jwt/jwt/v5"
-)
-
 type Verifier struct {
 	publicKey *rsa.PublicKey
 }

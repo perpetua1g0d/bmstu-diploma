@@ -1,24 +1,4 @@
-package tokens
-
-import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"time"
-
-	"github.com/go-jose/go-jose/v3"
-	"github.com/go-jose/go-jose/v3/jwt"
-	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/config"
-	"github.com/samber/lo"
-	// "github.com/perpetua1g0d/bmstu-diploma/talos/pkg/tokens"
-)
-
-const (
-	talosIssuer = "http://talos.talos.svc.cluster.local"
-)
+const talosIssuer = "http://talos.talos.svc.cluster.local"
 
 type tokenClaims struct {
 	Exp      time.Time `json:"exp"`
@@ -35,36 +15,6 @@ type Verifier struct {
 	cfg *config.Config
 
 	certs *jose.JSONWebKeySet
-}
-
-func NewVerifier(ctx context.Context, cfg *config.Config) (*Verifier, error) {
-	v := &Verifier{
-		cfg: cfg,
-	}
-
-	if cfg.VerifyEnabled {
-		certs, err := v.fetchJWKs(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get talos certificates: %w", err)
-		}
-		v.certs = certs
-	}
-
-	return v, nil
-}
-
-func (v *Verifier) VerifyToken(rawToken string, needRoles []string) error {
-	claims, err := verifyToken(rawToken, v.certs)
-	if err != nil {
-		return err
-	}
-
-	if err = v.verifyClaims(claims, needRoles); err != nil {
-		log.Printf("claims error, claims: %v", claims)
-		return fmt.Errorf("verify claims error: %w", err)
-	}
-
-	return nil
 }
 
 func (v *Verifier) verifyClaims(claims *tokenClaims, needRoles []string) error {

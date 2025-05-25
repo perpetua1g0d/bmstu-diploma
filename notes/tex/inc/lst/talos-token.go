@@ -1,17 +1,3 @@
-package handlers
-
-import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/k8s"
-)
-
 const (
 	grantTypeTokenExchange = "urn:ietf:params:oauth:grant-type:token-exchange" // RFC 8693
 	k8sTokenType           = "urn:ietf:params:oauth:token-type:jwt:kubernetes"

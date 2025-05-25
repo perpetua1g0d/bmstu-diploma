@@ -1,18 +1,11 @@
-package handlers
-
-import (
-	"encoding/json"
-	"net/http"
-
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
-)
-
 func OpenIDConfigHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		tokenEndpointPath := "/realms/infra2infra/protocol/openid-connect/token"
+		certsEndpointPath := "/realms/infra2infra/protocol/openid-connect/certs"
 		response := map[string]interface{}{
 			"issuer":                                cfg.Issuer,
-			"token_endpoint":                        cfg.Issuer + "/realms/infra2infra/protocol/openid-connect/token",
-			"jwks_uri":                              cfg.Issuer + "/realms/infra2infra/protocol/openid-connect/certs",
+			"token_endpoint":                        cfg.Issuer + tokenEndpointPath,
+			"jwks_uri":                              cfg.Issuer + certsEndpointPath,
 			"grant_types_supported":                 []string{grantTypeTokenExchange},
 			"id_token_signing_alg_values_supported": []string{"RS256"},
 		}

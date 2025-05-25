@@ -1,23 +1,3 @@
-package tokens
-
-import (
-	"context"
-	"fmt"
-	"log"
-	"math/rand"
-	"sync"
-	"sync/atomic"
-	"time"
-
-	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/config"
-)
-
-type TokenResp struct {
-	AccessToken string    `json:"access_token"`
-	Type        string    `json:"token_type"`
-	ExpiresIn   time.Time `json:"expires_in"`
-}
-
 type TokenSource struct {
 	cfg *config.Config
 
@@ -27,15 +7,6 @@ type TokenSource struct {
 
 	refreshCh chan struct{}
 	closeCh   chan struct{}
-}
-
-func (ts *TokenSource) Token() string {
-	token := ts.token.Load()
-	if token == nil {
-		return ""
-	}
-
-	return *token
 }
 
 type TokenSet struct {
@@ -104,7 +75,7 @@ func (ts *TokenSource) runScheduler(ctx context.Context) {
 		}
 
 		if !ts.cfg.SignEnabled {
-			resetTimer(planner, 1*time.Hour) // duration doesn't matter here, if sign is enabled, issuing is unpaused.
+			resetTimer(planner, 1*time.Hour)
 			continue
 		}
 

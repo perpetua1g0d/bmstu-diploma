@@ -1,21 +1,3 @@
-package jwks
-
-import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha1"
-	"crypto/sha256"
-	"crypto/x509"
-	"crypto/x509/pkix"
-	"encoding/base64"
-	"encoding/json"
-	"math/big"
-	"time"
-
-	"github.com/go-jose/go-jose/v3"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/tokens"
-)
-
 type KeyPair struct {
 	PrivateKey  *rsa.PrivateKey
 	Certificate *x509.Certificate
