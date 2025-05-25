@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/go-jose/go-jose/v3"
+	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/tokens"
 )
 
 type KeyPair struct {
@@ -71,7 +72,7 @@ func generateKeyID() string {
 	return base64.RawURLEncoding.EncodeToString(buf)
 }
 
-func GenerateJWT(signer jose.Signer, claims map[string]interface{}) (string, error) {
+func GenerateJWT(signer jose.Signer, claims tokens.Claims) (string, error) {
 	payload, err := json.Marshal(claims)
 	if err != nil {
 		return "", err

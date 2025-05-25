@@ -7,6 +7,7 @@ import (
 	"github.com/go-jose/go-jose/v3"
 	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
 	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
+	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/tokens"
 )
 
 type Issuer struct {
@@ -38,7 +39,7 @@ func NewIssuer(cfg *config.Config, keys *jwks.KeyPair) (*Issuer, error) {
 		keyPair: keys,
 		signer:  signer,
 		rolesDB: map[string]map[string][]string{
-			"postgres-a": {"postgres-b": {"RW"}},
+			"postgres-a": {"postgres-b": {"RO", "RW"}},
 			"postgres-b": {"postgres-a": {"RO"}},
 		},
 	}, nil
@@ -50,14 +51,15 @@ func (i *Issuer) IssueToken(clientID, scope string) (string, error) {
 		return "", fmt.Errorf("access denied for client %s to scope %s", clientID, scope)
 	}
 
-	tokenClaims := map[string]interface{}{
-		"iss":   i.config.Issuer,
-		"sub":   clientID,
-		"aud":   scope,
-		"scope": scope,
-		"roles": allowedRoles,
-		"exp":   time.Now().Add(i.config.TokenTTL).Unix(),
-		"iat":   time.Now().Unix(),
+	tokenClaims := tokens.Claims{
+		Iss:      i.config.Issuer,
+		Sub:      clientID,
+		ClientID: clientID,
+		Aud:      scope,
+		Scope:    scope,
+		Roles:    allowedRoles,
+		Exp:      time.Now().Add(i.config.TokenTTL),
+		Iat:      time.Now(),
 	}
 
 	return jwks.GenerateJWT(i.signer, tokenClaims)

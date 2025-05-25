@@ -25,7 +25,6 @@ func QueryHandler(w http.ResponseWriter, r *http.Request) {
 
 	cfg := config.GetConfig()
 
-	// Динамическая проверка авторизации
 	if cfg.AuthEnabled {
 		token := r.Header.Get("X-I2I-Token")
 		if token == "" {
@@ -73,7 +72,6 @@ func QueryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Выполнение запроса
 	start := time.Now()
 	rows, err := db.Query(req.SQL, req.Params...)
 	if err != nil {
@@ -82,7 +80,6 @@ func QueryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	// Формирование ответа
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":  "success",
 		"latency": time.Since(start).String(),

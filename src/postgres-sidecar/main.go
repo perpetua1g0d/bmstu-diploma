@@ -5,14 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/go-jose/go-jose/v3"
+	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/handlers"
 )
@@ -26,7 +29,7 @@ func main() {
 	if cfg.InitTarget != "" && cfg.InitQuery != "" {
 		go func() {
 			for {
-				tokenExchange()
+				// tokenExchange()
 				time.Sleep(5 * time.Second)
 				sendInitialQuery(cfg)
 				time.Sleep(5 * time.Second)
@@ -40,12 +43,50 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
+// func
+
 func tokenExchange() {
-	k8sToken := ""
+	k8sToken, err := getK8SToken()
+	if err != nil {
+		log.Fatalf("failed to get k8s token: %v", err)
+	}
+
 	certs, _ := getTalosCerts()
 	log.Printf("got talos certs: %v", certs)
 	token := getTalosToken(k8sToken)
 	log.Printf("got talos token: %s", token)
+
+	claims, err := verifyToken(token, certs)
+	if err != nil {
+		log.Fatalf("verify error: %v", err)
+	}
+
+	log.Printf("got claims: %v", claims)
+}
+
+func verifyToken(rawToken string, certs jose.JSONWebKeySet) (map[string]any, error) {
+	token, err := jwt.ParseSigned(rawToken)
+	if err != nil {
+		log.Printf("failed to parse token: %v", err)
+		return nil, fmt.Errorf("failed to parse token: %w", err)
+	}
+
+	var claims map[string]interface{}
+	for _, header := range token.Headers {
+		keys := certs.Key(header.KeyID)
+		if len(keys) == 0 {
+			continue
+		}
+
+		for _, key := range keys {
+			if err := token.Claims(key.Public(), &claims); err == nil {
+				return claims, nil
+			}
+		}
+	}
+
+	log.Printf("no certificate found to parse token. certs: %v, tokenHeaders: %v", certs, token.Headers)
+	return nil, fmt.Errorf("no certificate found to parse token")
 }
 
 func getTalosCerts() (jose.JSONWebKeySet, error) {
@@ -149,6 +190,16 @@ func sendInitialQuery(cfg *config.Config) {
 	log.Printf("Initial query to %s status: %s; errMsg: %s", target, resp.Status, errMsg.Error)
 }
 
+// Функция для получения Kubernetes SA токена
+func getK8SToken() (string, error) {
+	tokenPath := filepath.Join("/var/run/secrets/kubernetes.io/serviceaccount", "token")
+	token, err := ioutil.ReadFile(tokenPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read k8s token: %v", err)
+	}
+	return string(token), nil
+}
+
 func determineOperationType(r *http.Request) string {
 	// This is a simplified version - actual implementation would depend on the service
 	serviceType := os.Getenv("SERVICE_TYPE")
@@ -156,9 +207,9 @@ func determineOperationType(r *http.Request) string {
 	switch serviceType {
 	case "postgresql":
 		if r.Method == http.MethodGet || r.Method == http.MethodHead {
-			return "read"
+			return "RO"
 		}
-		return "write"
+		return "RW"
 	case "kafka":
 		// Kafka would have specific endpoints for produce/consume
 		if strings.Contains(r.URL.Path, "/produce") {

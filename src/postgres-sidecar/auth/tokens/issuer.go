@@ -40,7 +40,7 @@ func (i *Issuer) IssueToken(ctx context.Context, scope string) (*TokenResp, erro
 	v.Set("scope", scope)
 	body := v.Encode()
 
-	req, err := http.NewRequest(http.MethodPost, i.cfg.TokenEndpointAddress, strings.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, i.cfg.TokenEndpointAddress, strings.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create talos token request: %w", err)
 	}
