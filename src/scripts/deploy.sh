@@ -18,9 +18,9 @@ k3d cluster create bmstucluster \
 # This is useful for keeping the Docker tools and images associated with the cluster for later use.
 
 # talos
-# docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest ./talos
-# docker push ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest
-# k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest -c bmstucluster --keep-tools
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest ./talos
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest
+k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest -c bmstucluster --keep-tools
 
 # run sidecar code in sidecar containter:
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
@@ -44,7 +44,7 @@ for ns in "${namespaces[@]}"; do
   fi
 done
 
-# kubectl apply -f k8s/talos/
+kubectl apply -f k8s/talos/
 kubectl apply -f k8s/postgresql/postgres-a/
 kubectl apply -f k8s/postgresql/postgres-b/
 # kubectl apply -f k8s/kafka/

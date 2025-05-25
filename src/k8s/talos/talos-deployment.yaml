@@ -13,6 +13,9 @@ spec:
       labels:
         app: talos
     spec:
+      serviceAccountName: default
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: talos
           image: ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest
