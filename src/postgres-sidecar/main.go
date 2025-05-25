@@ -2,27 +2,24 @@ package main
 
 import (
 	"bytes"
-	"crypto/rsa"
-	"crypto/tls"
-	"crypto/x509"
-	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
-	"math/big"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/go-jose/go-jose/v3"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/handlers"
 )
+
+const talosAddress = "http://talos.talos.svc.cluster.local:80"
 
 func main() {
 	cfg := config.GetConfig()
@@ -31,13 +28,13 @@ func main() {
 	if cfg.InitTarget != "" && cfg.InitQuery != "" {
 		go func() {
 			for {
-				time.Sleep(15 * time.Second)
+				tokenExchange()
+				time.Sleep(5 * time.Second)
 				sendInitialQuery(cfg)
+				time.Sleep(5 * time.Second)
 			}
 		}()
 	}
-
-	parseServiceAccountToken()
 
 	// Настройка HTTP-сервера
 	http.HandleFunc(cfg.ServiceEndpoint, handlers.QueryHandler)
@@ -45,121 +42,84 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-// func getJWKs() {
-// 	ca1, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
-// 	if err != nil {
-// 		log.Fatalf("failed to read сa1: %v", err)
-// 	}
-// 	log.Printf("ca1 cert: %s", string(ca1))
-// }
+func tokenExchange() {
+	k8sToken, err := getK8SToken()
+	if err != nil {
+		log.Fatalf("failed to get k8s token: %v", err)
+	}
 
-type JWKS struct {
-	Keys []JWK `json:"keys"`
+	certs, _ := getTalosCerts()
+	log.Printf("got talos certs: %v", certs)
+	token := getTalosToken(k8sToken)
+	log.Printf("got talos token: %s", token)
 }
 
-type JWK struct {
-	Kty string `json:"kty"`
-	Kid string `json:"kid"`
-	Use string `json:"use"`
-	Alg string `json:"alg"`
-	N   string `json:"n"`
-	E   string `json:"e"`
-}
+func getTalosCerts() (jose.JSONWebKeySet, error) {
+	const talosCertEndpoint = talosAddress + "/realms/infra2infra/protocol/openid-connect/certs"
 
-func getPublicKeyForJWT() (*rsa.PublicKey, error) {
-	// 1. Настройка TLS
-	caCert, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+	req, err := http.NewRequest(http.MethodGet, talosCertEndpoint, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error reading CA cert: %w", err)
+		log.Fatalf("failed to create talos certs request: %v", err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs: caCertPool,
-			},
-		},
-	}
-
-	// 2. Получение JWKS
-	token, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-	if err != nil {
-		return nil, fmt.Errorf("error reading token: %w", err)
-	}
-	// log.Printf("token: %s", string(token))
-
-	req, _ := http.NewRequest("GET", "https://kubernetes.default.svc/openid/v1/jwks", nil)
-	req.Header.Add("Authorization", "Bearer "+string(token))
-
+	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
+
+	var respBytes []byte
+	if resp != nil && resp.Body != nil {
+		respBytes, _ = io.ReadAll(resp.Body)
+	}
 	if err != nil {
-		return nil, fmt.Errorf("JWKS request failed: %w", err)
+		log.Fatalf("failed to get talos certs: %v; respBody: %s", err, string(respBytes))
 	}
 	defer resp.Body.Close()
 
-	var jwks JWKS
-	if err := json.NewDecoder(resp.Body).Decode(&jwks); err != nil {
-		return nil, fmt.Errorf("JWKS parse error: %w", err)
+	var jwks jose.JSONWebKeySet
+	if marshalErr := json.Unmarshal(respBytes, &jwks); marshalErr != nil {
+		log.Fatalf("failed to unmarshal certs: %v; body: %s", marshalErr, string(respBytes))
 	}
 
-	// 3. Конвертация JWK в RSA ключ
-	if len(jwks.Keys) == 0 {
-		return nil, errors.New("no keys in JWKS")
-	}
-
-	// Берем первый ключ (можно добавить поиск по kid)
-	key := jwks.Keys[0]
-	// log.Printf("key: %v", key)
-
-	nBytes, err := base64.RawURLEncoding.DecodeString(key.N)
-	if err != nil {
-		return nil, fmt.Errorf("invalid modulus: %w", err)
-	}
-
-	eBytes, err := base64.RawURLEncoding.DecodeString(key.E)
-	if err != nil {
-		return nil, fmt.Errorf("invalid exponent: %w", err)
-	}
-
-	return &rsa.PublicKey{
-		N: new(big.Int).SetBytes(nBytes),
-		E: int(new(big.Int).SetBytes(eBytes).Int64()),
-	}, nil
+	return jwks, nil
 }
 
-func parseServiceAccountToken() {
-	tokenBytes, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
-	if err != nil {
-		log.Fatalf("failed to read token: %v", err)
-	}
-	log.Printf("token string: %s", string(tokenBytes))
+func getTalosToken(k8sToken string) string {
+	const talosTokenEndpoint = talosAddress + "/realms/infra2infra/protocol/openid-connect/token"
 
-	publicKey, err := getPublicKeyForJWT()
+	v := url.Values{}
+	v.Set("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange")
+	v.Set("subject_token_type", "urn:ietf:params:oauth:token-type:jwt:kubernetes")
+	v.Set("subject_token", k8sToken)
+	v.Set("scope", os.Getenv("INIT_TARGET_SERVICE"))
+	body := v.Encode()
+
+	req, err := http.NewRequest(http.MethodPost, talosTokenEndpoint, strings.NewReader(body))
 	if err != nil {
-		panic(fmt.Sprintf("Error getting public key: %v", err))
+		log.Fatalf("failed to create talos token request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Do(req)
+
+	var respBytes []byte
+	if resp != nil && resp.Body != nil {
+		respBytes, _ = io.ReadAll(resp.Body)
+	}
+	if err != nil {
+		log.Fatalf("failed to get talos token: %v; respBody: %s", err, string(respBytes))
+	}
+	defer resp.Body.Close()
+
+	var tokenResp map[string]string
+	if marshalErr := json.Unmarshal(respBytes, &tokenResp); marshalErr != nil {
+		log.Fatalf("failed to unmarshal token: %v; body: %s", marshalErr, string(respBytes))
 	}
 
-	token, err := jwt.Parse(string(tokenBytes), func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected method: %v", token.Header["alg"])
-		}
-		return publicKey, nil
-	})
-	if err != nil {
-		log.Fatalf("parsing jwt: %v", err)
-	}
+	token := tokenResp["access_token"]
+	log.Printf("Talos response token exp_in: %s", tokenResp["expires_in"])
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println("Valid token claims:")
-		for k, v := range claims {
-			fmt.Printf("%s: %v\n", k, v)
-		}
-	} else {
-		panic("Invalid token (!token.Valid)")
-	}
+	return token
 }
 
 func sendInitialQuery(cfg *config.Config) {
