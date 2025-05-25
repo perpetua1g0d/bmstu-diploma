@@ -82,6 +82,6 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 			"expires_in":   issuer.config.TokenTTL.String(),
 		})
 
-		log.Printf("token issued, clientID: %s, scope: %s, token: %s")
+		log.Printf("token issued, clientID: %s, scope: %s", clientID, req.Scope)
 	}, nil
 }

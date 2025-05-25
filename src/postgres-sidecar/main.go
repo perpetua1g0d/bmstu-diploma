@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -43,11 +41,7 @@ func main() {
 }
 
 func tokenExchange() {
-	k8sToken, err := getK8SToken()
-	if err != nil {
-		log.Fatalf("failed to get k8s token: %v", err)
-	}
-
+	k8sToken := ""
 	certs, _ := getTalosCerts()
 	log.Printf("got talos certs: %v", certs)
 	token := getTalosToken(k8sToken)
@@ -153,16 +147,6 @@ func sendInitialQuery(cfg *config.Config) {
 	defer resp.Body.Close()
 
 	log.Printf("Initial query to %s status: %s; errMsg: %s", target, resp.Status, errMsg.Error)
-}
-
-// Функция для получения Kubernetes SA токена
-func getK8SToken() (string, error) {
-	tokenPath := filepath.Join("/var/run/secrets/kubernetes.io/serviceaccount", "token")
-	token, err := ioutil.ReadFile(tokenPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to read k8s token: %v", err)
-	}
-	return string(token), nil
 }
 
 func determineOperationType(r *http.Request) string {
