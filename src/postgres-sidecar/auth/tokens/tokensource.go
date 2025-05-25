@@ -60,6 +60,20 @@ func NewTokenSet(ctx context.Context, cfg *config.Config, scopes []string) (*Tok
 	return set, nil
 }
 
+func (t *TokenSet) Token(scope string) (string, error) {
+	ts, ok := t.set[scope]
+	if !ok {
+		return "", fmt.Errorf("no tokensource for provided scope: %s", scope)
+	}
+
+	token := ts.Token()
+	if token == "" {
+		return "", fmt.Errorf("token is empty for provided scope: %s, check logs", scope)
+	}
+
+	return token, nil
+}
+
 func NewTokenSource(ctx context.Context, cfg *config.Config, scope string) (*TokenSource, error) {
 	issuer := NewIssuer(cfg)
 
