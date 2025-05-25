@@ -14,6 +14,7 @@ type Config struct {
 	ServiceEndpoint   string
 	SignAuthEnabled   bool
 	VerifyAuthEnabled bool
+	RunBenchmarks     bool
 	JWTSecret         string
 	PostgresHost      string
 	PostgresPort      string
@@ -37,6 +38,7 @@ func GetConfig() *Config {
 			ServiceEndpoint:   getEnv("SERVICE_ENDPOINT", "/query"),
 			SignAuthEnabled:   getEnv("SIGN_AUTH_ENABLED", "false") == "true",
 			VerifyAuthEnabled: getEnv("VERIFY_AUTH_ENABLED", "false") == "true",
+			RunBenchmarks:     getEnv("RUN_BENCHMARKS_ON_INIT", "false") == "true",
 			JWTSecret:         getEnv("JWT_SECRET", "default-secret-256-bit"),
 			PostgresHost:      getEnv("POSTGRES_HOST", "not_found_env_db_host"),
 			PostgresPort:      getEnv("POSTGRES_PORT", "5432"),

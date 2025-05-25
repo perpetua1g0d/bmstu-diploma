@@ -69,9 +69,9 @@ spec:
             - name: SERVICE_NAME
               value: "postgres-b"
             - name: SIGN_AUTH_ENABLED
-              value: "true"
+              value: "false"
             - name: VERIFY_AUTH_ENABLED
-              value: "true"
+              value: "false"
             - name: INIT_TARGET_SERVICE
               value: "postgres-a"
             - name: INIT_SQL_QUERY
@@ -89,8 +89,8 @@ spec:
             - containerPort: 8080
           resources:
             limits:
-              memory: "128Mi"
-              cpu: "100m"
+              memory: "1G"
+              cpu: "1"
 
       volumes:
         - name: postgresql-data
