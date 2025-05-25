@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: talos
+  namespace: talos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: talos
+  template:
+    metadata:
+      labels:
+        app: talos
+    spec:
+      serviceAccountName: default
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: talos
+          image: 
+      ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "100m"

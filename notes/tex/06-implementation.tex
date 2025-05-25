@@ -1,0 +1,120 @@
+\chapter{Технологический раздел}
+
+Основные средства реализации:
+\begin{enumerate}
+\item k3d --- утилита для поднятия k8s кластера локально, использует docker, % https://k3d.io/stable/ 
+\item kubectl --- утилита для ручного просмотра логов и состояния k8s кластера,
+\item docker --- инструмент для контейнеризации приложений. Используется в реализации для создания sidecar контейнеров,
+\item ghcr.io --- используется для загрузки docker образов в k8s кластер,
+\item Golang --- язык программирования, в основном использующийся для написания приложений в микросервисной архитектуре. % todo: rewrite
+% todo: либы jwt/jose ?
+\end{enumerate}
+
+%\section{Структура реализованного проекта}
+% todo: диаграмма классов
+На рисунке~\ref{img:tree} приведена структура реализованного проекта.
+\includeimage
+    {tree}
+    {f}
+    {H}
+    {0.7\textwidth}
+    {Структура проекта}
+
+
+\section{Развертывание k8s кластера}
+В листинге~\ref{lst:deploy.sh} приведен скрипт развертывания k8s сервисов. 
+\includelisting
+	{deploy.sh}{Скрипт развертывания k8s кластера}
+
+В листингах~\ref{lst:a-deployment.yaml} и ~\ref{lst:talos-deployment.yaml} приведен пример  конфигурации сервиса вместе с сайдкаром в одном поде, а также конфигурация развертывания сервиса idP. 
+
+\includelisting
+	{a-deployment.yaml}{Конфигурация развертывания PostgreSQL сервиса с сайдкаром}
+
+\includelisting
+	{talos-deployment.yaml}{Конфигурация развертывания сервиса idP}
+
+\section{Реализация idP сервиса}
+
+idP сервис был реализован на языке программирования Golang и получил k8s кластере имя \textit{talos}.
+
+В листинге~\ref{lst:talos-tables.sql} приведена SQL схема infra2infra и таблица для хранения прав.
+
+\includelisting
+	{talos-tables.sql}{Схема и таблица для хранения прав}
+
+В листингах ~\ref{lst:talos-cert-jwks.go}--\ref{lst:talos-claims.go} приведен способ генерации сертификата, основанного на rsa ключе, а также структура клеймов токена.
+
+\includelisting
+	{talos-cert-jwks.go}{Генерация сертификата}
+
+\includelisting
+	{talos-claims.go}{Структура клеймов токена}
+
+В листингах ~\ref{lst:talos-cert-handler.go}--\ref{lst:talos-token.go} приведена реализация OIDC обработчиков HTTP запросов к сервису idP.
+Обработчики слушают HTTP запросы на получение сертификатов по следующим путям:
+\begin{enumerate}
+\item ~\textit{/realms/infra2infra/.well-known/openid-configuration} --- обработчик запросов на получение OIDC конфигурации,
+\item ~\textit{/realms/infra2infra/protocol/openid-connect/token} --- обработчик запросов на выпуск и получение токена idP,
+\item ~\textit{/realms/infra2infra/protocol/openid-connect/certs} --- обработчик запросов на получение сертификатов idP.
+\end{enumerate}
+
+\includelisting
+	{talos-cert-handler.go}{Реализация обработчика запросов на сертификаты}
+	
+\includelisting
+	{talos-openid-config.go}{Реализация обработчика запросов на OIDC конфигурацию}	
+
+\includelisting
+	{talos-token.go}{Реализация обработчика запросов на выпуск токена}
+
+В листингах ~\ref{lst:talos-k8s-jwks.go}--\ref{lst:talos-k8s-verifier.go} приведена реализация получения публичного k8s ключа сертификата проверки подписи k8s токена для последующего обмена на новый токен, который будет выпущен уже сервисом idP.
+
+\includelisting
+	{talos-k8s-jwks.go}{Получения публичного k8s ключа сертификата}
+
+\includelisting
+	{talos-k8s-verifier.go}{Проверка k8s токена}
+
+
+\section{Реализация клиента к idP}
+В листингах ~\ref{lst:auth-tokensource.go}--\ref{lst:auth-verifier.go} приведена реализация получения публичного сертификата idP и фонового получения токена для проверки токена входящего запроса.
+
+\includelisting
+	{auth-tokensource.go}{Фоновое получение idP токена}
+
+\includelisting
+	{auth-verifier.go}{Проверка idP токена}
+
+Пример использования клиента к idP для проверки токена из входящего HTTP запроса в инфраструктурном сервисе приведен на листинге~\ref{lst:postgres-query.go}
+
+\includelisting
+	{postgres-query.go}{Проверка токена входящего запроса}
+
+\section{Тестирование программного обеспечения}
+
+Для функционального тестирования были написаны unit-тесты.
+Пример unit теста, реализованного с использованием Arrange-Act-Assert паттерна, для проверки k8s токена приведен в листинге~\ref{lst:talos-verifier_test.go}.
+
+\includelisting
+	{talos-verifier_test.go}{Тест для проверки k8s токена}
+
+\section*{Вывод}
+В данном разделе были описаны средства реализации программного-алгоритмического комплекса, способы развертывания k8s кластера, в том числе сервисов с сайдкаром, приведена реализация idP сервиса, а также пример тестирования сервиса idP.
+
+%\includelisting
+%	{}{}
+%	
+%~\ref{img:}
+%
+% ~\cite{} 
+% source-title
+%
+% image w/o extension
+%\includeimage
+%    {}
+%    {f}
+%    {H}
+%    {1\textwidth}
+%    {}
+% last section is description
