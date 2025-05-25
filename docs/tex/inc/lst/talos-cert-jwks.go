@@ -34,18 +34,6 @@ func GenerateKeyPair() *KeyPair {
 	}
 }
 
-func (k *KeyPair) JWKS() jose.JSONWebKeySet {
-	jwk := jose.JSONWebKey{
-		Key:          k.PrivateKey.Public(),
-		Certificates: []*x509.Certificate{k.Certificate},
-		KeyID:        k.KeyID,
-		Algorithm:    "RS256",
-		Use:          "sig",
-	}
-
-	return jose.JSONWebKeySet{Keys: []jose.JSONWebKey{jwk}}
-}
-
 func generateKeyID() string {
 	const defaultLength = 24
 
