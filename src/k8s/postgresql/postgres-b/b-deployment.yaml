@@ -68,8 +68,10 @@ spec:
           env:
             - name: SERVICE_NAME
               value: "postgres-b"
-            - name: AUTH_ENABLED
-              value: "false"
+            - name: SIGN_AUTH_ENABLED
+              value: "true"
+            - name: VERIFY_AUTH_ENABLED
+              value: "true"
             - name: INIT_TARGET_SERVICE
               value: "postgres-a"
             - name: INIT_SQL_QUERY

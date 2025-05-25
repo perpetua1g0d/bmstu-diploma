@@ -13,9 +13,9 @@ import (
 )
 
 type TokenResp struct {
-	AccessToken string        `json:"access_token"`
-	Type        string        `json:"token_type"`
-	ExpiresIn   time.Duration `json:"expires_in"`
+	AccessToken string    `json:"access_token"`
+	Type        string    `json:"token_type"`
+	ExpiresIn   time.Time `json:"expires_in"`
 }
 
 type TokenSource struct {
@@ -119,7 +119,7 @@ func (ts *TokenSource) runScheduler(ctx context.Context) {
 			ts.token.Store(&accessToken)
 
 			expiry := tokenResp.ExpiresIn
-			newDelay := calcDelay(expiry)
+			newDelay := calcDelay(time.Until(expiry))
 			log.Printf("New token to %s scope has been issued, expiry: %s, until_next: %s", ts.scope, expiry, newDelay)
 			return newDelay
 		}()
