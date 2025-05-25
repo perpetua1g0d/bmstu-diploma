@@ -1,0 +1,26 @@
+\chapter{Технологический раздел}
+
+\section{Основные средства реализации}
+
+\begin{enumerate}
+\item k3d --- утилита для поднятия k8s кластера локально, использует docker. % https://k3d.io/stable/ 
+\item docker --- инструмент для контейнеризации приложений. Используется в реализации для создания sidecar контейнеров.
+\item ghcr.io --- используется для загрузки docker образов в k8s кластер.
+\item Golang --- язык программирования, в основном использующийся для написания приложений в микросервисной архитектуре. % todo: rewrite
+% todo: либы jwt/jose ?
+
+\end{enumerate}
+
+%\includelisting
+%	{filename.py}{Listing description}
+%	
+%~\ref{img:imagename}
+%
+% ~\cite{source-title}
+%
+%\includeimage
+%    {imagename_wo_ext}
+%    {f}
+%    {H}
+%    {1\textwidth}
+%    {Description}
