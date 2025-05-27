@@ -1,0 +1,24 @@
+https://habr.com/ru/companies/slurm/articles/705914/ Что такое service mesh простыми словами
+https://habr.com/ru/companies/oleg-bunin/articles/880394/ Service Mesh глазами бэкендера: умный дирижёр микросервисного оркестра
+https://habr.com/ru/articles/720070/ KeyCloak и микро-сервисы. Как облегчить жизнь программисту
+https://habr.com/ru/companies/domclick/articles/649167/ Разворачиваем PostgreSQL, Redis и RabbitMQ в Kubernetes-кластере
+https://habr.com/ru/companies/domclick/articles/577964/#1 Ультимативный гайд по созданию CI/CD в GitLab с автодеплоем в Kubernetes на голом железе всего за 514$ в год ( ͡° ͜ʖ ͡°)
+
+https://habr.com/ru/companies/sibur_official/articles/826964/ Введение в Docker и Kubernetes: основы контейнерных технологий. Часть 1
+
+https://habr.com/ru/companies/avito/articles/799689/ Работа с Kubernetes: поднимаем локальный кластер и деплоим в него приложения
+https://habr.com/ru/companies/flant/articles/572188/ Kubernetes в миниатюре для локального запуска: k0s, MicroK8s, kind, k3s и Minikube
+
+
+
+https://habr.com/ru/companies/spectr/articles/715290/ Аутентификация и авторизация в проекте с микросервисной архитектурой: стратегии, практический пример
+
+https://habr.com/ru/companies/nixys/articles/559368/ Kubernetes — изучаем паттерн Sidecar
+https://learn.microsoft.com/en-us/azure/architecture/patterns/sidecar
+https://learn.microsoft.com/ru-ru/azure/architecture/patterns/sidecar
+
+https://habr.com/ru/companies/avito/articles/796851/ Межсервисная авторизация в Авито PaaS
+
+https://habr.com/ru/companies/tuturu/articles/544128/ Что вам нужно знать, если вы поменяете nginx на envoy: впечатления спустя два года
+https://habr.com/ru/articles/540976/ Envoy как универсальный сетевой примитив
+

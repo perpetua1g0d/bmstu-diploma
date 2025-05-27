@@ -69,9 +69,9 @@ spec:
             - name: SERVICE_NAME
               value: "postgres-b"
             - name: SIGN_AUTH_ENABLED
-              value: "false"
+              value: "true"
             - name: VERIFY_AUTH_ENABLED
-              value: "false"
+              value: "true"
             - name: INIT_TARGET_SERVICE
               value: "postgres-a"
             - name: INIT_SQL_QUERY

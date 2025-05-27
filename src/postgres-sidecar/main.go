@@ -34,9 +34,16 @@ func main() {
 		log.Fatalf("failed to create auth client: %v", err)
 	}
 
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			sendBenchmarkQuery(cfg, authClient)
+		}
+	}()
+
 	if cfg.RunBenchmarks {
 		go func() {
-			runBenchmarks(cfg, authClient)
+			// runBenchmarks(cfg, authClient)
 		}()
 	}
 

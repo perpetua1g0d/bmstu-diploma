@@ -69,13 +69,13 @@ spec:
             - name: SERVICE_NAME
               value: "postgres-a"
             - name: SIGN_AUTH_ENABLED
-              value: "false"
+              value: "true"
             - name: VERIFY_AUTH_ENABLED
-              value: "false"
+              value: "true"
             - name: INIT_TARGET_SERVICE
               value: "postgres-b"
-            - name: RUN_BENCHMARKS_ON_INIT
-              value: "true"
+            # - name: RUN_BENCHMARKS_ON_INIT
+            #   value: "true"
 
             - name: POD_NAMESPACE
               valueFrom:
