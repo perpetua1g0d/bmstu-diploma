@@ -1,0 +1,286 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{march}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=03276e5cc1bc68e60d83074211e08e85}{%
+           family={Кравченко},
+           familyi={К\bibinitperiod},
+           given={Даниил\bibnamedelima Андреевич},
+           giveni={Д\bibinitperiod\bibinitdelim А\bibinitperiod}}}%
+      }
+      \strng{namehash}{03276e5cc1bc68e60d83074211e08e85}
+      \strng{fullhash}{03276e5cc1bc68e60d83074211e08e85}
+      \strng{fullhashraw}{03276e5cc1bc68e60d83074211e08e85}
+      \strng{bibnamehash}{03276e5cc1bc68e60d83074211e08e85}
+      \strng{authorbibnamehash}{03276e5cc1bc68e60d83074211e08e85}
+      \strng{authornamehash}{03276e5cc1bc68e60d83074211e08e85}
+      \strng{authorfullhash}{03276e5cc1bc68e60d83074211e08e85}
+      \strng{authorfullhashraw}{03276e5cc1bc68e60d83074211e08e85}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Интерактивная наука}
+      \field{title}{Микросервисная архитектура}
+      \field{year}{2022}
+      \field{number}{4}
+      \range{number}{1}
+      \field{pages}{69}
+      \range{pages}{1}
+    \endentry
+    \entry{m_security}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=59faa2dd2624879487209185297d5934}{%
+           family={Mateus-Coelho},
+           familyi={M\bibinithyphendelim C\bibinitperiod},
+           given={Nuno},
+           giveni={N\bibinitperiod}}}%
+        {{hash=7feb83d84cd2d03d9d8fe9d4228c7ceb}{%
+           family={Cruz-Cunha},
+           familyi={C\bibinithyphendelim C\bibinitperiod},
+           given={Manuela},
+           giveni={M\bibinitperiod}}}%
+        {{hash=72634fc57d85f17f2abca4dc484617c9}{%
+           family={Ferreira},
+           familyi={F\bibinitperiod},
+           given={Luis\bibnamedelima Gonzaga},
+           giveni={L\bibinitperiod\bibinitdelim G\bibinitperiod}}}%
+      }
+      \strng{namehash}{1d7467b00b650780ce8fa405a42c95e8}
+      \strng{fullhash}{1d7467b00b650780ce8fa405a42c95e8}
+      \strng{fullhashraw}{1d7467b00b650780ce8fa405a42c95e8}
+      \strng{bibnamehash}{1d7467b00b650780ce8fa405a42c95e8}
+      \strng{authorbibnamehash}{1d7467b00b650780ce8fa405a42c95e8}
+      \strng{authornamehash}{1d7467b00b650780ce8fa405a42c95e8}
+      \strng{authorfullhash}{1d7467b00b650780ce8fa405a42c95e8}
+      \strng{authorfullhashraw}{1d7467b00b650780ce8fa405a42c95e8}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{internalsortvolume}{181}
+      \field{issn}{1877-0509}
+      \field{journaltitle}{Procedia Computer Science}
+      \field{note}{(Дата обращения: 10.02.2025)}
+      \field{title}{Security in Microservices Architectures}
+      \field{year}{2021}
+      \field{pages}{1225\bibrangedash 1236}
+      \range{pages}{12}
+      \field{volume}{181}
+      \range{volume}{1}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.procs.2021.01.320
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S1877050921003719
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S1877050921003719
+      \endverb
+    \endentry
+    \entry{iam}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=cba3a4681e13d2ed45372967dfa32874}{%
+           family={Epping},
+           familyi={E\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f603a24263f3ffd1242450e8cdf8a868}{%
+           family={Morowczynski},
+           familyi={M\bibinitperiod},
+           given={Mark},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{8c582881882287c873c2495c8b1f0386}
+      \strng{fullhash}{8c582881882287c873c2495c8b1f0386}
+      \strng{fullhashraw}{8c582881882287c873c2495c8b1f0386}
+      \strng{bibnamehash}{8c582881882287c873c2495c8b1f0386}
+      \strng{authorbibnamehash}{8c582881882287c873c2495c8b1f0386}
+      \strng{authornamehash}{8c582881882287c873c2495c8b1f0386}
+      \strng{authorfullhash}{8c582881882287c873c2495c8b1f0386}
+      \strng{authorfullhashraw}{8c582881882287c873c2495c8b1f0386}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{internalsortvolume}{1}
+      \field{journaltitle}{IDPro Body of Knowledge}
+      \field{month}{09}
+      \field{title}{Authentication and Authorization}
+      \field{year}{2021}
+      \field{volume}{1}
+      \range{volume}{1}
+      \verb{doi}
+      \verb 10.55621/idpro.78
+      \endverb
+    \endentry
+    \entry{m_auth}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=0f6d509f5224faf32bb7c68d52fa5659}{%
+           family={Shaikh},
+           familyi={S\bibinitperiod},
+           given={Shagufta},
+           giveni={S\bibinitperiod}}}%
+        {{hash=bd512634a1c67e00830a632297d2e7a3}{%
+           family={Mane},
+           familyi={M\bibinitperiod},
+           given={Sunil},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{49702e943a2df80e7040e7bbd92e8264}
+      \strng{fullhash}{49702e943a2df80e7040e7bbd92e8264}
+      \strng{fullhashraw}{49702e943a2df80e7040e7bbd92e8264}
+      \strng{bibnamehash}{49702e943a2df80e7040e7bbd92e8264}
+      \strng{authorbibnamehash}{49702e943a2df80e7040e7bbd92e8264}
+      \strng{authornamehash}{49702e943a2df80e7040e7bbd92e8264}
+      \strng{authorfullhash}{49702e943a2df80e7040e7bbd92e8264}
+      \strng{authorfullhashraw}{49702e943a2df80e7040e7bbd92e8264}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{internalsortvolume}{6}
+      \field{journaltitle}{International Journal of Current Advanced Research}
+      \field{month}{04}
+      \field{title}{Authentic techniques of authentication in microservices}
+      \field{year}{2017}
+      \field{pages}{3342\bibrangedash 3345}
+      \range{pages}{4}
+      \field{volume}{6}
+      \range{volume}{1}
+      \verb{doi}
+      \verb 10.24327/ijcar.2017.3345.0267
+      \endverb
+    \endentry
+    \entry{oauth2_spec}{online}{}{}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labeltitlesource}{title}
+      \field{note}{(Дата обращения: 10.02.2025)}
+      \field{title}{The OAuth 2.0 Authorization Framework}
+      \verb{urlraw}
+      \verb https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
+      \endverb
+      \verb{url}
+      \verb https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
+      \endverb
+    \endentry
+    \entry{oauth2_artc}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=768dfcd6ab3743465118890d1500386a}{%
+           family={Khedrane},
+           familyi={K\bibinitperiod},
+           given={Atallah},
+           giveni={A\bibinitperiod}}}%
+        {{hash=9a57de974def19abf46e7869589c4ce6}{%
+           family={Salmi},
+           familyi={S\bibinitperiod},
+           given={Hamza},
+           giveni={H\bibinitperiod}}}%
+        {{hash=5a6ea3f04bd82bd50fa0f4093b10160c}{%
+           family={Abdelhamid},
+           familyi={A\bibinitperiod},
+           given={Bernaoui},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \strng{fullhash}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \strng{fullhashraw}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \strng{bibnamehash}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \strng{authorbibnamehash}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \strng{authornamehash}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \strng{authorfullhash}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \strng{authorfullhashraw}{0c30a8f542a9ffd8ee0074669ebf3fda}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{05}
+      \field{title}{Securing Web APIs with OAuth 2.0}
+      \field{year}{2014}
+    \endentry
+    \entry{oidc}{inproceedings}{}{}
+      \name{author}{2}{}{%
+        {{hash=e01e66b94f31ca171eefdf1e30702893}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Wanpeng},
+           giveni={W\bibinitperiod}}}%
+        {{hash=df39f51bb5ff3f6dd61299619f6390b5}{%
+           family={Mitchell},
+           familyi={M\bibinitperiod},
+           given={Chris},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \strng{fullhash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \strng{fullhashraw}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \strng{bibnamehash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \strng{authorbibnamehash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \strng{authornamehash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \strng{authorfullhash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \strng{authorfullhashraw}{6ce7d30dbaf59c6e13c0d740bb77eda1}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{09}
+      \field{title}{User Access Privacy in OAuth 2.0 and OpenID Connect}
+      \field{year}{2020}
+      \field{pages}{664\bibrangedash 6732}
+      \range{pages}{6069}
+      \verb{doi}
+      \verb 10.1109/EuroSPW51379.2020.00095
+      \endverb
+    \endentry
+    \entry{saml}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{hash=446ebb57e6b23d4b27bbc2971d78cf28}{%
+           family={Ferdous},
+           familyi={F\bibinitperiod},
+           given={Md.\bibnamedelimi Sadek},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \strng{namehash}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \strng{fullhash}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \strng{fullhashraw}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \strng{bibnamehash}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \strng{authorbibnamehash}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \strng{authornamehash}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \strng{authorfullhash}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \strng{authorfullhashraw}{446ebb57e6b23d4b27bbc2971d78cf28}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{06}
+      \field{title}{User-controlled Identity Management Systems using mobile devices}
+      \field{type}{phdthesis}
+      \field{year}{2015}
+      \verb{doi}
+      \verb 10.13140/RG.2.1.3905.3287
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
