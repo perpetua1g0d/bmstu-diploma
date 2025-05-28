@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -27,7 +28,7 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 
 		cfg := config.GetConfig()
 
-		if cfg.VerifyAuthEnabled {
+		if getVerifyEnabled() {
 			token := r.Header.Get("X-I2I-Token")
 			if token == "" {
 				respondError(w, "missing token", http.StatusUnauthorized)
@@ -46,6 +47,8 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 			}
 
 			log.Printf("successfully verified incoming token")
+		} else {
+			log.Printf("skipped token verification on server side due to config setting.")
 		}
 
 		db, err := sql.Open("postgres", fmt.Sprintf(
@@ -81,6 +84,17 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 			"latency": time.Since(start).String(),
 		})
 	}
+}
+
+func getVerifyEnabled() bool {
+	verifyEnabled, err := os.ReadFile("/etc/auth-config/VERIFY_AUTH_ENABLED")
+	if err != nil || string(verifyEnabled) != "true" {
+		log.Printf("either VERIFY_AUTH_ENABLED is unreached, either disabled. err=%v, str: %s", err, string(verifyEnabled))
+		return false
+	}
+
+	log.Printf("VERIFY_AUTH_ENABLED=true")
+	return true
 }
 
 func respondError(w http.ResponseWriter, message string, code int) {

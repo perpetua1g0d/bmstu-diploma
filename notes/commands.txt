@@ -13,8 +13,13 @@ kubectl exec -it postgres-b-848c677fd8-vp4db -n postgres-b -c postgres -- psql -
 
 
 docker-ghcr:
-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
-
+	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
+after laptop reload:
+	export GH_PAT=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
+don't forget to add in new service:
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
 
 # GHCR.io
 echo $GH_PAT | docker login ghcr.io -u perpetua1g0d --password-stdin

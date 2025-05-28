@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Управление авторизацией</title>
+</head>
+
+<body>
+    <h1>Управление настройками авторизации</h1>
+
+    <form action="/update" method="post">
+        <label>Выберите сервис:</label>
+        <select name="service">
+            {% for service in services %}
+            <option value="{{ service }}">{{ service }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>
+            <input type="checkbox" name="sign" checked>
+            SIGN_AUTH_ENABLED
+        </label><br>
+
+        <label>
+            <input type="checkbox" name="verify" checked>
+            VERIFY_AUTH_ENABLED
+        </label><br><br>
+
+        <button type="submit">Применить</button>
+    </form>
+</body>
+
+</html>

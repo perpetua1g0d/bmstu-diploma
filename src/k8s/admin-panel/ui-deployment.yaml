@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-ui
+  namespace: admin-panel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-ui
+  template:
+    metadata:
+      labels:
+        app: auth-ui
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      serviceAccountName: auth-ui-sa
+      containers:
+        - name: ui
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/auth-ui:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: SERVICES
+              value: "postgres-a,postgres-b"

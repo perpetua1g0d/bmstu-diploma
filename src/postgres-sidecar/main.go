@@ -138,13 +138,15 @@ func sendBenchmarkQuery(cfg *config.Config, authClient *auth_client.AuthClient) 
 		return
 	}
 
-	if cfg.SignAuthEnabled {
+	if getSignAuth() {
 		token, err := authClient.Token(cfg.InitTarget)
 		if err != nil {
 			log.Fatalf("failed to issue token in auth client on scope %s: %v", cfg.InitTarget, err)
 			return
 		}
 		req.Header.Set("X-I2I-Token", token)
+	} else {
+		log.Printf("skipped signing request due to config setting.")
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -165,6 +167,16 @@ func sendBenchmarkQuery(cfg *config.Config, authClient *auth_client.AuthClient) 
 	defer resp.Body.Close()
 
 	// log.Printf("Initial query to %s status: %s; errMsg: %s", target, resp.Status, errMsg.Error)
+}
+
+func getSignAuth() bool {
+	signEnabled, err := os.ReadFile("/etc/auth-config/SIGN_AUTH_ENABLED")
+	if err != nil || string(signEnabled) != "true" {
+		log.Printf("either SIGN_AUTH_ENABLED is unreached, either disabled. err=%v, str: %s", err, string(signEnabled))
+		return false
+	}
+
+	return true
 }
 
 func determineOperationType(r *http.Request) string {
@@ -190,4 +202,3 @@ func determineOperationType(r *http.Request) string {
 		return "unknown"
 	}
 }
-	

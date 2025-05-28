@@ -65,15 +65,27 @@ spec:
           volumeMounts:
             - name: shared-env
               mountPath: /etc/postgres-env
+            - name: auth-config
+              mountPath: /etc/auth-config
           env:
             - name: SERVICE_NAME
               value: "postgres-a"
-            - name: SIGN_AUTH_ENABLED
-              value: "true"
-            - name: VERIFY_AUTH_ENABLED
-              value: "true"
             - name: INIT_TARGET_SERVICE
               value: "postgres-b"
+            # - name: SIGN_AUTH_ENABLED
+            #   value: "true"
+            # - name: VERIFY_AUTH_ENABLED
+            #   value: "true"
+            - name: SIGN_AUTH_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-settings
+                  key: SIGN_AUTH_ENABLED
+            - name: VERIFY_AUTH_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-settings
+                  key: VERIFY_AUTH_ENABLED
             # - name: RUN_BENCHMARKS_ON_INIT
             #   value: "true"
 
@@ -99,3 +111,6 @@ spec:
             name: postgres-init-script
         - name: shared-env
           emptyDir: {}
+        - name: auth-config
+          configMap:
+            name: auth-settings

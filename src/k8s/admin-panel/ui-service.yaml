@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: admin-panel
+  name: auth-ui
   namespace: admin-panel
 spec:
   selector:
-    app: admin-panel
+    app: auth-ui
   ports:
     - protocol: TCP
       port: 80
