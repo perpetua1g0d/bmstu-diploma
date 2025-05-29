@@ -56,34 +56,44 @@ def get_settings():
 @app.route('/update', methods=['POST'])
 def update():
     service = request.form['service']
-    sign = "true" if request.form.get('sign') else "false"
-    verify = "true" if request.form.get('verify') else "false"
+    sign = request.form.get('sign') is not None  # True если чекбокс отмечен
+    verify = request.form.get('verify') is not None
 
     try:
-        # Обновляем ConfigMap в неймспейсе сервиса
+        # Обновляем ConfigMap
         cm = v1.read_namespaced_config_map("auth-settings", service)
-        cm.data["SIGN_AUTH_ENABLED"] = sign
-        cm.data["VERIFY_AUTH_ENABLED"] = verify
+        cm.data["SIGN_AUTH_ENABLED"] = str(sign).lower()
+        cm.data["VERIFY_AUTH_ENABLED"] = str(verify).lower()
         v1.replace_namespaced_config_map("auth-settings", service, cm)
 
-        # Обновляем кэш
-        settings_cache[service] = {
-            "sign": sign == "true",
-            "verify": verify == "true"
-        }
+        # Отправляем уведомление сайдкарам с новыми значениями
+        notify_sidecars(service, sign, verify)  # Передаем значения
 
-        # Возвращаемся на главную с сообщением
-        return redirect(url_for(
-            'index',
-            service=service,
-            message=f"Настройки для {service} обновлены!"
-        ))
+        return redirect(url_for('index', service=service, message=f"Настройки для {service} обновлены!"))
     except Exception as e:
-        return redirect(url_for(
-            'index',
-            service=service,
-            message=f"Ошибка: {str(e)}"
-        ))
+        return redirect(url_for('index', service=service, message=f"Ошибка: {str(e)}"))
+
+
+def notify_sidecars(service, sign, verify):
+    # Получаем все поды в неймспейсе сервиса
+    pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
+
+    for pod in pods.items:
+        try:
+            # Формируем данные для отправки
+            data = {
+                "sign": sign,
+                "verify": verify
+            }
+            # Отправляем POST запрос с JSON телом
+            requests.post(
+                f"http://{pod.status.pod_ip}:8080/reload-config",
+                json=data,
+                timeout=1
+            )
+            print(f"Notification sent to {pod.metadata.name}: {data}")
+        except Exception as e:
+            print(f"Failed to notify {pod.metadata.name}: {str(e)}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

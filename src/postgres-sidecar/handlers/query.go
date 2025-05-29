@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -22,13 +21,11 @@ type QueryRequest struct {
 	Params []any  `json:"params"`
 }
 
-func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) http.HandlerFunc {
+func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_client.AuthClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Incoming request: %s %s", r.Method, r.URL)
 
-		cfg := config.GetConfig()
-
-		if getVerifyEnabled() {
+		if getVerifyEnabled(cfg) {
 			token := r.Header.Get("X-I2I-Token")
 			if token == "" {
 				respondError(w, "missing token", http.StatusUnauthorized)
@@ -86,15 +83,14 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 	}
 }
 
-func getVerifyEnabled() bool {
-	verifyEnabled, err := os.ReadFile("/etc/auth-config/VERIFY_AUTH_ENABLED")
-	if err != nil || string(verifyEnabled) != "true" {
-		log.Printf("either VERIFY_AUTH_ENABLED is unreached, either disabled. err=%v, str: %s", err, string(verifyEnabled))
-		return false
+func getVerifyEnabled(cfg *config.Config) bool {
+	loaded := cfg.VerifyAuthEnabled.Load()
+	if loaded == nil {
+		log.Printf("config pointer[VerifyAuthEnabled] is empty! Veryfy is enabled as fallback")
+		return true
 	}
 
-	log.Printf("VERIFY_AUTH_ENABLED=true")
-	return true
+	return *loaded
 }
 
 func respondError(w http.ResponseWriter, message string, code int) {

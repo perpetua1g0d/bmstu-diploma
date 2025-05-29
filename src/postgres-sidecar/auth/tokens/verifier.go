@@ -42,13 +42,11 @@ func NewVerifier(ctx context.Context, cfg *config.Config) (*Verifier, error) {
 		cfg: cfg,
 	}
 
-	if cfg.VerifyEnabled {
-		certs, err := v.fetchJWKs(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get talos certificates: %w", err)
-		}
-		v.certs = certs
+	certs, err := v.fetchJWKs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get talos certificates: %w", err)
 	}
+	v.certs = certs
 
 	return v, nil
 }

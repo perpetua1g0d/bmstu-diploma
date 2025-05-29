@@ -8,9 +8,13 @@ require (
 	github.com/lib/pq v1.10.9
 )
 
-require golang.org/x/text v0.22.0 // indirect
+require (
+	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
+)
 
 require (
+	github.com/fsnotify/fsnotify v1.9.0
 	github.com/samber/lo v1.50.0
 	golang.org/x/crypto v0.19.0 // indirect
 )

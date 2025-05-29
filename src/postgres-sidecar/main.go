@@ -26,8 +26,11 @@ const talosAddress = "http://talos.talos.svc.cluster.local:80"
 const benchmarksResultsFile = "/var/log/results.csv"
 
 func main() {
-	ctx := context.Background()
-	cfg := config.GetConfig()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	cfg := config.NewConfig()
+	defer cfg.Close()
 
 	authClient, err := createAuthClient(ctx, cfg, []string{cfg.InitTarget})
 	if err != nil {
@@ -47,8 +50,10 @@ func main() {
 		}()
 	}
 
-	http.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, authClient))
-	log.Printf("Starting %s on :8080 (Auth sign: %v, verify: %v)", cfg.ServiceName, cfg.SignAuthEnabled, cfg.VerifyAuthEnabled)
+	http.HandleFunc("/reload-config", cfg.RealodHandler)
+
+	http.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, authClient))
+	log.Printf("Starting %s on :8080 (Auth sign: %v, verify: %v)", cfg.ServiceName, *cfg.SignAuthEnabled.Load(), *cfg.VerifyAuthEnabled.Load())
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -94,8 +99,8 @@ func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {
 			strconv.FormatInt(reqCount, 10),
 			strconv.FormatFloat(avgTime, 'f', 2, 64),
 			"write",
-			fmt.Sprintf("%v", cfg.SignAuthEnabled),
-			fmt.Sprintf("%v", cfg.VerifyAuthEnabled),
+			fmt.Sprintf("%v", *cfg.SignAuthEnabled.Load()),
+			fmt.Sprintf("%v", *cfg.VerifyAuthEnabled.Load()),
 			// fmt.Sprintf("sign=%v_verify=%v", cfg.SignAuthEnabled, cfg.VerifyAuthEnabled),
 		})
 	}
@@ -105,9 +110,9 @@ func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {
 
 func createAuthClient(ctx context.Context, cfg *config.Config, scopes []string) (*auth_client.AuthClient, error) {
 	authCfg := &auth_config.Config{
-		ClientID:              cfg.ServiceName,
-		SignEnabled:           cfg.SignAuthEnabled,
-		VerifyEnabled:         cfg.VerifyAuthEnabled,
+		ClientID: cfg.ServiceName,
+		// SignEnabled:           cfg.SignAuthEnabled,
+		// VerifyEnabled:         cfg.VerifyAuthEnabled,
 		TokenEndpointAddress:  talosAddress + "/realms/infra2infra/protocol/openid-connect/token",
 		CertsEndpointAddress:  talosAddress + "/realms/infra2infra/protocol/openid-connect/certs",
 		ConfigEndpointAddress: talosAddress + "/realms/infra2infra/.well-known/openid-configuration",
@@ -138,7 +143,7 @@ func sendBenchmarkQuery(cfg *config.Config, authClient *auth_client.AuthClient) 
 		return
 	}
 
-	if getSignAuth() {
+	if getSignAuth(cfg) {
 		token, err := authClient.Token(cfg.InitTarget)
 		if err != nil {
 			log.Fatalf("failed to issue token in auth client on scope %s: %v", cfg.InitTarget, err)
@@ -169,14 +174,14 @@ func sendBenchmarkQuery(cfg *config.Config, authClient *auth_client.AuthClient) 
 	// log.Printf("Initial query to %s status: %s; errMsg: %s", target, resp.Status, errMsg.Error)
 }
 
-func getSignAuth() bool {
-	signEnabled, err := os.ReadFile("/etc/auth-config/SIGN_AUTH_ENABLED")
-	if err != nil || string(signEnabled) != "true" {
-		log.Printf("either SIGN_AUTH_ENABLED is unreached, either disabled. err=%v, str: %s", err, string(signEnabled))
-		return false
+func getSignAuth(cfg *config.Config) bool {
+	loaded := cfg.SignAuthEnabled.Load()
+	if loaded == nil {
+		log.Printf("config pointer[SignAuthEnabled] is empty! Sign is enabled as fallback")
+		return true
 	}
 
-	return true
+	return *loaded
 }
 
 func determineOperationType(r *http.Request) string {

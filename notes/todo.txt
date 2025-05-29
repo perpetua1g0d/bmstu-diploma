@@ -6,13 +6,14 @@ token roles: {"scope": ["role1", ...]}
 Context пробросить в запросы
 Бэкофф токена
 Кафка, Редис, ETCD
+	Юзкейсы системы?
 Метрики
 	- в талосе token_result
 	- на клиенте auth_verified, auth_signed, token_issued
 	+ в исследовании RT в виде квантилий
 Админка
-Либа с раундтрипером
-Исследование нагрузки на талос при большом кол-ве запросов токена
+authClient рефактор + либа + раунд трип
+Исследование нагрузки на талос при большом кол-ве запросов токена, показать на графиках
 Классы эквивалентности
 
 single flight паттерн? 
@@ -20,6 +21,16 @@ DBaas паттерн?
 
 talos -> idp
 
+sign, veryfy enabled/auth -> signMode, verifyMode
 
-Раунд трип в authClient?
-Юзкейсы системы?
+
+Рецензия:
+Фнукциональные недостатки разработанного решения:
+- refresh tokens
+- emergency tokens
+
+
+В РПЗ
+// атомарно обновляем значения
+instance.SignAuthEnabled.Store(&data.Sign)
+instance.VerifyAuthEnabled.Store(&data.Verify)

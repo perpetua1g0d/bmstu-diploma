@@ -27,3 +27,9 @@ echo $GH_PAT | docker login ghcr.io -u perpetua1g0d --password-stdin
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
 docker push ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
 
+
+kubectl apply -f k8s/admin-panel/ui-rbac.yaml
+kubectl rollout restart deployment/auth-ui -n admin-panel
+
+
+

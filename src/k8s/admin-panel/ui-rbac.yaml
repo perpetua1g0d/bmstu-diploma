@@ -10,21 +10,27 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: configmap-editor
+  name: auth-ui-cr
 rules:
   - apiGroups: [""]
     resources: ["configmaps"]
-    verbs: ["get", "list", "update", "patch"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list"] # Добавляем право на получение списка подов
+  - apiGroups: [""]
+    resources: ["pods/status"]
+    verbs: ["get"] # Добавляем право на чтение статуса подов
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: auth-ui-rolebinding
+  name: auth-ui-crb
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: configmap-editor
+  name: auth-ui-cr
 subjects:
   - kind: ServiceAccount
     name: auth-ui-sa
