@@ -14,4 +14,6 @@ interface:
 # a-check-db ($1=postgres-a-5498bf5dd-6xv7t):
 # kubectl exec -it postgres-a-5498bf5dd-6xv7t -n postgres-a -c postgres -- psql -U admin -d appdb -c "SELECT * FROM log"
 
+# todo: learn also how to restart pods with new changes w/o restarting whole cluster
+
 .PHONY: run teardown pods interface
