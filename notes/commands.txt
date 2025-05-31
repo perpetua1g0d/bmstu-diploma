@@ -11,6 +11,7 @@ kubectl logs -n postgres-a -c sidecar
 
 kubectl exec -it postgres-b-848c677fd8-vp4db -n postgres-b -c postgres -- psql -U admin -d appdb -c "SELECT * FROM log"
 
+docker logs -f $(docker ps -q -f name=k3d-bmstucluster)
 
 docker-ghcr:
 	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
@@ -32,4 +33,22 @@ kubectl apply -f k8s/admin-panel/ui-rbac.yaml
 kubectl rollout restart deployment/auth-ui -n admin-panel
 
 
+sudo tee /etc/docker/daemon.json <<EOF
+{
+  "insecure-registries": ["k3d-bmsturegistry:5000", "localhost:5000"]
+}
+EOF
+
+sudo systemctl restart docker
+
+
+#!/bin/bash
+
+docker build -t k3d-bmsturegistry:5000/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
+docker push k3d-bmsturegistry:5000/bmstu-diploma/postgres-sidecar:latest
+
+kubectl rollout restart deployment -n postgres-a
+kubectl rollout restart deployment -n postgres-b
+
+# fswatch -o ./postgres-sidecar | xargs -n1 -I{} ./update-sidecar.sh
 
