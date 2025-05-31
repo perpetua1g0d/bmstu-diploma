@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
 )
 
 func OpenIDConfigHandler(cfg *config.Config) http.HandlerFunc {

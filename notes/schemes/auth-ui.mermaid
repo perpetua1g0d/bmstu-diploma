@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant Пользователь
+    participant UI
+    participant Kubernetes API
+    participant ConfigMap
+    participant Сайдкар
+
+    Пользователь->>UI: Выбирает сервис и настройки
+    UI->>Kubernetes API: PATCH /api/v1/namespaces/{ns}/configmaps/auth-settings
+    Kubernetes API->>ConfigMap: Обновляет данные
+    Сайдкар->>ConfigMap: Проверяет изменения (каждые 10 сек)
+    Сайдкар->>Сайдкар: Применяет новые настройки

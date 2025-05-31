@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Управление авторизацией</title>
+    <script>
+        function updateCheckboxes(service) {
+            window.history.replaceState(null, null, `?service=${service}`);
+            fetch(`/settings?service=${service}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('input[name="sign"]').checked = data.sign;
+                    document.querySelector('input[name="verify"]').checked = data.verify;
+                });
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        form {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        select,
+        button {
+            padding: 8px;
+            margin: 5px 0;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Управление настройками авторизации</h1>
+
+    {% if message %}
+    <div class="message {% if 'Ошибка' in message %}error{% else %}success{% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <form action="/update" method="post">
+        <label>Выберите сервис:</label>
+        <select name="service" onchange="updateCheckboxes(this.value)">
+            {% for service in services %}
+            <option value="{{ service }}" {% if service==selected_service %}selected{% endif %}>
+                {{ service }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>
+            <input type="checkbox" name="sign" {% if sign_enabled %}checked{% endif %}>
+            SIGN_AUTH_ENABLED
+        </label>
+
+        <label>
+            <input type="checkbox" name="verify" {% if verify_enabled %}checked{% endif %}>
+            VERIFY_AUTH_ENABLED
+        </label>
+
+        <button type="submit">Применить</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Временная замена для тестирования
+            document.querySelector('input[name="sign"]').checked = true;
+            document.querySelector('input[name="verify"]').checked = false;
+        });
+    </script>
+</body>
+
+</html>

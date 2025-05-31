@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/perpetua1g0d/bmstu-diploma/talos/handlers"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/handlers"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
 )
 
 func main() {
@@ -25,6 +25,6 @@ func main() {
 	http.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", tokenHandler)
 	http.HandleFunc("/realms/infra2infra/protocol/openid-connect/certs", handlers.CertsHandler(keyPair))
 
-	log.Printf("Talos OIDC server started on %s", cfg.Address)
+	log.Printf("idp OIDC server started on %s", cfg.Address)
 	log.Fatal(http.ListenAndServe(cfg.Address, nil))
 }

@@ -11,7 +11,7 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		Address:  ":8080",
-		Issuer:   "http://talos.talos.svc.cluster.local",
+		Issuer:   "http://idp.idp.svc.cluster.local",
 		TokenTTL: time.Hour,
 	}
 }

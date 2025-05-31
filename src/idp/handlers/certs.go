@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
 )
 
 func CertsHandler(keys *jwks.KeyPair) http.HandlerFunc {

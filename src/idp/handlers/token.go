@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/k8s"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/k8s"
 )
 
 const (
@@ -70,7 +70,7 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 
 		issueResp, err := issuer.IssueToken(clientID, req.Scope)
 		if err != nil {
-			log.Printf("failed to issue talos token: %v", err)
+			log.Printf("failed to issue idp token: %v", err)
 			http.Error(w, `{"error":"access_denied"}`, http.StatusForbidden)
 			return
 		}

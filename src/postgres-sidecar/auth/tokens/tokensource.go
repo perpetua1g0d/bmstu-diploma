@@ -103,11 +103,6 @@ func (ts *TokenSource) runScheduler(ctx context.Context) {
 		case <-planner.C:
 		}
 
-		if !ts.cfg.SignEnabled {
-			resetTimer(planner, 1*time.Hour) // duration doesn't matter here, if sign is enabled, issuing is unpaused.
-			continue
-		}
-
 		delay := func() (delay time.Duration) {
 			tokenResp, err := ts.issuer.IssueToken(ctx, ts.scope)
 			if err != nil {

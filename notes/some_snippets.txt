@@ -1,0 +1,42 @@
+perpetualgod@pgod:~/Folders/Stuff/university/8sem/diploma/bmstu-diploma-gh/src$ make pods
+kubectl get pods -A
+NAMESPACE     NAME                                      READY   STATUS      RESTARTS   AGE
+kube-system   coredns-ccb96694c-l9ljf                   1/1     Running     0          23m
+kube-system   helm-install-traefik-crd-5ldcg            0/1     Completed   0          23m
+kube-system   helm-install-traefik-k6w5g                0/1     Completed   1          23m
+kube-system   local-path-provisioner-5cf85fd84d-pqk2x   1/1     Running     0          23m
+kube-system   metrics-server-5985cbc9d7-zhxdj           1/1     Running     0          23m
+kube-system   svclb-traefik-32f92c31-4mtnw              2/2     Running     0          22m
+kube-system   traefik-5d45fc8cc9-v29x9                  1/1     Running     0          22m
+postgres-a    postgres-a-7466958d69-xxql4               2/2     Running     0          22m
+postgres-b    postgres-b-77556b544d-gb448               2/2     Running     0          22m
+talos         talos-59d4f89974-c5zzq                    1/1     Running     0          22m
+
+
+perpetualgod@pgod:~/Folders/Stuff/university/8sem/diploma/bmstu-diploma-gh/src$ kubectl logs -n postgres-a -c sidecar postgres-a-7466958d69-xxql4
+2025/05/25 14:32:19 sidecar config: &{postgres-a postgres-a postgres-b  /query false false true default-secret-256-bit localhost 5432 admin password appdb}
+2025/05/25 14:32:19 auth config: &{postgres-a false false http://talos.talos.svc.cluster.local:80/realms/infra2infra/protocol/openid-connect/token http://talos.talos.svc.cluster.local:80/realms/infra2infra/protocol/openid-connect/certs http://talos.talos.svc.cluster.local:80/realms/infra2infra/.well-known/openid-configuration 5s 1m0s}
+2025/05/25 14:32:19 Starting postgres-a on :8080 (Auth sign: false, verify: false)
+2025/05/25 14:32:19 sleepeing before benchmarks...
+2025/05/25 14:32:29 benchmarks started.
+2025/05/25 14:32:29 finished 100 requests, avg: 1.110000
+2025/05/25 14:32:29 finished 250 requests, avg: 0.982000
+2025/05/25 14:32:30 finished 500 requests, avg: 1.072000
+2025/05/25 14:32:32 finished 750 requests, avg: 1.252667
+2025/05/25 14:32:35 finished 1000 requests, avg: 1.415500
+2025/05/25 14:32:35 benchmarks finished.
+
+
+2025/05/25 14:29:21 sidecar config: &{postgres-a postgres-a postgres-b  /query true true true default-secret-256-bit localhost 5432 admin password appdb}
+2025/05/25 14:29:21 auth config: &{postgres-a true true http://talos.talos.svc.cluster.local:80/realms/infra2infra/protocol/openid-connect/token http://talos.talos.svc.cluster.local:80/realms/infra2infra/protocol/openid-connect/certs http://talos.talos.svc.cluster.local:80/realms/infra2infra/.well-known/openid-configuration 5s 1m0s}
+2025/05/25 14:29:21 Starting postgres-a on :8080 (Auth sign: true, verify: true)
+2025/05/25 14:29:21 sleepeing before benchmarks...
+2025/05/25 14:29:21 New token to postgres-b scope has been issued, expiry: 2025-05-25 15:29:21.245676645 +0000 UTC, until_next: 28m24.212430848s
+2025/05/25 14:29:31 benchmarks started.
+2025/05/25 14:29:31 finished 100 requests, avg: 1.225000
+2025/05/25 14:29:31 finished 250 requests, avg: 0.950000
+2025/05/25 14:29:33 finished 500 requests, avg: 1.091000
+2025/05/25 14:29:35 finished 750 requests, avg: 1.308667
+2025/05/25 14:29:38 finished 1000 requests, avg: 1.523500
+2025/05/25 14:29:38 benchmarks finished.
+

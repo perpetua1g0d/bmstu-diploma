@@ -21,13 +21,11 @@ type QueryRequest struct {
 	Params []any  `json:"params"`
 }
 
-func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) http.HandlerFunc {
+func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_client.AuthClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Incoming request: %s %s", r.Method, r.URL)
 
-		cfg := config.GetConfig()
-
-		if cfg.VerifyAuthEnabled {
+		if getVerifyEnabled(cfg) {
 			token := r.Header.Get("X-I2I-Token")
 			if token == "" {
 				respondError(w, "missing token", http.StatusUnauthorized)
@@ -46,6 +44,8 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 			}
 
 			log.Printf("successfully verified incoming token")
+		} else {
+			log.Printf("skipped token verification on server side due to config setting.")
 		}
 
 		db, err := sql.Open("postgres", fmt.Sprintf(
@@ -81,6 +81,16 @@ func NewQueryHandler(ctx context.Context, authClient *auth_client.AuthClient) ht
 			"latency": time.Since(start).String(),
 		})
 	}
+}
+
+func getVerifyEnabled(cfg *config.Config) bool {
+	loaded := cfg.VerifyAuthEnabled.Load()
+	if loaded == nil {
+		log.Printf("config pointer[VerifyAuthEnabled] is empty! Veryfy is enabled as fallback")
+		return true
+	}
+
+	return *loaded
 }
 
 func respondError(w http.ResponseWriter, message string, code int) {

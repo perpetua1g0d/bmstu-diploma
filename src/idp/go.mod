@@ -1,4 +1,4 @@
-module github.com/perpetua1g0d/bmstu-diploma/talos
+module github.com/perpetua1g0d/bmstu-diploma/idp
 
 go 1.23
 

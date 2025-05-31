@@ -65,17 +65,29 @@ spec:
           volumeMounts:
             - name: shared-env
               mountPath: /etc/postgres-env
+            - name: auth-config
+              mountPath: /etc/auth-config
           env:
             - name: SERVICE_NAME
               value: "postgres-b"
-            - name: SIGN_AUTH_ENABLED
-              value: "false"
-            - name: VERIFY_AUTH_ENABLED
-              value: "false"
             - name: INIT_TARGET_SERVICE
               value: "postgres-a"
             - name: INIT_SQL_QUERY
               value: "INSERT INTO log (message) VALUES ('Init from B')"
+            # - name: SIGN_AUTH_ENABLED
+            #   value: "true"
+            # - name: VERIFY_AUTH_ENABLED
+            #   value: "true"
+            - name: SIGN_AUTH_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-settings
+                  key: SIGN_AUTH_ENABLED
+            - name: VERIFY_AUTH_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: auth-settings
+                  key: VERIFY_AUTH_ENABLED
 
             - name: POD_NAMESPACE
               valueFrom:
@@ -107,3 +119,6 @@ spec:
                 mode: 0644
         - name: shared-env
           emptyDir: {}
+        - name: auth-config
+          configMap:
+            name: auth-settings

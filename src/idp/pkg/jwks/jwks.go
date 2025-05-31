@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/go-jose/go-jose/v3"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/tokens"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
 )
 
 type KeyPair struct {
@@ -28,7 +28,7 @@ func GenerateKeyPair() *KeyPair {
 	now := time.Now()
 	template := &x509.Certificate{
 		SerialNumber:          big.NewInt(1),
-		Subject:               pkix.Name{CommonName: "talos-oidc"},
+		Subject:               pkix.Name{CommonName: "idp-oidc"},
 		NotBefore:             now,
 		NotAfter:              now.Add(24 * time.Hour * 365),
 		BasicConstraintsValid: true,

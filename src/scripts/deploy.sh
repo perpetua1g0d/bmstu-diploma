@@ -17,20 +17,29 @@ k3d cluster create bmstucluster \
 # (the lightweight Kubernetes distribution) when the cluster is removed.
 # This is useful for keeping the Docker tools and images associated with the cluster for later use.
 
-# talos
-docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest ./talos
-docker push ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest
-k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/talos:latest -c bmstucluster --keep-tools
+# idp
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest ./idp
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest
+k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest -c bmstucluster --keep-tools
 
 # run sidecar code in sidecar containter:
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
 docker push ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
 k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest -c bmstucluster --keep-tools
 
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/auth-ui:latest ./auth-ui
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/auth-ui:latest
+k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/auth-ui:latest -c bmstucluster --keep-tools
+
 kubectl apply -f k8s/namespaces/
 # kubectl apply -k k8s/namespaces/
 
-namespaces=("postgres-a" "postgres-b" "talos")
+# создание конфиг мапы для каждого сервиса
+# for ns in postgres-a postgres-b; do
+#   kubectl apply -f k8s/postgresql/${ns}/${ns}-auth-config.yaml
+# done
+
+namespaces=("postgres-a" "postgres-b" "idp" "admin-panel")
 for ns in "${namespaces[@]}"; do
   if ! kubectl get secret ghcr-secret -n "$ns" >/dev/null 2>&1; then
     kubectl create secret docker-registry ghcr-secret \
@@ -44,12 +53,12 @@ for ns in "${namespaces[@]}"; do
   fi
 done
 
-kubectl apply -f k8s/talos/
+kubectl apply -f k8s/idp/
 kubectl apply -f k8s/postgresql/postgres-a/
 kubectl apply -f k8s/postgresql/postgres-b/
+kubectl apply -f k8s/admin-panel/
 # kubectl apply -f k8s/kafka/
 # kubectl apply -f k8s/redis/
-# kubectl apply -f k8s/admin-panel/
 
 echo "- Админ-панель: kubectl port-forward -n admin-panel svc/admin-panel 8080:80"
 echo "- PostgreSQL: kubectl port-forward -n postgresql svc/postgresql 5434:5434"

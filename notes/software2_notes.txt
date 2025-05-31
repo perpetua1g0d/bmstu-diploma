@@ -93,3 +93,32 @@ requests,time_ms,operation,sign_enabled,sign_enabled
 
 kubectl get --raw /openid/v1/jwks
 {"keys":[{"use":"sig","kty":"RSA","kid":"ScTeo5TofAdww284ofdrtbzLdsT___4pNhp7uOQcYB8","alg":"RS256","n":"xo-9nsCMRWG9opN3Z75SW9M1AbqW8P1G5hwfUNo7LTSTyPC6GpwvLJGB-SVsNZqBy_kVZS-1lPLZp_l2_36ekpmP_MuW3iue6eIXjdQoYBo7oZSk2pdI0svAEG2eqSW2jp5o-a9B5U0L2E0AHWlUiylrv0p_Lj6r0-dBGIaKCItQcafnIbDp4vZ4k2Q2FYHqf6IyCN-_Hb9hwt1uMPGkahnMq5tMWZfAv_HxwIzyXFm3lxzsAru_UHFYpCilskR8viopCU4M2cedP4fyAvq56OlVtOs1yxNC4W9fHfEeklZqB6lhOGU4KpEy1Y467qHwc5izzjkJtFQxfPyWVzihkQ","e":"AQAB"}]}
+
+
+Почитать что гпт пишет, это вполне можно занести в технологический раздел. 
+
+Но в требованиях указано: "пользователь сможет менять значения ... на сайдкаре заданного сервисе, например, postgres-a или postgres-b". Поэтому реализуем выбор сервиса.
+
+Для этого:
+
+- В ConfigMap `auth-settings` должен быть в каждом неймспейсе (postgres-a, postgres-b и т.д.).
+
+- UI должен иметь права на чтение и запись ConfigMap в разных неймспейсах.
+
+- В форме UI добавим выпадающий список неймспейсов.
+
+Изменим RoleBinding на ClusterRoleBinding, чтобы дать доступ к ConfigMap в любом неймспейсе, или создадим RoleBinding для каждого неймспейса. Второй вариант сложнее, поэтому выберем ClusterRole с ограничением по ресурсам.
+
+Обновим RBAC:
+
+- Создадим ClusterRole, которая разрешает доступ к ConfigMap с именем `auth-settings` в любом неймспейсе.
+
+- Привяжем эту ClusterRole к ServiceAccount UI.
+
+Однако, это даст доступ ко всем ConfigMap с именем `auth-settings` в кластере, что безопасно, потому что имя ConfigMap фиксировано.
+
+Вместо этого можно создать Role для каждого неймспейса, но это потребует создания множества RoleBinding. Для простоты сделаем ClusterRole.
+
+Но учтем, что в разных неймспейсах могут быть ConfigMap с одинаковым именем `auth-settings` — это нормально.
+
+
