@@ -13,6 +13,8 @@ kubectl exec -it postgres-b-848c677fd8-vp4db -n postgres-b -c postgres -- psql -
 
 docker logs -f $(docker ps -q -f name=k3d-bmstucluster)
 
+kubectl get events -n monitoring --sort-by=.metadata.creationTimestamp
+
 docker-ghcr:
 	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
 after laptop reload:

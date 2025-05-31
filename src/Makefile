@@ -5,8 +5,14 @@ teardown:
 
 pods:
 	kubectl get pods -A
+
 interface:
 	kubectl port-forward -n admin-panel svc/auth-ui 8080:80
+grafana:
+	kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
+prometheus:
+	kubectl port-forward -n monitoring svc/prometheus-operated 30090:9090
+#	kubectl port-forward -n monitoring prometheus-monitoring-kube-prometheus-prometheus-0 30090:9090
 
 a-check-db:
 	@if [ -z "$(word 2, $(MAKECMDGOALS))" ]; then \
@@ -43,12 +49,4 @@ b-sidecar-logs:
 	@# Игнорируем аргумент, чтобы make не пытался его обработать как цель
 	@: $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
 
-# a-sidecar-logs ($1=postgres-a-5498bf5dd-6xv7t):
-# kubectl logs -n postgres-a -c sidecar $1
-
-# a-check-db ($1=postgres-a-5498bf5dd-6xv7t):
-# kubectl exec -it postgres-a-5498bf5dd-6xv7t -n postgres-a -c postgres -- psql -U admin -d appdb -c "SELECT * FROM log"
-
-# todo: learn also how to restart pods with new changes w/o restarting whole cluster
-
-.PHONY: run teardown pods interface a-check-db b-check-db a-sidecar-logs b-sidecar-logs
+.PHONY: run teardown pods interface a-check-db b-check-db a-sidecar-logs b-sidecar-logs grafana prometheus

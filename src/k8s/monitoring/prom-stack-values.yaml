@@ -1,0 +1,178 @@
+# Оптимизированные настройки для маломощного окружения
+alertmanager:
+  enabled: false
+
+grafana:
+  image:
+    repository: grafana/grafana
+    tag: 9.5.3
+  enabled: true
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      folder: "/var/lib/grafana/dashboards"
+      searchNamespace: "monitoring"
+  # sidecar:
+  #   dashboards:
+  #     enabled: true
+  #     label: grafana_dashboard
+  #     labelValue: "1"
+  #     folder: "/var/lib/grafana/dashboards"
+  #     searchNamespace: "monitoring"
+  #     provider:
+  #       name: default
+  #       orgid: 1
+  #       folder: ""
+  #       type: file
+  #       disableDelete: false
+  #       allowUiUpdates: true
+  #       options:
+  #         path: /var/lib/grafana/dashboards
+  # sidecar:
+  #   dashboards:
+  #     enabled: true
+  #     label: grafana_dashboard
+  #     labelValue: "1"
+  #     searchNamespace: "monitoring"
+  resources:
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+  # dashboardProviders:
+  #   dashboardproviders.yaml:
+  #     apiVersion: 1
+  #     providers:
+  #       - name: default
+  #         orgId: 1
+  #         folder: ""
+  #         type: file
+  #         disableDeletion: false
+  #         editable: true
+  #         options:
+  #           path: /var/lib/grafana/dashboards/default
+  # dashboardsConfigMaps:
+  #   default: grafana-dashboards
+  # additionalDataSources: []
+
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-operated.monitoring:9090
+          access: proxy
+          isDefault: true
+
+  # datasources:
+  #   datasources.yaml:
+  #     apiVersion: 1
+  #     datasources:
+  #       - name: Prometheus
+  #         type: prometheus
+  #         url: http://prometheus-operated.monitoring.svc.cluster.local:9090
+  #         access: proxy
+  #         isDefault: true
+  #         version: 1
+  # editable: false
+  # - name: Prometheus
+  #   type: prometheus
+  #   url: http://monitoring-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+  #   access: proxy
+  #   isDefault: true
+  service:
+    type: NodePort
+    nodePort: 30091
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    maximumStartupDurationSeconds: 90
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+      requests:
+        memory: "256Mi"
+        cpu: "500m"
+    retention: 24h
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    additionalScrapeConfigs:
+      - job_name: "sidecar-metrics"
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels:
+              [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels:
+              [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+      - job_name: "postgres-metrics"
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: postgres-.*
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: metrics
+  service:
+    type: NodePort
+    nodePort: 30090
+
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+
+# exporters
+kubeStateMetrics:
+  enabled: true
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "500m"
+    requests:
+      memory: "64Mi"
+      cpu: "500m"
+
+nodeExporter:
+  enabled: true
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "500m"
+    requests:
+      memory: "64Mi"
+      cpu: "250m"

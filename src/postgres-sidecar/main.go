@@ -19,6 +19,7 @@ import (
 	auth_config "github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/handlers"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const idpAddress = "http://idp.idp.svc.cluster.local:80"
@@ -51,10 +52,10 @@ func main() {
 	}
 
 	http.HandleFunc("/reload-config", cfg.RealodHandler)
-
 	http.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, authClient))
+
 	log.Printf("Starting %s on :8080 (Auth sign: %v, verify: %v)", cfg.ServiceName, *cfg.SignAuthEnabled.Load(), *cfg.VerifyAuthEnabled.Load())
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", promhttp.Handler())) // root handler
 }
 
 func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {
