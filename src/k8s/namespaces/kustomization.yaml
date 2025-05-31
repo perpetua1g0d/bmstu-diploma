@@ -8,6 +8,6 @@
 #       - .dockerconfigjson={"auths":{"ghcr.io":{"username":"perpetua1g0d","password":"$GHCR_PAT"}}}
 
 # resources:
-#   - talos
+#   - idp
 #   - postgres-a
 #   - postgres-b

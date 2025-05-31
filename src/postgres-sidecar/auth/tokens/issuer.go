@@ -42,7 +42,7 @@ func (i *Issuer) IssueToken(ctx context.Context, scope string) (*TokenResp, erro
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, i.cfg.TokenEndpointAddress, strings.NewReader(body))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create talos token request: %w", err)
+		return nil, fmt.Errorf("failed to create idp token request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -54,8 +54,8 @@ func (i *Issuer) IssueToken(ctx context.Context, scope string) (*TokenResp, erro
 		respBytes, _ = io.ReadAll(resp.Body)
 	}
 	if err != nil {
-		log.Printf("failed to get talos token: %v; respBody: %s", err, string(respBytes))
-		return nil, fmt.Errorf("failed to get talos token: %w", err)
+		log.Printf("failed to get idp token: %v; respBody: %s", err, string(respBytes))
+		return nil, fmt.Errorf("failed to get idp token: %w", err)
 	}
 	defer resp.Body.Close()
 

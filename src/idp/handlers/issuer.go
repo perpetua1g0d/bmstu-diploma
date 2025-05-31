@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/go-jose/go-jose/v3"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/config"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/jwks"
-	"github.com/perpetua1g0d/bmstu-diploma/talos/pkg/tokens"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
 )
 
 type IssueResp struct {

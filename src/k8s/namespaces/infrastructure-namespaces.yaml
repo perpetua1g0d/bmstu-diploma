@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: talos
+  name: idp
 ---
 apiVersion: v1
 kind: Namespace

@@ -21,7 +21,7 @@ import (
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/handlers"
 )
 
-const talosAddress = "http://talos.talos.svc.cluster.local:80"
+const idpAddress = "http://idp.idp.svc.cluster.local:80"
 
 const benchmarksResultsFile = "/var/log/results.csv"
 
@@ -113,9 +113,9 @@ func createAuthClient(ctx context.Context, cfg *config.Config, scopes []string) 
 		ClientID: cfg.ServiceName,
 		// SignEnabled:           cfg.SignAuthEnabled,
 		// VerifyEnabled:         cfg.VerifyAuthEnabled,
-		TokenEndpointAddress:  talosAddress + "/realms/infra2infra/protocol/openid-connect/token",
-		CertsEndpointAddress:  talosAddress + "/realms/infra2infra/protocol/openid-connect/certs",
-		ConfigEndpointAddress: talosAddress + "/realms/infra2infra/.well-known/openid-configuration",
+		TokenEndpointAddress:  idpAddress + "/realms/infra2infra/protocol/openid-connect/token",
+		CertsEndpointAddress:  idpAddress + "/realms/infra2infra/protocol/openid-connect/certs",
+		ConfigEndpointAddress: idpAddress + "/realms/infra2infra/.well-known/openid-configuration",
 		RequestTimeout:        5 * time.Second,
 		ErrTokenBackoff:       1 * time.Minute,
 	}

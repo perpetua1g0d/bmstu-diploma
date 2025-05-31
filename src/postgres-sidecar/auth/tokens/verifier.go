@@ -13,11 +13,11 @@ import (
 	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/config"
 	"github.com/samber/lo"
-	// "github.com/perpetua1g0d/bmstu-diploma/talos/pkg/tokens"
+	// "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
 )
 
 const (
-	talosIssuer = "http://talos.talos.svc.cluster.local"
+	idpIssuer = "http://idp.idp.svc.cluster.local"
 )
 
 type tokenClaims struct {
@@ -44,7 +44,7 @@ func NewVerifier(ctx context.Context, cfg *config.Config) (*Verifier, error) {
 
 	certs, err := v.fetchJWKs(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get talos certificates: %w", err)
+		return nil, fmt.Errorf("failed to get idp certificates: %w", err)
 	}
 	v.certs = certs
 
@@ -68,8 +68,8 @@ func (v *Verifier) VerifyToken(rawToken string, needRoles []string) error {
 func (v *Verifier) verifyClaims(claims *tokenClaims, needRoles []string) error {
 	if claims.Scope != claims.Aud || claims.Scope != v.cfg.ClientID {
 		return fmt.Errorf("scope or aud is unexpected, service: %s, scope: %s, aud: %s", v.cfg.ClientID, claims.Scope, claims.Aud)
-	} else if claims.Iss != talosIssuer {
-		return fmt.Errorf("unexpected issuer, expected: %s, got: %s", talosIssuer, claims.Iss)
+	} else if claims.Iss != idpIssuer {
+		return fmt.Errorf("unexpected issuer, expected: %s, got: %s", idpIssuer, claims.Iss)
 	} else if expired := claims.Exp.Before(time.Now()); expired {
 		return fmt.Errorf("token is expired, exp: %s, now: %s", claims.Exp, time.Now())
 	} else if rolesOk := lo.Every(claims.Roles, needRoles); !rolesOk {
@@ -105,10 +105,10 @@ func verifyToken(rawToken string, certs *jose.JSONWebKeySet) (*tokenClaims, erro
 }
 
 func (v *Verifier) fetchJWKs(ctx context.Context) (*jose.JSONWebKeySet, error) {
-	talosCertEndpoint := v.cfg.CertsEndpointAddress
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, talosCertEndpoint, nil)
+	idpCertEndpoint := v.cfg.CertsEndpointAddress
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, idpCertEndpoint, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create talos certs request: %w", err)
+		return nil, fmt.Errorf("failed to create idp certs request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -120,8 +120,8 @@ func (v *Verifier) fetchJWKs(ctx context.Context) (*jose.JSONWebKeySet, error) {
 		respBytes, _ = io.ReadAll(resp.Body)
 	}
 	if err != nil {
-		log.Printf("failed to get talos certs: %v; respBody: %s", err, string(respBytes))
-		return nil, fmt.Errorf("failed to get talos certs: %w", err)
+		log.Printf("failed to get idp certs: %v; respBody: %s", err, string(respBytes))
+		return nil, fmt.Errorf("failed to get idp certs: %w", err)
 	}
 	defer resp.Body.Close()
 
