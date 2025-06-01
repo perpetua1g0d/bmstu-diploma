@@ -19,11 +19,26 @@ import (
 	auth_config "github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/handlers"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const idpAddress = "http://idp.idp.svc.cluster.local:80"
 
 const benchmarksResultsFile = "/var/log/results.csv"
+
+var (
+	tokenSignedTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "client_token_sign_requests_total",
+		Help: "Total number of requests signed with token",
+	}, []string{"scope", "result", "enabled", "service_name"})
+	tokenSignDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "client_token_sign_duration_milliseconds",
+		Help:    "Duration of token signing in milliseconds",
+		Buckets: []float64{1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000},
+	}, []string{"scope", "result", "enabled", "service_name"})
+)
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -38,9 +53,18 @@ func main() {
 	}
 
 	go func() {
+		time.Sleep(30 * time.Second)
+		httpClient := &http.Client{
+			Timeout: 5 * time.Second,
+			Transport: &AuthTransport{
+				authClient: authClient,
+				cfg:        cfg,
+				defaultRT:  http.DefaultTransport,
+			},
+		}
 		for {
-			time.Sleep(5 * time.Second)
-			sendBenchmarkQuery(cfg, authClient)
+			time.Sleep(10 * time.Second)
+			sendBenchmarkQuery(cfg, httpClient)
 		}
 	}()
 
@@ -50,11 +74,14 @@ func main() {
 		}()
 	}
 
-	http.HandleFunc("/reload-config", cfg.RealodHandler)
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
 
-	http.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, authClient))
+	mux.HandleFunc("/reload-config", cfg.RealodHandler)
+	mux.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, authClient))
+
 	log.Printf("Starting %s on :8080 (Auth sign: %v, verify: %v)", cfg.ServiceName, *cfg.SignAuthEnabled.Load(), *cfg.VerifyAuthEnabled.Load())
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", mux)) // root handler promhttp.Handler()
 }
 
 func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {
@@ -71,6 +98,15 @@ func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {
 	defer writer.Flush()
 	writer.Write([]string{"requests", "time_ms", "operation", "sign_enabled", "sign_disabled"})
 
+	httpClient := &http.Client{
+		Timeout: 5 * time.Second,
+		Transport: &AuthTransport{
+			authClient: authClient,
+			cfg:        cfg,
+			defaultRT:  http.DefaultTransport,
+		},
+	}
+
 	// requestCount := []int64{1000}
 	requestCount := []int64{100, 250, 500, 750, 1000}
 	rerunCount := 2
@@ -84,7 +120,7 @@ func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {
 			for i := 0; i < int(reqCount); i++ {
 				go func() {
 					defer wg.Done()
-					sendBenchmarkQuery(cfg, authClient)
+					sendBenchmarkQuery(cfg, httpClient)
 				}()
 			}
 			wg.Wait()
@@ -117,7 +153,7 @@ func createAuthClient(ctx context.Context, cfg *config.Config, scopes []string) 
 		CertsEndpointAddress:  idpAddress + "/realms/infra2infra/protocol/openid-connect/certs",
 		ConfigEndpointAddress: idpAddress + "/realms/infra2infra/.well-known/openid-configuration",
 		RequestTimeout:        5 * time.Second,
-		ErrTokenBackoff:       1 * time.Minute,
+		ErrTokenBackoff:       10 * time.Second,
 	}
 
 	log.Printf("auth config: %v", authCfg)
@@ -125,7 +161,7 @@ func createAuthClient(ctx context.Context, cfg *config.Config, scopes []string) 
 	return auth_client.NewAuthClient(ctx, authCfg, scopes)
 }
 
-func sendBenchmarkQuery(cfg *config.Config, authClient *auth_client.AuthClient) {
+func sendBenchmarkQuery(cfg *config.Config, client *http.Client) {
 	target := fmt.Sprintf("http://%s.%s.svc.cluster.local:8080%s",
 		cfg.InitTarget,
 		cfg.InitTarget,
@@ -142,23 +178,11 @@ func sendBenchmarkQuery(cfg *config.Config, authClient *auth_client.AuthClient) 
 		log.Fatalf("failed to create post request: %v", err)
 		return
 	}
-
-	if getSignAuth(cfg) {
-		token, err := authClient.Token(cfg.InitTarget)
-		if err != nil {
-			log.Fatalf("failed to issue token in auth client on scope %s: %v", cfg.InitTarget, err)
-			return
-		}
-		req.Header.Set("X-I2I-Token", token)
-	} else {
-		log.Printf("skipped signing request due to config setting.")
-	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{Timeout: 4 * time.Second}
 	resp, err := client.Do(req)
 
-	errMsg := handlers.RespErr{}
+	var errMsg map[string]any
 	var respBytes []byte
 	if resp != nil && resp.Body != nil {
 		respBytes, _ = io.ReadAll(resp.Body)
@@ -166,12 +190,44 @@ func sendBenchmarkQuery(cfg *config.Config, authClient *auth_client.AuthClient) 
 	}
 
 	if err != nil {
-		log.Fatalf("Initial query failed: %v; errMsg: %s", err, errMsg.Error)
+		log.Printf("Initial query failed: %v; errMsg: %s", err, errMsg)
 		return
+	} else if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
 	}
-	defer resp.Body.Close()
 
 	// log.Printf("Initial query to %s status: %s; errMsg: %s", target, resp.Status, errMsg.Error)
+}
+
+type AuthTransport struct {
+	authClient *auth_client.AuthClient
+	cfg        *config.Config
+
+	defaultRT http.RoundTripper
+}
+
+func (t *AuthTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	var signEnabled bool
+	var signResult = "ok"
+	scope := t.cfg.InitTarget
+
+	signEnabled = getSignAuth(t.cfg)
+	signStart := time.Now()
+	if signEnabled {
+		token, err := t.authClient.Token(scope)
+		if err != nil {
+			log.Printf("failed to issue token in auth client on scope %s: %v", scope, err)
+			signResult = "token_error"
+		} else {
+			r.Header.Set("X-I2I-Token", token)
+		}
+	}
+	signDuration := float64(time.Since(signStart).Milliseconds())
+
+	tokenSignedTotal.WithLabelValues(scope, signResult, strconv.FormatBool(signEnabled), t.cfg.ServiceName).Inc()
+	tokenSignDuration.WithLabelValues(scope, signResult, strconv.FormatBool(signEnabled), t.cfg.ServiceName).Observe(signDuration)
+
+	return t.defaultRT.RoundTrip(r)
 }
 
 func getSignAuth(cfg *config.Config) bool {

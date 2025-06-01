@@ -12,6 +12,6 @@ func Load() *Config {
 	return &Config{
 		Address:  ":8080",
 		Issuer:   "http://idp.idp.svc.cluster.local",
-		TokenTTL: time.Hour,
+		TokenTTL: 10 * time.Minute,
 	}
 }

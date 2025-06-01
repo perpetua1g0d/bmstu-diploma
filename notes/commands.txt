@@ -6,12 +6,22 @@ kubectl logs -n postgresql postgresql-sidecar-64f84f579c-gkjm9
 kubectl logs -n postgres-a -c postgres postgres-a-646d699889-cl79z
 kubectl describe pod -n postgresql postgresql-sidecar-5c5bb7478c-7r7np
 kubectl get events
-
 kubectl logs -n postgres-a -c sidecar 
 
 kubectl exec -it postgres-b-848c677fd8-vp4db -n postgres-b -c postgres -- psql -U admin -d appdb -c "SELECT * FROM log"
 
 docker logs -f $(docker ps -q -f name=k3d-bmstucluster)
+
+kubectl get events -n monitoring --sort-by=.metadata.creationTimestamp
+
+kubectl get svc -n monitoring | grep prometheus
+kubectl get svc -n postgres-a
+
+# direct connect to postgtres sidecar API:
+kubectl port-forward -n postgres-a svc/postgres-a 8080:8080
+
+# by ip (instance):
+kube_namespace_status_phase{container="kube-state-metrics", endpoint="http", instance="10.42.0.12:8080", namespace="admin-panel", pod="monitoring-kube-state-metrics-685d474d78-x4d4v", service="monitoring-kube-state-metrics"}
 
 docker-ghcr:
 	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

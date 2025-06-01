@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: postgres-a
   namespace: postgres-a
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
 spec:
   selector:
     app: postgres-a
@@ -13,3 +16,6 @@ spec:
     - name: sidecar
       port: 8080
       targetPort: 8080
+    - name: metrics
+      port: 9187
+      targetPort: 9187

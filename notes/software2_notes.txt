@@ -122,3 +122,7 @@ kubectl get --raw /openid/v1/jwks
 Но учтем, что в разных неймспейсах могут быть ConfigMap с одинаковым именем `auth-settings` — это нормально.
 
 
+- Для сбора метрик из подов с аннотациями, Prometheus Operator использует ServiceMonitors или PodMonitors. В нашем случае, мы используем аннотации, поэтому в Prometheus должен быть включен автоматический discovery подов с аннотациями.
+
+
+
