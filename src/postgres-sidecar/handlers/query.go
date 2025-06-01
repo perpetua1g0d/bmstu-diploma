@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,11 +24,21 @@ type QueryRequest struct {
 
 func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_client.AuthClient) http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Incoming request: %s %s", r.Method, r.URL)
+		// log.Printf("Incoming request: %s %s", r.Method, r.URL)
 
-		if getVerifyEnabled(cfg) {
+		var verifyEnabled bool
+		var verifyResult = "ok"
+		scope := cfg.ServiceName
+		verifyEnabled = getVerifyEnabled(cfg)
+		verifyStart := time.Now()
+		if verifyEnabled {
 			token := r.Header.Get("X-I2I-Token")
 			if token == "" {
+				verifyResult = "missing_token"
+				verifyDuration := float64(time.Since(verifyStart).Milliseconds())
+				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Inc()
+				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Observe(verifyDuration)
+
 				respondError(w, "missing token", http.StatusUnauthorized)
 				return
 			}
@@ -39,14 +50,19 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 
 			if verifyErr := authClient.VerifyToken(token, []string{requiredRole}); verifyErr != nil {
 				log.Printf("failed to verify token: %v", verifyErr)
+				verifyResult = "permissions_denied"
+				verifyDuration := float64(time.Since(verifyStart).Milliseconds())
+				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Inc()
+				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Observe(verifyDuration)
+
 				respondError(w, "forbidden: token has no required roles", http.StatusUnauthorized)
 				return
 			}
-
-			log.Printf("successfully verified incoming token")
-		} else {
-			log.Printf("skipped token verification on server side due to config setting.")
 		}
+
+		verifyDuration := float64(time.Since(verifyStart).Milliseconds())
+		tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Inc()
+		tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Observe(verifyDuration)
 
 		db, err := sql.Open("postgres", fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
