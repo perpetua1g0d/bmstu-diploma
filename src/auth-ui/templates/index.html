@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Управление авторизацией</title>
+    <title>Административная панель авторизации</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
@@ -71,6 +71,11 @@
             flex: 1;
         }
 
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
         h2 {
             margin-top: 0;
             color: #333;
@@ -84,27 +89,38 @@
         }
 
         button {
-            background-color: #4CAF50;
+            background-color: #2e7d32;
+            /* Более темный зеленый */
             color: white;
             border: none;
             cursor: pointer;
             margin-top: 10px;
+            padding: 10px 15px;
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #1b5e20;
         }
 
         .form-group {
             margin-bottom: 15px;
         }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
     </style>
 </head>
 
 <body>
-    <h1>Управление настройками авторизации</h1>
+    <h1>Административная панель авторизации</h1>
 
-    {% if message %}
+    {% if message and not (request.args.get('from_refresh')) %}
     <div class="message {% if 'Ошибка' in message %}error{% else %}success{% endif %}">
         {{ message }}
     </div>
@@ -140,7 +156,10 @@
                         </label>
                     </div>
 
-                    <button type="submit">Применить настройки</button>
+                    <div class="button-group">
+                        <button type="submit">Применить</button>
+                        <button type="button" onclick="refreshTokens()">Обновить токены</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -228,6 +247,30 @@
                 });
         }
 
+        function refreshTokens() {
+            const service = document.querySelector('select[name="service"]').value;
+            const formData = new FormData();
+            formData.append('service', service);
+
+            fetch('/refresh_tokens', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url + '&from_refresh=true';
+                    } else {
+                        return response.text().then(text => {
+                            alert(text || "Не удалось обновить токены у данного сервиса.");
+                        });
+                    }
+                })
+                .catch(error => {
+                    alert("Не удалось обновить токены у данного сервиса.");
+                    console.error('Error:', error);
+                });
+        }
+
         function getPermissions() {
             const formData = new FormData(document.getElementById('permissionsForm'));
             const data = {
@@ -287,8 +330,8 @@
         // Убираем сообщение об успехе при первой загрузке
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('message') && urlParams.get('message').includes('успешно применены')) {
-                window.history.replaceState({}, document.title, window.location.pathname);
+            if (urlParams.get('message')) {
+                window.history.replaceState({}, document.title, window.location.pathname + '?service=' + urlParams.get('service'));
             }
         });
     </script>

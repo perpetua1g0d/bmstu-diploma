@@ -26,6 +26,26 @@ def fetch_current_settings(service):
         app.logger.error(f"Error fetching settings for {service}: {str(e)}")
         return True, True  # Значения по умолчанию
 
+@app.route('/refresh_tokens', methods=['POST'])
+def refresh_tokens():
+    service = request.form['service']
+    try:
+        pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
+        for pod in pods.items:
+            try:
+                response = requests.post(
+                    f"http://{pod.status.pod_ip}:8080/refresh_tokens",
+                    timeout=5
+                )
+                if response.status_code != 200:
+                    return f"Ошибка: {response.status_code} - Не удалось обновить токены у данного сервиса.", 400
+            except Exception as e:
+                return f"Ошибка: {str(e)} - Не удалось обновить токены у данного сервиса.", 500
+
+        return redirect(url_for('index', service=service, message="Токены успешно обновлены"))
+    except Exception as e:
+        return redirect(url_for('index', service=service, message=f"Ошибка: {str(e)}"))
+
 @app.route('/')
 def index():
     try:

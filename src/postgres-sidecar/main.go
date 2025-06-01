@@ -44,10 +44,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	mux := http.NewServeMux()
+
 	cfg := config.NewConfig()
 	defer cfg.Close()
 
-	authClient, err := createAuthClient(ctx, cfg, []string{cfg.InitTarget})
+	authClient, err := createAuthClient(ctx, mux, cfg, []string{cfg.InitTarget})
 	if err != nil {
 		log.Fatalf("failed to create auth client: %v", err)
 	}
@@ -74,7 +76,6 @@ func main() {
 		}()
 	}
 
-	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 
 	mux.HandleFunc("/reload-config", cfg.RealodHandler)
@@ -144,7 +145,7 @@ func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {
 	log.Printf("benchmarks finished.")
 }
 
-func createAuthClient(ctx context.Context, cfg *config.Config, scopes []string) (*auth_client.AuthClient, error) {
+func createAuthClient(ctx context.Context, mux *http.ServeMux, cfg *config.Config, scopes []string) (*auth_client.AuthClient, error) {
 	authCfg := &auth_config.Config{
 		ClientID: cfg.ServiceName,
 		// SignEnabled:           cfg.SignAuthEnabled,
@@ -158,7 +159,7 @@ func createAuthClient(ctx context.Context, cfg *config.Config, scopes []string) 
 
 	log.Printf("auth config: %v", authCfg)
 
-	return auth_client.NewAuthClient(ctx, authCfg, scopes)
+	return auth_client.NewAuthClient(ctx, mux, authCfg, scopes)
 }
 
 func sendBenchmarkQuery(cfg *config.Config, client *http.Client) {
@@ -239,6 +240,8 @@ func getSignAuth(cfg *config.Config) bool {
 
 	return *loaded
 }
+
+type ()
 
 func determineOperationType(r *http.Request) string {
 	// This is a simplified version - actual implementation would depend on the service
