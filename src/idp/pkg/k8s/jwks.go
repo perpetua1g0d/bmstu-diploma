@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
-	"os"
 )
 
 type JWKS struct {
@@ -26,10 +25,17 @@ type JWK struct {
 	E   string `json:"e"`
 }
 
-func getPublicKey() (*rsa.PublicKey, error) {
-	caCert, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+type K8sClient struct {
+	readSecrets func(name string) ([]byte, error)
+
+	client  *http.Client
+	jwksURL string
+}
+
+func (k *K8sClient) setup() error {
+	caCert, err := k.readSecrets("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
 	if err != nil {
-		return nil, fmt.Errorf("error reading CA cert: %w", err)
+		return fmt.Errorf("error reading CA cert: %w", err)
 	}
 
 	caCertPool := x509.NewCertPool()
@@ -43,18 +49,25 @@ func getPublicKey() (*rsa.PublicKey, error) {
 		},
 	}
 
-	token, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
+	k.client = client
+	k.jwksURL = "https://kubernetes.default.svc/openid/v1/jwks"
+
+	return nil
+}
+
+func (k *K8sClient) GetPublicKey() (*rsa.PublicKey, error) {
+	token, err := k.readSecrets("/var/run/secrets/kubernetes.io/serviceaccount/token")
 	if err != nil {
 		return nil, fmt.Errorf("error reading token: %w", err)
 	}
 
-	req, err := http.NewRequest("GET", "https://kubernetes.default.svc/openid/v1/jwks", nil)
+	req, err := http.NewRequest("GET", k.jwksURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating k8s jwks request: %w", err)
 	}
 	req.Header.Add("Authorization", "Bearer "+string(token))
 
-	resp, err := client.Do(req)
+	resp, err := k.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("JWKS request failed: %w", err)
 	}
