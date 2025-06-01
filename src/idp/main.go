@@ -46,8 +46,8 @@ func main() {
 	mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", tokenHandler)
 	mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/certs", controller.CertsHandler())
 
-	mux.Handle("/update_permissions", controller.NewUpdatePermissionsHandler(ctx))
-	mux.Handle("/get_permissions", controller.NewGetPermissionsHandler(ctx))
+	mux.HandleFunc("/update_permissions", controller.NewUpdatePermissionsHandler(ctx))
+	mux.HandleFunc("/get_permissions", controller.NewGetPermissionsHandler(ctx))
 
 	log.Printf("idp OIDC server started on %s", cfg.Address)
 	log.Fatal(http.ListenAndServe(cfg.Address, mux))

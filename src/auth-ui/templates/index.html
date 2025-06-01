@@ -3,17 +3,7 @@
 
 <head>
     <title>Управление авторизацией</title>
-    <script>
-        function updateCheckboxes(service) {
-            window.history.replaceState(null, null, `?service=${service}`);
-            fetch(`/settings?service=${service}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.querySelector('input[name="sign"]').checked = data.sign;
-                    document.querySelector('input[name="verify"]').checked = data.verify;
-                });
-        }
-    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,7 +34,8 @@
         }
 
         select,
-        button {
+        button,
+        input[type="text"] {
             padding: 8px;
             margin: 5px 0;
         }
@@ -52,6 +43,19 @@
         label {
             display: block;
             margin: 10px 0;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .permissions-result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -65,35 +69,152 @@
     </div>
     {% endif %}
 
-    <form action="/update" method="post">
-        <label>Выберите сервис:</label>
-        <select name="service" onchange="updateCheckboxes(this.value)">
-            {% for service in services %}
-            <option value="{{ service }}" {% if service==selected_service %}selected{% endif %}>
-                {{ service }}
-            </option>
-            {% endfor %}
-        </select>
+    <div class="section">
+        <h2>Настройки сервиса</h2>
+        <form action="/update" method="post">
+            <label>Выберите сервис:</label>
+            <select name="service" onchange="updateCheckboxes(this.value)">
+                {% for service in services %}
+                <option value="{{ service }}" {% if service==selected_service %}selected{% endif %}>
+                    {{ service }}
+                </option>
+                {% endfor %}
+            </select>
 
-        <label>
-            <input type="checkbox" name="sign" {% if sign_enabled %}checked{% endif %}>
-            SIGN_AUTH_ENABLED
-        </label>
+            <label>
+                <input type="checkbox" name="sign" {% if sign_enabled %}checked{% endif %}>
+                Подпись запросов включена
+            </label>
 
-        <label>
-            <input type="checkbox" name="verify" {% if verify_enabled %}checked{% endif %}>
-            VERIFY_AUTH_ENABLED
-        </label>
+            <label>
+                <input type="checkbox" name="verify" {% if verify_enabled %}checked{% endif %}>
+                Верификация запросов включена
+            </label>
 
-        <button type="submit">Применить</button>
-    </form>
+            <button type="submit">Применить</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Глобальные настройки</h2>
+        <form action="/update_all" method="post">
+            <label>
+                <input type="checkbox" name="sign_all">
+                Подпись запросов включена (все сервисы)
+            </label>
+
+            <label>
+                <input type="checkbox" name="verify_all">
+                Верификация запросов включена (все сервисы)
+            </label>
+
+            <button type="submit">Применить для всех сервисов</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Управление правами</h2>
+        <form id="permissionsForm">
+            <label>
+                Client:
+                <input type="text" name="client" required>
+            </label>
+
+            <label>
+                Scope:
+                <input type="text" name="scope" required>
+            </label>
+
+            <button type="button" onclick="getPermissions()">Посмотреть текущие права</button>
+            <div id="permissionsResult" class="permissions-result" style="display: none;"></div>
+        </form>
+
+        <form id="updatePermissionsForm">
+            <label>
+                Client:
+                <input type="text" name="client" required>
+            </label>
+
+            <label>
+                Scope:
+                <input type="text" name="scope" required>
+            </label>
+
+            <label>
+                Roles (через запятую):
+                <input type="text" name="roles" required>
+            </label>
+
+            <button type="button" onclick="updatePermissions()">Добавить новые права</button>
+        </form>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Временная замена для тестирования
-            document.querySelector('input[name="sign"]').checked = true;
-            document.querySelector('input[name="verify"]').checked = false;
-        });
+        function updateCheckboxes(service) {
+            window.history.replaceState(null, null, `?service=${service}`);
+            fetch(`/settings?service=${service}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('input[name="sign"]').checked = data.sign;
+                    document.querySelector('input[name="verify"]').checked = data.verify;
+                });
+        }
+
+        function getPermissions() {
+            const formData = new FormData(document.getElementById('permissionsForm'));
+            const data = {
+                client: formData.get('client'),
+                scope: formData.get('scope')
+            };
+
+            fetch('/get_permissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('permissionsResult');
+                    if (data.error) {
+                        resultDiv.style.display = 'block';
+                        resultDiv.innerHTML = `Ошибка: ${data.error}`;
+                        resultDiv.className = 'permissions-result error';
+                    } else if (data.roles) {
+                        resultDiv.style.display = 'block';
+                        resultDiv.innerHTML = `Текущие права: ${data.roles.join(', ')}`;
+                        resultDiv.className = 'permissions-result success';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updatePermissions() {
+            const formData = new FormData(document.getElementById('updatePermissionsForm'));
+            const data = {
+                client: formData.get('client'),
+                scope: formData.get('scope'),
+                roles: formData.get('roles')
+            };
+
+            fetch('/update_permissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message || data.error);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
     </script>
 </body>
 
