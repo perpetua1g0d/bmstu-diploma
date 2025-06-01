@@ -3,14 +3,9 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
-	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
-	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/k8s"
 )
 
 const (
@@ -25,17 +20,7 @@ type TokenRequest struct {
 	Scope            string `form:"scope"`
 }
 
-func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair) (http.HandlerFunc, error) {
-	issuer, err := NewIssuer(cfg, keys)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create issued: %w", err)
-	}
-
-	k8sVerifier, err := k8s.NewVerifier(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create k8s verifier: %w", err)
-	}
-
+func (ctl *Controller) NewTokenHandler(ctx context.Context) (http.HandlerFunc, error) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		var err error
 		var scope, clientID string
@@ -83,14 +68,14 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 			return
 		}
 
-		clientID, _, err = k8sVerifier.VerifyWithClient(req.SubjectToken)
+		clientID, _, err = ctl.k8sVerifier.VerifyWithClient(req.SubjectToken)
 		if err != nil {
 			log.Printf("failed to verify k8s token: %v", err)
 			http.Error(w, `{"error":"token_not_verified"}`, http.StatusBadRequest)
 			return
 		}
 
-		issueResp, err := issuer.IssueToken(clientID, scope)
+		issueResp, err := ctl.issuer.IssueToken(clientID, scope)
 		if err != nil {
 			log.Printf("failed to issue idp token: %v", err)
 			http.Error(w, `{"error":"access_denied"}`, http.StatusForbidden)

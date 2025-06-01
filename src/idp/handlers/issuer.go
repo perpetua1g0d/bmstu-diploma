@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-jose/go-jose/v3"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/db"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
 )
@@ -21,10 +22,11 @@ type Issuer struct {
 	config  *config.Config
 	keyPair *jwks.KeyPair
 	signer  jose.Signer
-	rolesDB map[string]map[string][]string
+
+	repository *db.Repository
 }
 
-func NewIssuer(cfg *config.Config, keys *jwks.KeyPair) (*Issuer, error) {
+func NewIssuer(cfg *config.Config, keys *jwks.KeyPair, repository *db.Repository) (*Issuer, error) {
 	signer, err := jose.NewSigner(
 		jose.SigningKey{
 			Algorithm: jose.RS256,
@@ -42,21 +44,18 @@ func NewIssuer(cfg *config.Config, keys *jwks.KeyPair) (*Issuer, error) {
 	}
 
 	return &Issuer{
-		config:  cfg,
-		keyPair: keys,
-		signer:  signer,
-		rolesDB: map[string]map[string][]string{
-			"postgres-a": {"postgres-b": {"RO", "RW"}},
-			"postgres-b": {"postgres-a": {"RO"}},
-		},
+		config:     cfg,
+		keyPair:    keys,
+		signer:     signer,
+		repository: repository,
 	}, nil
 }
 
 func (i *Issuer) IssueToken(clientID, scope string) (*IssueResp, error) {
-	allowedRoles, ok := i.rolesDB[clientID][scope]
-	if !ok {
-		return nil, fmt.Errorf("access denied for client %s to scope %s", clientID, scope)
-	}
+	allowedRoles := i.repository.GetPermissions(clientID, scope)
+	// if !ok {
+	// 	return nil, fmt.Errorf("access denied for client %s to scope %s", clientID, scope)
+	// }
 
 	timeNow := time.Now()
 	exp := timeNow.Add(i.config.TokenTTL)

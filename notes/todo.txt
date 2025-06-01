@@ -1,14 +1,14 @@
 Todo:
-talos -> idp
+[DONE] talos -> idp
 context пробросить в запросы в idP
 
 sign, verify enabled/auth -> signMode, verifyMode
 
 1. Метрики
-	- в талосе token_result
-	- на клиенте auth_verified, auth_signed, token_issued
+	[DONE] - в талосе token_result
+	[DONE] - на клиенте auth_verified, auth_signed, token_issued
 	- убрать log.fatalf так как теперь есть метрики с кодом ответов
-	+ один большой красивый дашборд
+	[DONE] + один большой красивый дашборд
 1.2 Тестовое исследование (текущее)
 
 2. База талоса + права в свою базу
@@ -51,6 +51,10 @@ sign, verify enabled/auth -> signMode, verifyMode
 	- время выполнения -> среднее время выполнения
 	- поправить редкие времена выполнения на rate[10m]
 Бэкофф токена - есть, минимальный
+
+labeled errors?
+RO, RW -> Read, Write
+Swagger? Документация? Документация - РПЗ
 
 
 single flight паттерн? 
