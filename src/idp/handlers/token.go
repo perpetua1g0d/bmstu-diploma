@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
@@ -36,7 +37,27 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := r.ParseForm(); err != nil {
+		var err error
+		var scope, clientID string
+		issueStart := time.Now()
+		defer func() {
+			issueDuration := float64(time.Since(issueStart).Milliseconds())
+			tokenResult := "ok"
+			if err != nil {
+				tokenResult = "error"
+			}
+			if clientID == "" {
+				clientID = "unknown"
+			}
+			if scope == "" {
+				scope = "unknown"
+			}
+
+			tokenIssuedTotal.WithLabelValues(tokenResult, clientID, scope).Inc()
+			tokenIssueDuration.WithLabelValues(tokenResult, clientID, scope).Observe(issueDuration)
+		}()
+
+		if err = r.ParseForm(); err != nil {
 			log.Printf("failed to parse form request params: %v", err)
 			http.Error(w, `{"error":"invalid_request"}`, http.StatusBadRequest)
 			return
@@ -50,6 +71,7 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 			SubjectToken:     r.FormValue("subject_token"),
 			Scope:            r.FormValue("scope"),
 		}
+		scope = req.Scope
 
 		if req.GrantType != grantTypeTokenExchange {
 			log.Printf("unexpected grant_type: %s", req.GrantType)
@@ -61,14 +83,14 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 			return
 		}
 
-		clientID, _, err := k8sVerifier.VerifyWithClient(req.SubjectToken)
+		clientID, _, err = k8sVerifier.VerifyWithClient(req.SubjectToken)
 		if err != nil {
 			log.Printf("failed to verify k8s token: %v", err)
 			http.Error(w, `{"error":"token_not_verified"}`, http.StatusBadRequest)
 			return
 		}
 
-		issueResp, err := issuer.IssueToken(clientID, req.Scope)
+		issueResp, err := issuer.IssueToken(clientID, scope)
 		if err != nil {
 			log.Printf("failed to issue idp token: %v", err)
 			http.Error(w, `{"error":"access_denied"}`, http.StatusForbidden)
@@ -78,6 +100,6 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(issueResp)
 
-		log.Printf("token issued, clientID: %s, scope: %s", clientID, req.Scope)
+		log.Printf("token issued, clientID: %s, scope: %s", clientID, scope)
 	}, nil
 }
