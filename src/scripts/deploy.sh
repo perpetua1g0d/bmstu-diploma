@@ -22,7 +22,7 @@ docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest ./idp
 docker push ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest
 k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest -c bmstucluster --keep-tools
 
-# run sidecar code in sidecar containter:
+# main infra servies with sidecars:
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest ./postgres-sidecar
 docker push ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
 k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest -c bmstucluster --keep-tools
@@ -49,13 +49,6 @@ for ns in "${namespaces[@]}"; do
   fi
 done
 
-# cp k8s/monitoring/dashboards/7645_rev259.json tmp/dashboard.json
-# kubectl create configmap grafana-dashboards \
-#   -n monitoring \
-#   --from-file=7645_rev259.json=tmp/dashboard.json \
-#   --dry-run=client -o yaml > tmp/grafana-dashboards.yaml
-# echo "  labels:" >> tmp/grafana-dashboards.yaml
-# echo "    grafana_dashboard: \"1\"" >> tmp/grafana-dashboards.yaml
 kubectl create configmap grafana-dashboards \
   -n monitoring \
   --from-file=7645_rev259.json=k8s/monitoring/dashboards/7645_rev259.json \
@@ -63,6 +56,7 @@ kubectl create configmap grafana-dashboards \
 
 kubectl label configmap -n monitoring grafana-dashboards grafana_dashboard=1 --overwrite
 
+# predownload
 IMAGES=(
   "quay.io/prometheus-operator/prometheus-operator:v0.68.0"
   "quay.io/prometheus-operator/prometheus-config-reloader:v0.68.0"

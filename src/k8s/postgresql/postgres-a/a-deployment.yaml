@@ -62,7 +62,7 @@ spec:
           resources:
             limits:
               memory: "256Mi"
-              cpu: "250m"
+              cpu: "1"
 
         - name: sidecar
           image: ghcr.io/perpetua1g0d/bmstu-diploma/postgres-sidecar:latest
@@ -101,8 +101,8 @@ spec:
             - containerPort: 8080
           resources:
             limits:
-              memory: "1G"
-              cpu: "5"
+              memory: "256Mi"
+              cpu: "1"
 
       volumes:
         - name: postgresql-data

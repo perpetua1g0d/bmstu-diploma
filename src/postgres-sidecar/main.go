@@ -39,8 +39,9 @@ func main() {
 	}
 
 	go func() {
+		time.Sleep(30 * time.Second)
 		for {
-			time.Sleep(5 * time.Second)
+			time.Sleep(10 * time.Second)
 			sendBenchmarkQuery(cfg, authClient)
 		}
 	}()
@@ -51,11 +52,14 @@ func main() {
 		}()
 	}
 
-	http.HandleFunc("/reload-config", cfg.RealodHandler)
-	http.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, authClient))
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	mux.HandleFunc("/reload-config", cfg.RealodHandler)
+	mux.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, authClient))
 
 	log.Printf("Starting %s on :8080 (Auth sign: %v, verify: %v)", cfg.ServiceName, *cfg.SignAuthEnabled.Load(), *cfg.VerifyAuthEnabled.Load())
-	log.Fatal(http.ListenAndServe(":8080", promhttp.Handler())) // root handler
+	log.Fatal(http.ListenAndServe(":8080", mux)) // root handler promhttp.Handler()
 }
 
 func runBenchmarks(cfg *config.Config, authClient *auth_client.AuthClient) {

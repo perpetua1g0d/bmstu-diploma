@@ -22,7 +22,7 @@ type QueryRequest struct {
 }
 
 func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_client.AuthClient) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Incoming request: %s %s", r.Method, r.URL)
 
 		if getVerifyEnabled(cfg) {
@@ -69,6 +69,15 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 		}
 
 		start := time.Now()
+		defer func() {
+			operation := "read"
+			if !strings.Contains(strings.ToUpper(req.SQL), "SELECT") {
+				operation = "write"
+			}
+			durationMs := float64(time.Since(start).Milliseconds())
+			dbQueryDuration.WithLabelValues(operation, cfg.ServiceName).Observe(durationMs)
+		}()
+
 		rows, err := db.Query(req.SQL, req.Params...)
 		if err != nil {
 			respondError(w, fmt.Sprintf("query failed: %v", err), http.StatusBadRequest)
@@ -81,6 +90,8 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 			"latency": time.Since(start).String(),
 		})
 	}
+
+	return metricsMiddleware(handler, cfg.ServiceName)
 }
 
 func getVerifyEnabled(cfg *config.Config) bool {

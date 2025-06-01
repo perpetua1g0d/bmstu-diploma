@@ -14,6 +14,8 @@ prometheus:
 	kubectl port-forward -n monitoring svc/prometheus-operated 30090:9090
 #	kubectl port-forward -n monitoring prometheus-monitoring-kube-prometheus-prometheus-0 30090:9090
 
+a-api:
+	kubectl port-forward -n postgres-a svc/postgres-a 8080:8080
 a-check-db:
 	@if [ -z "$(word 2, $(MAKECMDGOALS))" ]; then \
 		echo "Error: Pod name is required. Usage: make $@ <pod-name>"; \
@@ -49,4 +51,4 @@ b-sidecar-logs:
 	@# Игнорируем аргумент, чтобы make не пытался его обработать как цель
 	@: $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
 
-.PHONY: run teardown pods interface a-check-db b-check-db a-sidecar-logs b-sidecar-logs grafana prometheus
+.PHONY: run teardown pods interface a-check-db b-check-db a-sidecar-logs b-sidecar-logs grafana prometheus a-api
