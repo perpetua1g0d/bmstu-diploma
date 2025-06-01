@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-func baseMetricsMiddleware(next http.HandlerFunc, serviceName string) http.HandlerFunc {
+func baseMetricsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	serviceName := "idp" // todo: get from config
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		rw := &responseWriter{w, http.StatusOK, 0}
@@ -23,24 +24,6 @@ func baseMetricsMiddleware(next http.HandlerFunc, serviceName string) http.Handl
 		httpResponseSize.WithLabelValues(r.Method, r.URL.Path, serviceName).Observe(float64(rw.size))
 	}
 }
-
-// func authVerifyMiddleware(next http.HandlerFunc, serviceName string) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		start := time.Now()
-// 		rw := &responseWriter{w, http.StatusOK, 0}
-
-// 		next(rw, r)
-
-// 		duration := float64(time.Since(start).Milliseconds())
-// 		status := strconv.Itoa(rw.status)
-
-// 		httpRequestsTotal.WithLabelValues(r.Method, r.URL.Path, status, serviceName).Inc()
-// 		httpRequestDuration.WithLabelValues(r.Method, r.URL.Path, serviceName).Observe(duration)
-
-// 		httpRequestSize.WithLabelValues(r.Method, r.URL.Path, serviceName).Observe(float64(r.ContentLength))
-// 		httpResponseSize.WithLabelValues(r.Method, r.URL.Path, serviceName).Observe(float64(rw.size))
-// 	}
-// }
 
 type responseWriter struct {
 	http.ResponseWriter

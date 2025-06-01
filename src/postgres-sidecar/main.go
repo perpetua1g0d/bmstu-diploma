@@ -32,12 +32,12 @@ var (
 	tokenSignedTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "client_token_sign_requests_total",
 		Help: "Total number of requests signed with token",
-	}, []string{"scope", "result", "enabled"})
+	}, []string{"scope", "result", "enabled", "service_name"})
 	tokenSignDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "client_token_sign_duration_milliseconds",
 		Help:    "Duration of token signing in milliseconds",
 		Buckets: []float64{1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000},
-	}, []string{"scope", "result", "enabled"})
+	}, []string{"scope", "result", "enabled", "service_name"})
 )
 
 func main() {
@@ -153,7 +153,7 @@ func createAuthClient(ctx context.Context, cfg *config.Config, scopes []string) 
 		CertsEndpointAddress:  idpAddress + "/realms/infra2infra/protocol/openid-connect/certs",
 		ConfigEndpointAddress: idpAddress + "/realms/infra2infra/.well-known/openid-configuration",
 		RequestTimeout:        5 * time.Second,
-		ErrTokenBackoff:       1 * time.Minute,
+		ErrTokenBackoff:       10 * time.Second,
 	}
 
 	log.Printf("auth config: %v", authCfg)
@@ -224,8 +224,8 @@ func (t *AuthTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	}
 	signDuration := float64(time.Since(signStart).Milliseconds())
 
-	tokenSignedTotal.WithLabelValues(scope, signResult, strconv.FormatBool(signEnabled)).Inc()
-	tokenSignDuration.WithLabelValues(scope, signResult, strconv.FormatBool(signEnabled)).Observe(signDuration)
+	tokenSignedTotal.WithLabelValues(scope, signResult, strconv.FormatBool(signEnabled), t.cfg.ServiceName).Inc()
+	tokenSignDuration.WithLabelValues(scope, signResult, strconv.FormatBool(signEnabled), t.cfg.ServiceName).Observe(signDuration)
 
 	return t.defaultRT.RoundTrip(r)
 }

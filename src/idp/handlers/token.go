@@ -36,7 +36,7 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 		return nil, fmt.Errorf("failed to create k8s verifier: %w", err)
 	}
 
-	return func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
 		var err error
 		var scope, clientID string
 		issueStart := time.Now()
@@ -63,7 +63,7 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 			return
 		}
 
-		log.Printf("Incoming request: Method=%s, URL=%s, Body=%s", r.Method, r.URL, r.Form)
+		// log.Printf("Incoming request: Method=%s, URL=%s, Body=%s", r.Method, r.URL, r.Form)
 
 		req := TokenRequest{
 			GrantType:        r.FormValue("grant_type"),
@@ -101,5 +101,7 @@ func NewTokenHandler(ctx context.Context, cfg *config.Config, keys *jwks.KeyPair
 		json.NewEncoder(w).Encode(issueResp)
 
 		log.Printf("token issued, clientID: %s, scope: %s", clientID, scope)
-	}, nil
+	}
+
+	return baseMetricsMiddleware(handler), nil
 }

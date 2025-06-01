@@ -8,6 +8,7 @@ import (
 	"github.com/perpetua1g0d/bmstu-diploma/idp/handlers"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -21,10 +22,13 @@ func main() {
 		log.Fatalf("Failed to create token handler: %v", err)
 	}
 
-	http.HandleFunc("/realms/infra2infra/.well-known/openid-configuration", handlers.OpenIDConfigHandler(cfg))
-	http.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", tokenHandler)
-	http.HandleFunc("/realms/infra2infra/protocol/openid-connect/certs", handlers.CertsHandler(keyPair))
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	mux.HandleFunc("/realms/infra2infra/.well-known/openid-configuration", handlers.OpenIDConfigHandler(cfg))
+	mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", tokenHandler)
+	mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/certs", handlers.CertsHandler(keyPair))
 
 	log.Printf("idp OIDC server started on %s", cfg.Address)
-	log.Fatal(http.ListenAndServe(cfg.Address, nil))
+	log.Fatal(http.ListenAndServe(cfg.Address, mux))
 }

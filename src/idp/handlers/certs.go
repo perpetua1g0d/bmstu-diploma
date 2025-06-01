@@ -8,9 +8,11 @@ import (
 )
 
 func CertsHandler(keys *jwks.KeyPair) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
 		jwks := keys.JWKS()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(jwks)
 	}
+
+	return baseMetricsMiddleware(handler)
 }

@@ -36,8 +36,8 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 			if token == "" {
 				verifyResult = "missing_token"
 				verifyDuration := float64(time.Since(verifyStart).Milliseconds())
-				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Inc()
-				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Observe(verifyDuration)
+				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Inc()
+				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Observe(verifyDuration)
 
 				respondError(w, "missing token", http.StatusUnauthorized)
 				return
@@ -52,8 +52,8 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 				log.Printf("failed to verify token: %v", verifyErr)
 				verifyResult = "permissions_denied"
 				verifyDuration := float64(time.Since(verifyStart).Milliseconds())
-				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Inc()
-				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Observe(verifyDuration)
+				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Inc()
+				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Observe(verifyDuration)
 
 				respondError(w, "forbidden: token has no required roles", http.StatusUnauthorized)
 				return
@@ -61,8 +61,8 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 		}
 
 		verifyDuration := float64(time.Since(verifyStart).Milliseconds())
-		tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Inc()
-		tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled)).Observe(verifyDuration)
+		tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Inc()
+		tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Observe(verifyDuration)
 
 		db, err := sql.Open("postgres", fmt.Sprintf(
 			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -107,7 +107,7 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 		})
 	}
 
-	return metricsMiddleware(handler, cfg.ServiceName)
+	return baseMetricsMiddleware(handler, cfg.ServiceName)
 }
 
 func getVerifyEnabled(cfg *config.Config) bool {

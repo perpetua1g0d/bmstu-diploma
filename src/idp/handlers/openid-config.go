@@ -8,7 +8,7 @@ import (
 )
 
 func OpenIDConfigHandler(cfg *config.Config) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
 		response := map[string]interface{}{
 			"issuer":                                cfg.Issuer,
 			"token_endpoint":                        cfg.Issuer + "/realms/infra2infra/protocol/openid-connect/token",
@@ -20,4 +20,6 @@ func OpenIDConfigHandler(cfg *config.Config) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	}
+
+	return handler
 }

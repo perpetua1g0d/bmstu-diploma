@@ -58,7 +58,8 @@ func (i *Issuer) IssueToken(clientID, scope string) (*IssueResp, error) {
 		return nil, fmt.Errorf("access denied for client %s to scope %s", clientID, scope)
 	}
 
-	exp := time.Now().Add(i.config.TokenTTL)
+	timeNow := time.Now()
+	exp := timeNow.Add(i.config.TokenTTL)
 	tokenClaims := tokens.Claims{
 		Iss:      i.config.Issuer,
 		Sub:      clientID,
@@ -67,7 +68,7 @@ func (i *Issuer) IssueToken(clientID, scope string) (*IssueResp, error) {
 		Scope:    scope,
 		Roles:    allowedRoles,
 		Exp:      exp,
-		Iat:      time.Now(),
+		Iat:      timeNow,
 	}
 
 	log.Printf("claims to issue: %v", tokenClaims)
