@@ -71,7 +71,7 @@ def update():
         # Отправляем уведомление сайдкарам
         notify_sidecars(service, sign, verify)
 
-        return redirect(url_for('index', service=service, message=f"Настройки для {service} обновлены!"))
+        return redirect(url_for('index', service=service, message=f"Настройки авторизации для {service} успешно применены."))
     except Exception as e:
         return redirect(url_for('index', service=service, message=f"Ошибка: {str(e)}"))
 
@@ -91,7 +91,7 @@ def update_all():
             # Отправляем уведомление сайдкарам
             notify_sidecars(service, sign, verify)
 
-        return redirect(url_for('index', message="Настройки для всех сервисов обновлены!"))
+        return redirect(url_for('index', message="Глобальные настройки авторизации для всех сервисов успешно применены."))
     except Exception as e:
         return redirect(url_for('index', message=f"Ошибка: {str(e)}"))
 
