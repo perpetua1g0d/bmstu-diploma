@@ -51,7 +51,7 @@ done
 
 kubectl create configmap grafana-dashboards \
   -n monitoring \
-  --from-file=7645_rev259.json=k8s/monitoring/dashboards/7645_rev259.json \
+  --from-file=cluster_service_metrics.json=k8s/monitoring/dashboards/cluster_service_metrics.json \
   --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl label configmap -n monitoring grafana-dashboards grafana_dashboard=1 --overwrite
