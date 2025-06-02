@@ -26,6 +26,8 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		// log.Printf("Incoming request: %s %s", r.Method, r.URL)
 
+		// cclient := aauth.New
+
 		var verifyEnabled bool
 		var verifyResult = "ok"
 		scope := cfg.ServiceName
