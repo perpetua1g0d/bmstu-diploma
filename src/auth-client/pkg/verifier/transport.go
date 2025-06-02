@@ -28,7 +28,7 @@ import (
 // 	}
 // }
 
-func VerifyMiddleware(next http.HandlerFunc, verifier *Verifier, requiredRoles []string) http.HandlerFunc {
+func VerifySQLMiddleware(next http.HandlerFunc, verifier *Verifier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cfg := verifier.cfg
 
@@ -43,20 +43,21 @@ func VerifyMiddleware(next http.HandlerFunc, verifier *Verifier, requiredRoles [
 
 		}()
 
+		requiredRoles := []string{"RO"}
+		dbQuery := strings.ToUpper(r.URL.Query().Get("sql"))
+		if strings.Contains(dbQuery, "INSERT") || strings.Contains(dbQuery, "UPDATE") || strings.Contains(dbQuery, "DELETE") {
+			requiredRoles = []string{"RW"}
+		}
+
 		if verifyEnabled {
-			token := r.Header.Get("X-I2I-Token")
+			token := r.Header.Get("X-S2I-Token")
 			if token == "" {
 				verifyResult = "missing_token"
 				respondError(w, "missing token", http.StatusUnauthorized)
 				return
 			}
 
-			requiredRole := "RO"
-			if !strings.Contains(strings.ToUpper(r.URL.Query().Get("sql")), "SELECT") {
-				requiredRole = "RW"
-			}
-
-			if verifyErr := verifier.VerifyToken(token, []string{requiredRole}); verifyErr != nil {
+			if verifyErr := verifier.verifyToken(token, requiredRoles); verifyErr != nil {
 				log.Printf("failed to verify token: %v", verifyErr)
 				verifyResult = "permissions_denied"
 				respondError(w, "forbidden: token has no required roles", http.StatusUnauthorized)

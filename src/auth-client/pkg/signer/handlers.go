@@ -11,8 +11,7 @@ func (s *TokenSigner) NewRealodHandler() http.HandlerFunc {
 		log.Println("Received config reload request")
 
 		var data struct {
-			Sign   bool `json:"sign"`
-			Verify bool `json:"verify"`
+			Sign bool `json:"sign"`
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
@@ -23,10 +22,8 @@ func (s *TokenSigner) NewRealodHandler() http.HandlerFunc {
 
 		// атомарно
 		s.cfg.SignAuthEnabled.Store(&data.Sign)
-		// s.cfg.VerifyAuthEnabled.Store(&data.Verify)
 
 		log.Printf("Signer auth settings updated via HTTP: SIGN=%v", data.Sign)
-		// log.Printf("Signer auth settings updated via HTTP: SIGN=%v, VERIFY=%v", data.Sign, data.Verify)
 		w.WriteHeader(http.StatusOK)
 	}
 

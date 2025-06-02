@@ -23,6 +23,8 @@ kubectl port-forward -n postgres-a svc/postgres-a 8080:8080
 # by ip (instance):
 kube_namespace_status_phase{container="kube-state-metrics", endpoint="http", instance="10.42.0.12:8080", namespace="admin-panel", pod="monitoring-kube-state-metrics-685d474d78-x4d4v", service="monitoring-kube-state-metrics"}
 
+
+go env -w GOPRIVATE=github.com/perpetua1g0d/bmstu-diploma
 docker-ghcr:
 	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
 after laptop reload:

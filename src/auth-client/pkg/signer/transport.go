@@ -37,7 +37,7 @@ func (t *SignerTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 			log.Printf("failed to issue token in auth client on scope %s: %v", t.scope, err)
 			signResult = "error"
 		} else {
-			r.Header.Set("X-I2I-Token", token)
+			r.Header.Set("X-S2I-Token", token)
 		}
 	}
 	signDuration := float64(time.Since(signStart).Milliseconds())
