@@ -9,7 +9,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/config"
 )
 
 type TokenResp struct {

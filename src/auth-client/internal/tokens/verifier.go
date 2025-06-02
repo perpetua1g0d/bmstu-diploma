@@ -11,12 +11,8 @@ import (
 
 	"github.com/go-jose/go-jose/v3"
 	"github.com/go-jose/go-jose/v3/jwt"
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/config"
 	"github.com/samber/lo"
-)
-
-const (
-	idpIssuer = "http://idp.idp.svc.cluster.local"
 )
 
 type tokenClaims struct {
@@ -41,6 +37,10 @@ func NewVerifier(ctx context.Context, cfg *config.Config) (*Verifier, error) {
 		cfg: cfg,
 	}
 
+	if err := v.fetchIdPEndpoints(ctx); err != nil {
+		return nil, fmt.Errorf("failed to fetch idp endpoints: %w", err)
+	}
+
 	certs, err := v.fetchJWKs(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get idp certificates: %w", err)
@@ -50,8 +50,8 @@ func NewVerifier(ctx context.Context, cfg *config.Config) (*Verifier, error) {
 	return v, nil
 }
 
-func (v *Verifier) FetchIdPEndpoints(_ context.Context) error {
-	idpAddress := fmt.Sprintf("%s:80", idpIssuer)
+func (v *Verifier) fetchIdPEndpoints(_ context.Context) error {
+	idpAddress := fmt.Sprintf("%s:80", config.IdPIssuer)
 	v.cfg.TokenEndpointAddress = idpAddress + "/realms/service2infra/protocol/openid-connect/token"
 	v.cfg.CertsEndpointAddress = idpAddress + "/realms/serviceinfra/protocol/openid-connect/certs"
 	v.cfg.ConfigEndpointAddress = idpAddress + "/realms/service2infra/.well-known/openid-configuration"
@@ -76,8 +76,8 @@ func (v *Verifier) VerifyToken(rawToken string, needRoles []string) error {
 func (v *Verifier) verifyClaims(claims *tokenClaims, needRoles []string) error {
 	if claims.Scope != claims.Aud || claims.Scope != v.cfg.ClientID {
 		return fmt.Errorf("scope or aud is unexpected, service: %s, scope: %s, aud: %s", v.cfg.ClientID, claims.Scope, claims.Aud)
-	} else if claims.Iss != idpIssuer {
-		return fmt.Errorf("unexpected issuer, expected: %s, got: %s", idpIssuer, claims.Iss)
+	} else if claims.Iss != config.IdPIssuer {
+		return fmt.Errorf("unexpected issuer, expected: %s, got: %s", config.IdPIssuer, claims.Iss)
 	} else if expired := claims.Exp.Before(time.Now()); expired {
 		return fmt.Errorf("token is expired, exp: %s, now: %s", claims.Exp, time.Now())
 	} else if rolesOk := lo.Every(claims.Roles, needRoles); !rolesOk {

@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/pkg/config"
+	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/config"
 )
 
 const (

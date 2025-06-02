@@ -1,4 +1,4 @@
-package mw
+package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
@@ -28,22 +28,28 @@ var (
 		Help:       "Size of HTTP responses",
 		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 	}, []string{"method", "path", "service_name"})
-
-	// dbQueryDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-	// 	Name:    "db_query_duration_milliseconds",
-	// 	Help:    "Duration of database queries in milliseconds",
-	// 	Buckets: []float64{1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000},
-	// }, []string{"operation", "service_name"}) // todo: add target
 )
 
 var (
-	tokenVerifyTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+	TokenSignedTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "client_token_sign_requests_total",
+		Help: "Total number of requests signed with token",
+	}, []string{"scope", "result", "enabled", "service_name"})
+	TokenSignDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "client_token_sign_duration_milliseconds",
+		Help:    "Duration of token signing in milliseconds",
+		Buckets: []float64{1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000},
+	}, []string{"scope", "result", "enabled", "service_name"})
+)
+
+var (
+	TokenVerifyTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "client_token_verify_requests_total",
 		Help: "Total number of requests verified with token",
-	}, []string{"scope", "result", "enabled", "service_name"})
-	tokenVerifyDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	}, []string{"result", "enabled", "service_name"})
+	TokenVerifyDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name:    "client_token_verify_duration_milliseconds",
 		Help:    "Duration of token verification in milliseconds",
 		Buckets: []float64{1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000},
-	}, []string{"scope", "result", "enabled", "service_name"})
+	}, []string{"result", "enabled", "service_name"})
 )
