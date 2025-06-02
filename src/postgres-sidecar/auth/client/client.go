@@ -3,6 +3,8 @@ package auth_client
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/tokens"
@@ -15,7 +17,7 @@ type AuthClient struct {
 	verifier *tokens.Verifier
 }
 
-func NewAuthClient(ctx context.Context, cfg *config.Config, scopes []string) (*AuthClient, error) {
+func NewAuthClient(ctx context.Context, mux *http.ServeMux, cfg *config.Config, scopes []string) (*AuthClient, error) {
 	ts, err := tokens.NewTokenSet(ctx, cfg, scopes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tokenset: %w", err)
@@ -26,11 +28,15 @@ func NewAuthClient(ctx context.Context, cfg *config.Config, scopes []string) (*A
 		return nil, fmt.Errorf("failed to create verifier: %w", err)
 	}
 
-	return &AuthClient{
+	authClient := &AuthClient{
 		cfg:      cfg,
 		ts:       ts,
 		verifier: verifier,
-	}, nil
+	}
+
+	mux.HandleFunc("/refresh_tokens", authClient.NewRefreshTokensHandler())
+
+	return authClient, nil
 }
 
 func (c *AuthClient) Token(scope string) (string, error) {
@@ -39,4 +45,17 @@ func (c *AuthClient) Token(scope string) (string, error) {
 
 func (c *AuthClient) VerifyToken(rawToken string, needRoles []string) error {
 	return c.verifier.VerifyToken(rawToken, needRoles)
+}
+
+func (c *AuthClient) RefreshTokens() {
+	c.ts.RefreshTokens()
+}
+
+func (c *AuthClient) NewRefreshTokensHandler() http.HandlerFunc {
+	handler := func(_ http.ResponseWriter, _ *http.Request) {
+		c.RefreshTokens()
+		log.Printf("Triggered tokens refresh.")
+	}
+
+	return handler
 }

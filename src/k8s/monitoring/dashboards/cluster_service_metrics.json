@@ -877,8 +877,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -973,8 +972,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1070,8 +1068,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1130,7 +1127,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "postgres-b",
           "value": "postgres-b"
         },
@@ -1157,7 +1154,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "0.99",
           "value": "0.99"
         },
@@ -1198,6 +1195,6 @@
   "timezone": "",
   "title": "bmstu cluster service metrics",
   "uid": "b576b4e5-2352-4b1e-a8fe-a605443e2c2a",
-  "version": 38,
+  "version": 39,
   "weekStart": ""
 }

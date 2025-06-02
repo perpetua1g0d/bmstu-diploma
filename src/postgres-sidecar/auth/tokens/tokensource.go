@@ -74,6 +74,12 @@ func (t *TokenSet) Token(scope string) (string, error) {
 	return token, nil
 }
 
+func (t *TokenSet) RefreshTokens() {
+	for _, ts := range t.set {
+		ts.refreshCh <- struct{}{}
+	}
+}
+
 func NewTokenSource(ctx context.Context, cfg *config.Config, scope string) (*TokenSource, error) {
 	issuer := NewIssuer(cfg)
 

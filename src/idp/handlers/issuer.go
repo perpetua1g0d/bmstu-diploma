@@ -17,14 +17,15 @@ type IssueResp struct {
 	ExpiresIn   time.Time `json:"expires_in"`
 }
 
-type Issuer struct {
+type TokenIssuer struct {
 	config  *config.Config
 	keyPair *jwks.KeyPair
-	signer  jose.Signer
-	rolesDB map[string]map[string][]string
+	signer  jwks.Signer
+
+	repository Repository
 }
 
-func NewIssuer(cfg *config.Config, keys *jwks.KeyPair) (*Issuer, error) {
+func NewIssuer(cfg *config.Config, keys *jwks.KeyPair, repository Repository) (*TokenIssuer, error) {
 	signer, err := jose.NewSigner(
 		jose.SigningKey{
 			Algorithm: jose.RS256,
@@ -41,22 +42,19 @@ func NewIssuer(cfg *config.Config, keys *jwks.KeyPair) (*Issuer, error) {
 		return nil, fmt.Errorf("failed to create signer: %w", err)
 	}
 
-	return &Issuer{
-		config:  cfg,
-		keyPair: keys,
-		signer:  signer,
-		rolesDB: map[string]map[string][]string{
-			"postgres-a": {"postgres-b": {"RO", "RW"}},
-			"postgres-b": {"postgres-a": {"RO"}},
-		},
+	return &TokenIssuer{
+		config:     cfg,
+		keyPair:    keys,
+		signer:     signer,
+		repository: repository,
 	}, nil
 }
 
-func (i *Issuer) IssueToken(clientID, scope string) (*IssueResp, error) {
-	allowedRoles, ok := i.rolesDB[clientID][scope]
-	if !ok {
-		return nil, fmt.Errorf("access denied for client %s to scope %s", clientID, scope)
-	}
+func (i *TokenIssuer) IssueToken(clientID, scope string) (*IssueResp, error) {
+	allowedRoles := i.repository.GetPermissions(clientID, scope)
+	// if !ok {
+	// 	return nil, fmt.Errorf("access denied for client %s to scope %s", clientID, scope)
+	// }
 
 	timeNow := time.Now()
 	exp := timeNow.Add(i.config.TokenTTL)

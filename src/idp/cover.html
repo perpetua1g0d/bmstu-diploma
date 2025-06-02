@@ -1,0 +1,993 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>handlers: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/perpetua1g0d/bmstu-diploma/idp/handlers/api.go (0.0%)</option>
+				
+				<option value="file1">github.com/perpetua1g0d/bmstu-diploma/idp/handlers/certs.go (0.0%)</option>
+				
+				<option value="file2">github.com/perpetua1g0d/bmstu-diploma/idp/handlers/issuer.go (61.5%)</option>
+				
+				<option value="file3">github.com/perpetua1g0d/bmstu-diploma/idp/handlers/mw.go (100.0%)</option>
+				
+				<option value="file4">github.com/perpetua1g0d/bmstu-diploma/idp/handlers/openid-config.go (0.0%)</option>
+				
+				<option value="file5">github.com/perpetua1g0d/bmstu-diploma/idp/handlers/permissions.go (93.8%)</option>
+				
+				<option value="file6">github.com/perpetua1g0d/bmstu-diploma/idp/handlers/token.go (87.0%)</option>
+				
+				<option value="file7">github.com/perpetua1g0d/bmstu-diploma/idp/main.go (0.0%)</option>
+				
+				<option value="file8">github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config/config.go (0.0%)</option>
+				
+				<option value="file9">github.com/perpetua1g0d/bmstu-diploma/idp/pkg/db/db_permissions.go (0.0%)</option>
+				
+				<option value="file10">github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks/jwks.go (21.7%)</option>
+				
+				<option value="file11">github.com/perpetua1g0d/bmstu-diploma/idp/pkg/k8s/claims.go (100.0%)</option>
+				
+				<option value="file12">github.com/perpetua1g0d/bmstu-diploma/idp/pkg/k8s/jwks.go (85.3%)</option>
+				
+				<option value="file13">github.com/perpetua1g0d/bmstu-diploma/idp/pkg/k8s/verifier.go (60.9%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package handlers
+
+import (
+        "context"
+        "fmt"
+
+        "github.com/golang-jwt/jwt/v5"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/k8s"
+)
+
+type K8sVerifier interface {
+        VerifyWithClient(k8sToken string) (string, jwt.Claims, error)
+}
+
+type Issuer interface {
+        IssueToken(clientID, scope string) (*IssueResp, error)
+}
+
+type Repository interface {
+        UpdatePermissions(client, scope string, roles []string) error
+        GetPermissions(client, scope string) []string
+}
+
+type ControllerOpts struct {
+        Cfg  *config.Config
+        Keys *jwks.KeyPair
+
+        Repository Repository
+}
+
+type Controller struct {
+        k8sVerifier K8sVerifier
+        repository  Repository
+        issuer      Issuer
+
+        cfg  *config.Config
+        keys *jwks.KeyPair
+}
+
+func NewController(ctx context.Context, opts *ControllerOpts) (*Controller, error) <span class="cov0" title="0">{
+        cfg := opts.Cfg
+        keys := opts.Keys
+        repository := opts.Repository
+
+        issuer, err := NewIssuer(cfg, keys, repository)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create issued: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">k8sVerifier, err := k8s.NewVerifier(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create k8s verifier: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;Controller{
+                cfg:  cfg,
+                keys: keys,
+
+                k8sVerifier: k8sVerifier,
+                repository:  repository,
+                issuer:      issuer,
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package handlers
+
+import (
+        "encoding/json"
+        "net/http"
+)
+
+func (ctl *Controller) CertsHandler() http.HandlerFunc <span class="cov0" title="0">{
+        handler := func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                jwks := ctl.keys.JWKS()
+                w.Header().Set("Content-Type", "application/json")
+                json.NewEncoder(w).Encode(jwks)
+        }</span>
+
+        <span class="cov0" title="0">return baseMetricsMiddleware(handler)</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package handlers
+
+import (
+        "fmt"
+        "log"
+        "time"
+
+        "github.com/go-jose/go-jose/v3"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
+)
+
+type IssueResp struct {
+        AccessToken string    `json:"access_token"`
+        Type        string    `json:"token_type"`
+        ExpiresIn   time.Time `json:"expires_in"`
+}
+
+type TokenIssuer struct {
+        config  *config.Config
+        keyPair *jwks.KeyPair
+        signer  jwks.Signer
+
+        repository Repository
+}
+
+func NewIssuer(cfg *config.Config, keys *jwks.KeyPair, repository Repository) (*TokenIssuer, error) <span class="cov0" title="0">{
+        signer, err := jose.NewSigner(
+                jose.SigningKey{
+                        Algorithm: jose.RS256,
+                        Key: jose.JSONWebKey{
+                                Key:       keys.PrivateKey,
+                                KeyID:     keys.KeyID,
+                                Algorithm: "RS256",
+                                Use:       "sig",
+                        },
+                },
+                nil,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create signer: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;TokenIssuer{
+                config:     cfg,
+                keyPair:    keys,
+                signer:     signer,
+                repository: repository,
+        }, nil</span>
+}
+
+func (i *TokenIssuer) IssueToken(clientID, scope string) (*IssueResp, error) <span class="cov8" title="1">{
+        allowedRoles := i.repository.GetPermissions(clientID, scope)
+        // if !ok {
+        //         return nil, fmt.Errorf("access denied for client %s to scope %s", clientID, scope)
+        // }
+
+        timeNow := time.Now()
+        exp := timeNow.Add(i.config.TokenTTL)
+        tokenClaims := tokens.Claims{
+                Iss:      i.config.Issuer,
+                Sub:      clientID,
+                ClientID: clientID,
+                Aud:      scope,
+                Scope:    scope,
+                Roles:    allowedRoles,
+                Exp:      exp,
+                Iat:      timeNow,
+        }
+
+        log.Printf("claims to issue: %v", tokenClaims)
+
+        accessToken, err := jwks.GenerateJWT(i.signer, tokenClaims)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("failed to generate jwt: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;IssueResp{
+                AccessToken: accessToken,
+                Type:        "Bearer",
+                ExpiresIn:   exp,
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package handlers
+
+import (
+        "net/http"
+        "strconv"
+        "time"
+)
+
+func baseMetricsMiddleware(next http.HandlerFunc) http.HandlerFunc <span class="cov8" title="1">{
+        serviceName := "idp" // todo: get from config
+        return func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                start := time.Now()
+                rw := &amp;responseWriter{w, http.StatusOK, 0}
+
+                next(rw, r)
+
+                duration := float64(time.Since(start).Milliseconds())
+                status := strconv.Itoa(rw.status)
+
+                httpRequestsTotal.WithLabelValues(r.Method, r.URL.Path, status, serviceName).Inc()
+                httpRequestDuration.WithLabelValues(r.Method, r.URL.Path, serviceName).Observe(duration)
+
+                httpRequestSize.WithLabelValues(r.Method, r.URL.Path, serviceName).Observe(float64(r.ContentLength))
+                httpResponseSize.WithLabelValues(r.Method, r.URL.Path, serviceName).Observe(float64(rw.size))
+        }</span>
+}
+
+type responseWriter struct {
+        http.ResponseWriter
+        status int
+        size   int
+}
+
+func (rw *responseWriter) WriteHeader(status int) <span class="cov8" title="1">{
+        rw.status = status
+        rw.ResponseWriter.WriteHeader(status)
+}</span>
+
+func (rw *responseWriter) Write(b []byte) (int, error) <span class="cov8" title="1">{
+        size, err := rw.ResponseWriter.Write(b)
+        rw.size += size
+        return size, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package handlers
+
+import (
+        "encoding/json"
+        "net/http"
+)
+
+func (ctl *Controller) OpenIDConfigHandler() http.HandlerFunc <span class="cov0" title="0">{
+        handler := func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                response := map[string]interface{}{
+                        "issuer":                                ctl.cfg.Issuer,
+                        "token_endpoint":                        ctl.cfg.Issuer + "/realms/infra2infra/protocol/openid-connect/token",
+                        "jwks_uri":                              ctl.cfg.Issuer + "/realms/infra2infra/protocol/openid-connect/certs",
+                        "grant_types_supported":                 []string{grantTypeTokenExchange},
+                        "id_token_signing_alg_values_supported": []string{"RS256"},
+                }
+
+                w.Header().Set("Content-Type", "application/json")
+                json.NewEncoder(w).Encode(response)
+        }</span>
+
+        <span class="cov0" title="0">return handler</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package handlers
+
+import (
+        "context"
+        "encoding/json"
+        "fmt"
+        "log"
+        "net/http"
+)
+
+type PermissionsRequest struct {
+        Client string   `json:"client"`
+        Scope  string   `json:"scope"`
+        Roles  []string `json:"roles"`
+}
+
+type PermissionsResponse struct {
+        Roles []string `json:"roles"`
+}
+
+func (ctl *Controller) NewUpdatePermissionsHandler(ctx context.Context) http.HandlerFunc <span class="cov8" title="1">{
+        handler := func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                var req PermissionsRequest
+                if err := json.NewDecoder(r.Body).Decode(&amp;req); err != nil </span><span class="cov8" title="1">{
+                        respondError(w, fmt.Sprintf("invalid request: %v", err), http.StatusBadRequest)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">if err := ctl.repository.UpdatePermissions(req.Client, req.Scope, req.Roles); err != nil </span><span class="cov8" title="1">{
+                        log.Printf("failed to update permissions (%s -&gt; %s: %v): %v", req.Client, req.Scope, req.Roles, err)
+                        respondError(w, fmt.Sprintf("failed to update permissions: %v", err), http.StatusInternalServerError)
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">return baseMetricsMiddleware(handler)</span>
+}
+
+func (ctl *Controller) NewGetPermissionsHandler(ctx context.Context) http.HandlerFunc <span class="cov8" title="1">{
+        handler := func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                var req PermissionsRequest
+                if err := json.NewDecoder(r.Body).Decode(&amp;req); err != nil </span><span class="cov8" title="1">{
+                        respondError(w, fmt.Sprintf("invalid request: %v", err), http.StatusBadRequest)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">client := req.Client
+                scope := req.Scope
+
+                roles := ctl.repository.GetPermissions(client, scope)
+                resp := PermissionsResponse{Roles: roles}
+
+                marhsalled, err := json.Marshal(resp)
+                if err != nil </span><span class="cov0" title="0">{
+                        respondError(w, fmt.Sprintf("failed to marhsal get permissions response: %v", err), http.StatusInternalServerError)
+                        return
+                }</span> else<span class="cov8" title="1"> if _, err := w.Write(marhsalled); err != nil </span><span class="cov8" title="1">{
+                        respondError(w, fmt.Sprintf("failed to write get permissions response: %v", err), http.StatusInternalServerError)
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">return baseMetricsMiddleware(handler)</span>
+}
+
+func respondError(w http.ResponseWriter, message string, code int) <span class="cov8" title="1">{
+        if code != http.StatusOK </span><span class="cov8" title="1">{
+                log.Printf("request failed: status: %d, message %s", code, message)
+        }</span>
+
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(code)
+        json.NewEncoder(w).Encode(RespErr{Error: message})</span>
+}
+
+type RespErr struct {
+        Error string `json:"error"`
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package handlers
+
+import (
+        "context"
+        "encoding/json"
+        "log"
+        "net/http"
+        "time"
+)
+
+const (
+        grantTypeTokenExchange = "urn:ietf:params:oauth:grant-type:token-exchange" // RFC 8693
+        k8sTokenType           = "urn:ietf:params:oauth:token-type:jwt:kubernetes"
+)
+
+type TokenRequest struct {
+        GrantType        string `form:"grant_type"`
+        SubjectTokenType string `form:"subject_token_type"`
+        SubjectToken     string `form:"subject_token"`
+        Scope            string `form:"scope"`
+}
+
+func (ctl *Controller) NewTokenHandler(ctx context.Context) (http.HandlerFunc, error) <span class="cov8" title="1">{
+        handler := func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                var err error
+                var scope, clientID string
+                issueStart := time.Now()
+                defer func() </span><span class="cov8" title="1">{
+                        issueDuration := float64(time.Since(issueStart).Milliseconds())
+                        tokenResult := "ok"
+                        if err != nil </span><span class="cov8" title="1">{
+                                tokenResult = "error"
+                        }</span>
+                        <span class="cov8" title="1">if clientID == "" </span><span class="cov8" title="1">{
+                                clientID = "unknown"
+                        }</span>
+                        <span class="cov8" title="1">if scope == "" </span><span class="cov8" title="1">{
+                                scope = "unknown"
+                        }</span>
+
+                        <span class="cov8" title="1">tokenIssuedTotal.WithLabelValues(tokenResult, clientID, scope).Inc()
+                        tokenIssueDuration.WithLabelValues(tokenResult, clientID, scope).Observe(issueDuration)</span>
+                }()
+
+                <span class="cov8" title="1">if err = r.ParseForm(); err != nil </span><span class="cov0" title="0">{
+                        log.Printf("failed to parse form request params: %v", err)
+                        http.Error(w, `{"error":"invalid_request"}`, http.StatusBadRequest)
+                        return
+                }</span>
+
+                // log.Printf("Incoming request: Method=%s, URL=%s, Body=%s", r.Method, r.URL, r.Form)
+
+                <span class="cov8" title="1">req := TokenRequest{
+                        GrantType:        r.FormValue("grant_type"),
+                        SubjectTokenType: r.FormValue("subject_token_type"),
+                        SubjectToken:     r.FormValue("subject_token"),
+                        Scope:            r.FormValue("scope"),
+                }
+                scope = req.Scope
+
+                if req.GrantType != grantTypeTokenExchange </span><span class="cov8" title="1">{
+                        log.Printf("unexpected grant_type: %s", req.GrantType)
+                        http.Error(w, `{"error":"unsupported_grant_type"}`, http.StatusBadRequest)
+                        return
+                }</span> else<span class="cov8" title="1"> if req.SubjectTokenType != k8sTokenType </span><span class="cov8" title="1">{
+                        log.Printf("unexpected subject_token_type: %s", req.GrantType)
+                        http.Error(w, `{"error":"unsupported_subject_token_type"}`, http.StatusBadRequest)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">clientID, _, err = ctl.k8sVerifier.VerifyWithClient(req.SubjectToken)
+                if err != nil </span><span class="cov8" title="1">{
+                        log.Printf("failed to verify k8s token: %v", err)
+                        http.Error(w, `{"error":"token_not_verified"}`, http.StatusBadRequest)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">issueResp, err := ctl.issuer.IssueToken(clientID, scope)
+                if err != nil </span><span class="cov8" title="1">{
+                        log.Printf("failed to issue idp token: %v", err)
+                        http.Error(w, `{"error":"access_denied"}`, http.StatusForbidden)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json")
+                // json.NewEncoder(w).Encode(issueResp)
+                if err := json.NewEncoder(w).Encode(issueResp); err != nil </span><span class="cov0" title="0">{
+                        log.Printf("failed to write token response: %v", err)
+                        http.Error(w, `{"error":"internal_error"}`, http.StatusInternalServerError)
+                        return
+                }</span>
+
+                <span class="cov8" title="1">log.Printf("token issued, clientID: %s, scope: %s", clientID, scope)</span>
+        }
+
+        <span class="cov8" title="1">return baseMetricsMiddleware(handler), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+import (
+        "context"
+        "log"
+        "net/http"
+
+        "github.com/perpetua1g0d/bmstu-diploma/idp/handlers"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/db"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
+        "github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+func main() <span class="cov0" title="0">{
+        ctx := context.Background()
+
+        cfg := config.Load()
+        keyPair := jwks.GenerateKeyPair()
+
+        permissions := map[string]map[string][]string{
+                "postgres-a": {"postgres-b": {"RO", "RW"}},
+                "postgres-b": {"postgres-a": {"RO"}},
+        }
+        repository := db.NewRepository(permissions)
+
+        controllerOpts := &amp;handlers.ControllerOpts{
+                Cfg:        cfg,
+                Keys:       keyPair,
+                Repository: repository,
+        }
+        controller, err := handlers.NewController(ctx, controllerOpts)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Failed to create token controller: %v", err)
+        }</span>
+
+        <span class="cov0" title="0">tokenHandler, err := controller.NewTokenHandler(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Failed to create token handler: %v", err)
+        }</span>
+
+        <span class="cov0" title="0">mux := http.NewServeMux()
+        mux.Handle("/metrics", promhttp.Handler())
+
+        mux.HandleFunc("/realms/infra2infra/.well-known/openid-configuration", controller.OpenIDConfigHandler())
+        mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", tokenHandler)
+        mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/certs", controller.CertsHandler())
+
+        mux.HandleFunc("/update_permissions", controller.NewUpdatePermissionsHandler(ctx))
+        mux.HandleFunc("/get_permissions", controller.NewGetPermissionsHandler(ctx))
+
+        log.Printf("idp OIDC server started on %s", cfg.Address)
+        log.Fatal(http.ListenAndServe(cfg.Address, mux))</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package config
+
+import "time"
+
+type Config struct {
+        Address  string
+        Issuer   string
+        TokenTTL time.Duration
+}
+
+func Load() *Config <span class="cov0" title="0">{
+        return &amp;Config{
+                Address:  ":8080",
+                Issuer:   "http://idp.idp.svc.cluster.local",
+                TokenTTL: 10 * time.Minute,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package db
+
+import "sync"
+
+type storage struct {
+        sync.Mutex
+        permissions map[string]map[string][]string
+}
+
+type Repository struct {
+        storage *storage
+}
+
+func NewRepository(permissions map[string]map[string][]string) *Repository <span class="cov0" title="0">{
+        return &amp;Repository{
+                storage: &amp;storage{
+                        permissions: permissions,
+                },
+        }
+}</span>
+
+func (r *Repository) UpdatePermissions(client, scope string, roles []string) error <span class="cov0" title="0">{
+        r.storage.Lock()
+        defer r.storage.Unlock()
+
+        r.storage.permissions[client][scope] = roles
+        return nil
+}</span>
+
+func (r *Repository) GetPermissions(client, scope string) []string <span class="cov0" title="0">{
+        r.storage.Lock()
+        defer r.storage.Unlock()
+
+        clientPerms, ok := r.storage.permissions[client]
+        if !ok </span><span class="cov0" title="0">{
+                return []string{}
+        }</span>
+
+        <span class="cov0" title="0">roles, ok := clientPerms[scope]
+        if !ok </span><span class="cov0" title="0">{
+                return []string{}
+        }</span>
+
+        <span class="cov0" title="0">return roles</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package jwks
+
+import (
+        "crypto/rand"
+        "crypto/rsa"
+        "crypto/sha1"
+        "crypto/sha256"
+        "crypto/x509"
+        "crypto/x509/pkix"
+        "encoding/base64"
+        "encoding/json"
+        "math/big"
+        "time"
+
+        "github.com/go-jose/go-jose/v3"
+        "github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
+)
+
+type Signer interface {
+        Sign(payload []byte) (*jose.JSONWebSignature, error)
+        Options() jose.SignerOptions
+}
+
+type KeyPair struct {
+        PrivateKey  *rsa.PrivateKey
+        Certificate *x509.Certificate
+        KeyID       string
+}
+
+func GenerateKeyPair() *KeyPair <span class="cov0" title="0">{
+        privateKey, _ := rsa.GenerateKey(rand.Reader, 2048)
+
+        now := time.Now()
+        template := &amp;x509.Certificate{
+                SerialNumber:          big.NewInt(1),
+                Subject:               pkix.Name{CommonName: "idp-oidc"},
+                NotBefore:             now,
+                NotAfter:              now.Add(24 * time.Hour * 365),
+                BasicConstraintsValid: true,
+                KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+        }
+
+        certDER, _ := x509.CreateCertificate(
+                rand.Reader,
+                template,
+                template,
+                privateKey.Public(),
+                privateKey,
+        )
+
+        cert, _ := x509.ParseCertificate(certDER)
+
+        return &amp;KeyPair{
+                PrivateKey:  privateKey,
+                Certificate: cert,
+                KeyID:       generateKeyID(),
+        }
+}</span>
+
+func (k *KeyPair) JWKS() jose.JSONWebKeySet <span class="cov0" title="0">{
+        jwk := jose.JSONWebKey{
+                Key:          k.PrivateKey.Public(),
+                Certificates: []*x509.Certificate{k.Certificate},
+                KeyID:        k.KeyID,
+                Algorithm:    "RS256",
+                Use:          "sig",
+        }
+
+        return jose.JSONWebKeySet{Keys: []jose.JSONWebKey{jwk}}
+}</span>
+
+func generateKeyID() string <span class="cov0" title="0">{
+        const defaultLength = 24
+
+        buf := make([]byte, defaultLength)
+        rand.Read(buf)
+        return base64.RawURLEncoding.EncodeToString(buf)
+}</span>
+
+func GenerateJWT(signer Signer, claims tokens.Claims) (string, error) <span class="cov8" title="1">{
+        payload, err := json.Marshal(claims)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">signature, err := signer.Sign(payload)
+        if err != nil </span><span class="cov8" title="1">{
+                return "", err
+        }</span>
+
+        <span class="cov0" title="0">return signature.CompactSerialize()</span>
+}
+
+func getX5t(cert *x509.Certificate) string <span class="cov0" title="0">{
+        h := sha1.Sum(cert.Raw)
+        return base64.RawURLEncoding.EncodeToString(h[:])
+}</span>
+
+func getX5tS256(cert *x509.Certificate) string <span class="cov0" title="0">{
+        h := sha256.Sum256(cert.Raw)
+        return base64.RawURLEncoding.EncodeToString(h[:])
+}</span>
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package k8s
+
+import (
+        "github.com/golang-jwt/jwt/v5"
+)
+
+type privateClaims struct {
+        Exp        *jwt.NumericDate `json:"exp"`
+        Iat        *jwt.NumericDate `json:"iat"`
+        Nbf        *jwt.NumericDate `json:"nbf"`
+        Iss        string           `json:"iss"`
+        Sub        string           `json:"sub"`
+        Aud        jwt.ClaimStrings `json:"aud"`
+        Kubernetes kubernetesClaims `json:"kubernetes.io"`
+}
+
+func (p privateClaims) GetExpirationTime() (*jwt.NumericDate, error) <span class="cov8" title="1">{
+        return p.Exp, nil
+}</span>
+
+func (p privateClaims) GetIssuedAt() (*jwt.NumericDate, error) <span class="cov8" title="1">{
+        return p.Iat, nil
+}</span>
+
+func (p privateClaims) GetNotBefore() (*jwt.NumericDate, error) <span class="cov8" title="1">{
+        return p.Nbf, nil
+}</span>
+
+func (p privateClaims) GetIssuer() (string, error) <span class="cov8" title="1">{
+        return p.Iss, nil
+}</span>
+
+func (p privateClaims) GetSubject() (string, error) <span class="cov8" title="1">{
+        return p.Sub, nil
+}</span>
+
+func (p privateClaims) GetAudience() (jwt.ClaimStrings, error) <span class="cov8" title="1">{
+        return p.Aud, nil
+}</span>
+
+type ref struct {
+        Name string `json:"name"`
+        UID  string `json:"uid"`
+}
+type kubernetesClaims struct {
+        Namespace string `json:"namespace"`
+        Pod       ref    `json:"pod"`
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package k8s
+
+import (
+        "crypto/rsa"
+        "crypto/tls"
+        "crypto/x509"
+        "encoding/base64"
+        "encoding/json"
+        "errors"
+        "fmt"
+        "math/big"
+        "net/http"
+)
+
+type JWKS struct {
+        Keys []JWK `json:"keys"`
+}
+
+type JWK struct {
+        Kty string `json:"kty"`
+        Kid string `json:"kid"`
+        Use string `json:"use"`
+        Alg string `json:"alg"`
+        N   string `json:"n"`
+        E   string `json:"e"`
+}
+
+type K8sClient struct {
+        readSecrets func(name string) ([]byte, error)
+
+        client  *http.Client
+        jwksURL string
+}
+
+func (k *K8sClient) setup() error <span class="cov8" title="1">{
+        caCert, err := k.readSecrets("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error reading CA cert: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">caCertPool := x509.NewCertPool()
+        caCertPool.AppendCertsFromPEM(caCert)
+
+        client := &amp;http.Client{
+                Transport: &amp;http.Transport{
+                        TLSClientConfig: &amp;tls.Config{
+                                RootCAs: caCertPool,
+                        },
+                },
+        }
+
+        k.client = client
+        k.jwksURL = "https://kubernetes.default.svc/openid/v1/jwks"
+
+        return nil</span>
+}
+
+func (k *K8sClient) GetPublicKey() (*rsa.PublicKey, error) <span class="cov8" title="1">{
+        token, err := k.readSecrets("/var/run/secrets/kubernetes.io/serviceaccount/token")
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("error reading token: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">req, err := http.NewRequest("GET", k.jwksURL, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("creating k8s jwks request: %w", err)
+        }</span>
+        <span class="cov8" title="1">req.Header.Add("Authorization", "Bearer "+string(token))
+
+        resp, err := k.client.Do(req)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("JWKS request failed: %w", err)
+        }</span>
+        <span class="cov8" title="1">defer resp.Body.Close()
+
+        var jwks JWKS
+        if err := json.NewDecoder(resp.Body).Decode(&amp;jwks); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("JWKS parse error: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">if len(jwks.Keys) == 0 </span><span class="cov0" title="0">{
+                return nil, errors.New("no keys in JWKS")
+        }</span>
+
+        <span class="cov8" title="1">key := jwks.Keys[0]
+        return makeRSAPublicKey(key)</span>
+}
+
+func makeRSAPublicKey(key JWK) (*rsa.PublicKey, error) <span class="cov8" title="1">{
+        nBytes, err := base64.RawURLEncoding.DecodeString(key.N)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("invalid modulus: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">eBytes, err := base64.RawURLEncoding.DecodeString(key.E)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, fmt.Errorf("invalid exponent: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;rsa.PublicKey{
+                N: new(big.Int).SetBytes(nBytes),
+                E: int(new(big.Int).SetBytes(eBytes).Int64()),
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package k8s
+
+import (
+        "context"
+        "crypto/rsa"
+        "fmt"
+        "os"
+        "strings"
+
+        "github.com/golang-jwt/jwt/v5"
+)
+
+type Verifier struct {
+        publicKey *rsa.PublicKey
+}
+
+func NewVerifier(_ context.Context) (*Verifier, error) <span class="cov0" title="0">{
+        k8sClient := &amp;K8sClient{
+                readSecrets: os.ReadFile,
+        }
+
+        if err := k8sClient.setup(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to setup k8s client: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">publicKey, err := k8sClient.GetPublicKey()
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get k8s public key: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;Verifier{
+                publicKey: publicKey,
+        }, nil</span>
+}
+
+func (v *Verifier) VerifyWithClient(k8sToken string) (string, jwt.Claims, error) <span class="cov8" title="1">{
+        var claims privateClaims
+        token, err := jwt.ParseWithClaims(k8sToken, &amp;claims, func(token *jwt.Token) (interface{}, error) </span><span class="cov8" title="1">{
+                if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("unexpected method: %v", token.Header["alg"])
+                }</span>
+                <span class="cov8" title="1">return v.publicKey, nil</span>
+        })
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                return "", nil, fmt.Errorf("parsing jwt: %v", err)
+        }</span>
+
+        <span class="cov8" title="1">if !token.Valid </span><span class="cov0" title="0">{
+                return "", claims, fmt.Errorf("token cannot be converted to known one, which means it is invalid")
+        }</span>
+
+        <span class="cov8" title="1">podName := claims.Kubernetes.Pod.Name
+        namespace := claims.Kubernetes.Namespace
+
+        if podName == "" || namespace == "" </span><span class="cov8" title="1">{
+                return "", claims, fmt.Errorf("invalid k8s token claims (pod: %s, namespace: %s)", podName, namespace)
+        }</span> else<span class="cov8" title="1"> if !strings.HasPrefix(podName+"-", namespace) </span><span class="cov8" title="1">{
+                return "", claims, fmt.Errorf("pod name and namespace must both start with service name (pod: %s, namespace: %s)", podName, namespace)
+        }</span>
+
+        <span class="cov8" title="1">return claims.Kubernetes.Namespace, claims, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

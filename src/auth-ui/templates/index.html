@@ -2,22 +2,13 @@
 <html>
 
 <head>
-    <title>Управление авторизацией</title>
-    <script>
-        function updateCheckboxes(service) {
-            window.history.replaceState(null, null, `?service=${service}`);
-            fetch(`/settings?service=${service}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.querySelector('input[name="sign"]').checked = data.sign;
-                    document.querySelector('input[name="verify"]').checked = data.verify;
-                });
-        }
-    </script>
+    <title>Административная панель авторизации</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            max-width: 1200px;
         }
 
         .message {
@@ -41,58 +32,307 @@
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            background: #f9f9f9;
         }
 
         select,
-        button {
+        button,
+        input[type="text"] {
             padding: 8px;
             margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         label {
             display: block;
-            margin: 10px 0;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .permissions-result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        button {
+            background-color: #2e7d32;
+            /* Более темный зеленый */
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            padding: 10px 15px;
+        }
+
+        button:hover {
+            background-color: #1b5e20;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group button {
+            flex: 1;
         }
     </style>
 </head>
 
 <body>
-    <h1>Управление настройками авторизации</h1>
+    <h1>Административная панель авторизации</h1>
 
-    {% if message %}
+    {% if message and not (request.args.get('from_refresh')) %}
     <div class="message {% if 'Ошибка' in message %}error{% else %}success{% endif %}">
         {{ message }}
     </div>
     {% endif %}
 
-    <form action="/update" method="post">
-        <label>Выберите сервис:</label>
-        <select name="service" onchange="updateCheckboxes(this.value)">
-            {% for service in services %}
-            <option value="{{ service }}" {% if service==selected_service %}selected{% endif %}>
-                {{ service }}
-            </option>
-            {% endfor %}
-        </select>
+    <div class="row">
+        <div class="col">
+            <div class="section">
+                <h2>Настройки сервиса</h2>
+                <form action="/update" method="post">
+                    <div class="form-group">
+                        <label>Выберите сервис:</label>
+                        <select name="service" onchange="updateCheckboxes(this.value)">
+                            {% for service in services %}
+                            <option value="{{ service }}" {% if service==selected_service %}selected{% endif %}>
+                                {{ service }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-        <label>
-            <input type="checkbox" name="sign" {% if sign_enabled %}checked{% endif %}>
-            SIGN_AUTH_ENABLED
-        </label>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="sign" {% if sign_enabled %}checked{% endif %}>
+                            Подпись запросов включена
+                        </label>
+                    </div>
 
-        <label>
-            <input type="checkbox" name="verify" {% if verify_enabled %}checked{% endif %}>
-            VERIFY_AUTH_ENABLED
-        </label>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="verify" {% if verify_enabled %}checked{% endif %}>
+                            Проверка подлинности запросов включена
+                        </label>
+                    </div>
 
-        <button type="submit">Применить</button>
-    </form>
+                    <div class="button-group">
+                        <button type="submit">Применить</button>
+                        <button type="button" onclick="refreshTokens()">Обновить токены</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="section">
+                <h2>Глобальные настройки</h2>
+                <form action="/update_all" method="post">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="sign_all" checked>
+                            Подпись запросов включена (все сервисы)
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="verify_all" checked>
+                            Проверка подлинности запросов включена (все сервисы)
+                        </label>
+                    </div>
+
+                    <button type="submit">Применить для всех сервисов</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="section">
+                <h2>Управление правами</h2>
+                <h3>Просмотр текущих прав</h3>
+                <form id="permissionsForm">
+                    <div class="form-group">
+                        <label>Client:</label>
+                        <input type="text" name="client" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Scope:</label>
+                        <input type="text" name="scope" required>
+                    </div>
+
+                    <button type="button" onclick="getPermissions()">Посмотреть текущие права</button>
+                    <div id="permissionsResult" class="permissions-result" style="display: none;"></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="section">
+                <h2>&nbsp;</h2>
+                <h3>Добавление новых прав</h3>
+                <form id="updatePermissionsForm">
+                    <div class="form-group">
+                        <label>Client:</label>
+                        <input type="text" name="client" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Scope:</label>
+                        <input type="text" name="scope" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Roles (через запятую):</label>
+                        <input type="text" name="roles" required>
+                    </div>
+
+                    <button type="button" onclick="updatePermissions()">Добавить новые права</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
+        function updateCheckboxes(service) {
+            window.history.replaceState(null, null, `?service=${service}`);
+            fetch(`/settings?service=${service}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('input[name="sign"]').checked = data.sign;
+                    document.querySelector('input[name="verify"]').checked = data.verify;
+                });
+        }
+
+        function refreshTokens() {
+            const service = document.querySelector('select[name="service"]').value;
+            const formData = new FormData();
+            formData.append('service', service);
+
+            fetch('/refresh_tokens', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url + '&from_refresh=true';
+                    } else {
+                        return response.text().then(text => {
+                            alert(text || "Не удалось обновить токены у данного сервиса.");
+                        });
+                    }
+                })
+                .catch(error => {
+                    alert("Не удалось обновить токены у данного сервиса.");
+                    console.error('Error:', error);
+                });
+        }
+
+        function getPermissions() {
+            const formData = new FormData(document.getElementById('permissionsForm'));
+            const data = {
+                client: formData.get('client'),
+                scope: formData.get('scope')
+            };
+
+            fetch('/get_permissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('permissionsResult');
+                    if (data.error) {
+                        resultDiv.style.display = 'block';
+                        resultDiv.innerHTML = `Ошибка: ${data.error}`;
+                        resultDiv.className = 'permissions-result error';
+                    } else if (data.roles) {
+                        resultDiv.style.display = 'block';
+                        resultDiv.innerHTML = `Текущие права: ${data.roles.join(', ')}`;
+                        resultDiv.className = 'permissions-result success';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updatePermissions() {
+            const formData = new FormData(document.getElementById('updatePermissionsForm'));
+            const data = {
+                client: formData.get('client'),
+                scope: formData.get('scope'),
+                roles: formData.get('roles')
+            };
+
+            fetch('/update_permissions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message || data.error);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Убираем сообщение об успехе при первой загрузке
         document.addEventListener('DOMContentLoaded', function () {
-            // Временная замена для тестирования
-            document.querySelector('input[name="sign"]').checked = true;
-            document.querySelector('input[name="verify"]').checked = false;
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('message')) {
+                window.history.replaceState({}, document.title, window.location.pathname + '?service=' + urlParams.get('service'));
+            }
         });
     </script>
 </body>

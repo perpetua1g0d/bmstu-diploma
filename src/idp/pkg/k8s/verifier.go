@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -14,7 +15,15 @@ type Verifier struct {
 }
 
 func NewVerifier(_ context.Context) (*Verifier, error) {
-	publicKey, err := getPublicKey()
+	k8sClient := &K8sClient{
+		readSecrets: os.ReadFile,
+	}
+
+	if err := k8sClient.setup(); err != nil {
+		return nil, fmt.Errorf("failed to setup k8s client: %w", err)
+	}
+
+	publicKey, err := k8sClient.GetPublicKey()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get k8s public key: %w", err)
 	}
