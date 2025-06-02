@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-jose/go-jose/v3"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/config"
-	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/db"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/jwks"
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
 )
@@ -18,15 +17,15 @@ type IssueResp struct {
 	ExpiresIn   time.Time `json:"expires_in"`
 }
 
-type Issuer struct {
+type TokenIssuer struct {
 	config  *config.Config
 	keyPair *jwks.KeyPair
-	signer  jose.Signer
+	signer  jwks.Signer
 
-	repository *db.Repository
+	repository Repository
 }
 
-func NewIssuer(cfg *config.Config, keys *jwks.KeyPair, repository *db.Repository) (*Issuer, error) {
+func NewIssuer(cfg *config.Config, keys *jwks.KeyPair, repository Repository) (*TokenIssuer, error) {
 	signer, err := jose.NewSigner(
 		jose.SigningKey{
 			Algorithm: jose.RS256,
@@ -43,7 +42,7 @@ func NewIssuer(cfg *config.Config, keys *jwks.KeyPair, repository *db.Repository
 		return nil, fmt.Errorf("failed to create signer: %w", err)
 	}
 
-	return &Issuer{
+	return &TokenIssuer{
 		config:     cfg,
 		keyPair:    keys,
 		signer:     signer,
@@ -51,7 +50,7 @@ func NewIssuer(cfg *config.Config, keys *jwks.KeyPair, repository *db.Repository
 	}, nil
 }
 
-func (i *Issuer) IssueToken(clientID, scope string) (*IssueResp, error) {
+func (i *TokenIssuer) IssueToken(clientID, scope string) (*IssueResp, error) {
 	allowedRoles := i.repository.GetPermissions(clientID, scope)
 	// if !ok {
 	// 	return nil, fmt.Errorf("access denied for client %s to scope %s", clientID, scope)

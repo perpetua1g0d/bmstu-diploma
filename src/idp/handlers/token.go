@@ -83,7 +83,12 @@ func (ctl *Controller) NewTokenHandler(ctx context.Context) (http.HandlerFunc, e
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(issueResp)
+		// json.NewEncoder(w).Encode(issueResp)
+		if err := json.NewEncoder(w).Encode(issueResp); err != nil {
+			log.Printf("failed to write token response: %v", err)
+			http.Error(w, `{"error":"internal_error"}`, http.StatusInternalServerError)
+			return
+		}
 
 		log.Printf("token issued, clientID: %s, scope: %s", clientID, scope)
 	}

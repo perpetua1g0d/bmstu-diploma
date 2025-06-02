@@ -16,6 +16,11 @@ import (
 	"github.com/perpetua1g0d/bmstu-diploma/idp/pkg/tokens"
 )
 
+type Signer interface {
+	Sign(payload []byte) (*jose.JSONWebSignature, error)
+	Options() jose.SignerOptions
+}
+
 type KeyPair struct {
 	PrivateKey  *rsa.PrivateKey
 	Certificate *x509.Certificate
@@ -72,7 +77,7 @@ func generateKeyID() string {
 	return base64.RawURLEncoding.EncodeToString(buf)
 }
 
-func GenerateJWT(signer jose.Signer, claims tokens.Claims) (string, error) {
+func GenerateJWT(signer Signer, claims tokens.Claims) (string, error) {
 	payload, err := json.Marshal(claims)
 	if err != nil {
 		return "", err
