@@ -218,7 +218,7 @@ func (t *AuthTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 		token, err := t.authClient.Token(scope)
 		if err != nil {
 			log.Printf("failed to issue token in auth client on scope %s: %v", scope, err)
-			signResult = "token_error"
+			signResult = "error"
 		} else {
 			r.Header.Set("X-I2I-Token", token)
 		}
@@ -240,8 +240,6 @@ func getSignAuth(cfg *config.Config) bool {
 
 	return *loaded
 }
-
-type ()
 
 func determineOperationType(r *http.Request) string {
 	// This is a simplified version - actual implementation would depend on the service
