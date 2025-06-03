@@ -16,6 +16,3 @@ spec:
     - name: sidecar
       port: 8080
       targetPort: 8080
-    - name: metrics
-      port: 9187
-      targetPort: 9187

@@ -877,7 +877,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -972,7 +973,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1128,8 +1130,8 @@
       {
         "current": {
           "selected": false,
-          "text": "postgres-b",
-          "value": "postgres-b"
+          "text": "postgres-a",
+          "value": "postgres-a"
         },
         "datasource": {
           "type": "prometheus",
@@ -1188,13 +1190,13 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "bmstu cluster service metrics",
   "uid": "b576b4e5-2352-4b1e-a8fe-a605443e2c2a",
-  "version": 39,
+  "version": 40,
   "weekStart": ""
 }

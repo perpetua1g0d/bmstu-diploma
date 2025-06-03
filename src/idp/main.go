@@ -19,8 +19,8 @@ func main() {
 	keyPair := jwks.GenerateKeyPair()
 
 	permissions := map[string]map[string][]string{
-		"postgres-a": {"postgres-b": {"RO", "RW"}},
-		"postgres-b": {"postgres-a": {"RO"}},
+		"service-a": {"postgres-b": {"RO", "RW"}},
+		"service-b": {"postgres-a": {"RO"}},
 	}
 	repository := db.NewRepository(permissions)
 

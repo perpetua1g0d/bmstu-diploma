@@ -78,15 +78,6 @@ spec:
               value: "postgres-a"
             - name: INIT_SQL_QUERY
               value: "INSERT INTO log (message) VALUES ('Init from B')"
-            # - name: SIGN_AUTH_ENABLED
-            #   value: "true"
-            # - name: VERIFY_AUTH_ENABLED
-            #   value: "true"
-            - name: SIGN_AUTH_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: auth-settings
-                  key: SIGN_AUTH_ENABLED
             - name: VERIFY_AUTH_ENABLED
               valueFrom:
                 configMapKeyRef:

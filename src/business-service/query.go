@@ -12,10 +12,12 @@ import (
 	"github.com/perpetua1g0d/bmstu-diploma/business-service/config"
 )
 
+const benchmarksResultsFile = "/var/log/results.csv"
+
 func sendDBQuery(cfg *config.Config, client *http.Client) {
-	target := fmt.Sprintf("http://%s.%s.svc.cluster.local:8080%s",
-		cfg.InitTarget,
-		cfg.InitTarget,
+	target := fmt.Sprintf("http://%s:%s%s",
+		cfg.PostgresService,
+		cfg.SidecarPort,
 		cfg.ServiceEndpoint,
 	)
 

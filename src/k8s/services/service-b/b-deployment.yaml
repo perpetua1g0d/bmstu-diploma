@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  namespace: service-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: default
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: service
+          image: ghcr.io/perpetua1g0d/bmstu-diploma/business-service:latest
+          envFrom:
+            - configMapRef:
+                name: service-b-config
+          env:
+            - name: SERVICE_NAME
+              value: "service-b"
+            - name: INIT_TARGET
+              value: "postgres-b"
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+            requests:
+              memory: "64Mi"
+              cpu: "50m"

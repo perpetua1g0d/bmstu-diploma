@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-a-config
+  namespace: service-a
+data:
+  POSTGRES_SERVICE: "postgres-a.postgres-a.svc.cluster.local"
+  SIDECAR_PORT: "8080"
+  SERVICE_ENDPOINT: "/query"
+  SIGN_AUTH_ENABLED: "true"

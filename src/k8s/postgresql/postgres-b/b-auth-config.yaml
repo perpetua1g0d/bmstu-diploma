@@ -4,5 +4,4 @@ metadata:
   name: auth-settings
   namespace: postgres-b
 data:
-  SIGN_AUTH_ENABLED: "true"
   VERIFY_AUTH_ENABLED: "true"

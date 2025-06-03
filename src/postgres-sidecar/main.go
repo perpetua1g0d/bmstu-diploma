@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	auth_verifier "github.com/perpetua1g0d/bmstu-diploma/auth-client/pkg/verifier"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
@@ -13,20 +16,21 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-const idpAddress = "http://idp.idp.svc.cluster.local:80"
-
-const benchmarksResultsFile = "/var/log/results.csv"
-
 var (
-	tokenSignedTotal = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "client_token_sign_requests_total",
-		Help: "Total number of requests signed with token",
-	}, []string{"scope", "result", "enabled", "service_name"})
-	tokenSignDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-		Name:    "client_token_sign_duration_milliseconds",
-		Help:    "Duration of token signing in milliseconds",
-		Buckets: []float64{1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000},
-	}, []string{"scope", "result", "enabled", "service_name"})
+	dbSizeBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "postgres_db_size_bytes",
+		Help: "Size of PostgreSQL database in bytes",
+	}, []string{"database"})
+
+	dbIdleConnections = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "postgres_idle_connections",
+		Help: "Number of idle connections to the PostgreSQL database",
+	}, []string{"database"})
+
+	dbOpenConnections = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "postgres_open_connections",
+		Help: "Number of opened connections to the PostgreSQL database",
+	}, []string{"database"})
 )
 
 func main() {
@@ -45,8 +49,43 @@ func main() {
 
 	mux.Handle("/metrics", promhttp.Handler())
 
-	mux.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, verifier))
+	db, err := sql.Open("postgres", fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		cfg.PostgresHost,
+		cfg.PostgresPort,
+		cfg.PostgresUser,
+		cfg.PostgresPassword,
+		cfg.PostgresDB,
+	))
+	if err != nil {
+		log.Fatalf("failed to connect to local db: %v", err)
+	}
+	defer db.Close()
+
+	go collectDBMetrics(db, cfg.PostgresDB)
+
+	mux.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, db, verifier))
 
 	log.Printf("Starting %s on :8080 (verify: %v)", cfg.ServiceName, cfg.VerifyAuthEnabled)
 	log.Fatal(http.ListenAndServe(":8080", mux)) // root handler promhttp.Handler()
+}
+
+func collectDBMetrics(db *sql.DB, dbName string) {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		updateDBMetrics(db, dbName)
+	}
+}
+
+func updateDBMetrics(db *sql.DB, dbName string) {
+	var size int64
+	if err := db.QueryRow("SELECT pg_database_size($1)", dbName).Scan(&size); err != nil {
+		log.Printf("failed to collect pg_database_size in %s: %v", dbName, err)
+	}
+
+	dbSizeBytes.WithLabelValues(dbName).Set(float64(size))
+	dbIdleConnections.WithLabelValues(dbName).Set(float64(db.Stats().Idle))
+	dbOpenConnections.WithLabelValues(dbName).Set(float64(db.Stats().OpenConnections))
 }

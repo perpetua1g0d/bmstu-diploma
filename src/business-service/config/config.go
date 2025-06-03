@@ -7,19 +7,13 @@ import (
 )
 
 type Config struct {
-	ServiceName      string
-	Namespace        string
-	InitTarget       string
-	InitQuery        string
-	ServiceEndpoint  string
-	SignAuthEnabled  bool
-	RunBenchmarks    bool
-	JWTSecret        string
-	PostgresHost     string
-	PostgresPort     string
-	PostgresUser     string
-	PostgresPassword string
-	PostgresDB       string
+	ServiceName     string
+	Namespace       string
+	PostgresService string
+	InitTarget      string
+	SidecarPort     string
+	ServiceEndpoint string
+	SignAuthEnabled bool
 }
 
 var (
@@ -30,17 +24,16 @@ var (
 func NewConfig() *Config {
 	once.Do(func() {
 		instance = &Config{
-			ServiceName:     getEnv("SERVICE_NAME", "postgres"),
+			ServiceName:     getEnv("SERVICE_NAME", "business-service"),
 			Namespace:       getEnv("POD_NAMESPACE", "default"),
-			InitTarget:      os.Getenv("INIT_TARGET_SERVICE"),
-			InitQuery:       os.Getenv("INIT_SQL_QUERY"),
+			PostgresService: getEnv("POSTGRES_SERVICE", ""),
+			InitTarget:      getEnv("INIT_TARGET", ""),
+			SidecarPort:     getEnv("SIDECAR_PORT", "8080"),
 			ServiceEndpoint: getEnv("SERVICE_ENDPOINT", "/query"),
-			SignAuthEnabled: getEnv("SIGN_AUTH_ENABLED", "false") == "true",
-			RunBenchmarks:   getEnv("RUN_BENCHMARKS_ON_INIT", "false") == "true",
-			JWTSecret:       getEnv("JWT_SECRET", "default-secret-256-bit"),
+			SignAuthEnabled: getEnv("SIGN_AUTH_ENABLED", "true") == "true",
 		}
 	})
-	log.Printf("service config: %v", instance)
+	log.Printf("Service config initialized: %+v", instance)
 	return instance
 }
 

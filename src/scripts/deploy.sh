@@ -17,6 +17,11 @@ k3d cluster create bmstucluster \
 # (the lightweight Kubernetes distribution) when the cluster is removed.
 # This is useful for keeping the Docker tools and images associated with the cluster for later use.
 
+# services
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/business-service:latest ./business-service
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/business-service:latest
+k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/business-service:latest -c bmstucluster --keep-tools
+
 # idp
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest ./idp
 docker push ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest
@@ -35,7 +40,7 @@ kubectl apply -f k8s/namespaces/
 
 kubectl apply -f k8s/monitoring/grafana-dashboards.yaml
 
-namespaces=("postgres-a" "postgres-b" "idp" "admin-panel" "monitoring")
+namespaces=("postgres-a" "postgres-b" "idp" "admin-panel" "monitoring" "service-a" "service-b")
 for ns in "${namespaces[@]}"; do
   if ! kubectl get secret ghcr-secret -n "$ns" >/dev/null 2>&1; then
     kubectl create secret docker-registry ghcr-secret \
@@ -84,6 +89,8 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
 kubectl apply -f k8s/idp/
 kubectl apply -f k8s/postgresql/postgres-a/
 kubectl apply -f k8s/postgresql/postgres-b/
+kubectl apply -f k8s/service-a/
+kubectl apply -f k8s/service-b/
 kubectl apply -f k8s/admin-panel/
 # kubectl apply -f k8s/kafka/
 # kubectl apply -f k8s/redis/
