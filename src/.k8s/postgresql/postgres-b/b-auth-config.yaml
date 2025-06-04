@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-settings
+  namespace: postgres-b
+data:
+  VERIFY_AUTH_ENABLED: "true"

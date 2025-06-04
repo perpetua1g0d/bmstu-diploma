@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-b-config
+  namespace: service-b
+data:
+  POSTGRES_SERVICE: "postgres-b.postgres-b.svc.cluster.local"
+  SIDECAR_PORT: "8080"
+  SERVICE_ENDPOINT: "/query"
+  SIGN_AUTH_ENABLED: "true"

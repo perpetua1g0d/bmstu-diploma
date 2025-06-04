@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/config"
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/metrics"
+	"github.com/perpetua1g0d/bmstu-diploma/src/auth-client/internal/config"
+	"github.com/perpetua1g0d/bmstu-diploma/src/auth-client/internal/metrics"
 )
 
 type SignerTransport struct {
@@ -37,13 +37,13 @@ func (t *SignerTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 			log.Printf("failed to issue token in auth client on scope %s: %v", t.scope, err)
 			signResult = "error"
 		} else {
-			r.Header.Set("X-I2I-Token", token)
+			r.Header.Set("X-S2I-Token", token)
 		}
 	}
 	signDuration := float64(time.Since(signStart).Milliseconds())
 
-	metrics.TokenSignedTotal.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.scope).Inc()
-	metrics.TokenSignDuration.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.scope).Observe(signDuration)
+	metrics.TokenSignedTotal.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.signer.cfg.ClientID).Inc()
+	metrics.TokenSignDuration.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.signer.cfg.ClientID).Observe(signDuration)
 
 	return t.defaultRT.RoundTrip(r)
 }

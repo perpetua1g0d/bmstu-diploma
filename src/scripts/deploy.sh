@@ -17,6 +17,11 @@ k3d cluster create bmstucluster \
 # (the lightweight Kubernetes distribution) when the cluster is removed.
 # This is useful for keeping the Docker tools and images associated with the cluster for later use.
 
+# services
+docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/business-service:latest ./business-service
+docker push ghcr.io/perpetua1g0d/bmstu-diploma/business-service:latest
+k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/business-service:latest -c bmstucluster --keep-tools
+
 # idp
 docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest ./idp
 docker push ghcr.io/perpetua1g0d/bmstu-diploma/idp:latest
@@ -31,11 +36,11 @@ docker build -t ghcr.io/perpetua1g0d/bmstu-diploma/auth-ui:latest ./auth-ui
 docker push ghcr.io/perpetua1g0d/bmstu-diploma/auth-ui:latest
 k3d image import ghcr.io/perpetua1g0d/bmstu-diploma/auth-ui:latest -c bmstucluster --keep-tools
 
-kubectl apply -f k8s/namespaces/
+kubectl apply -f .k8s/namespaces/
 
-kubectl apply -f k8s/monitoring/grafana-dashboards.yaml
+kubectl apply -f .k8s/monitoring/grafana-dashboards.yaml
 
-namespaces=("postgres-a" "postgres-b" "idp" "admin-panel" "monitoring")
+namespaces=("postgres-a" "postgres-b" "idp" "admin-panel" "monitoring" "service-a" "service-b")
 for ns in "${namespaces[@]}"; do
   if ! kubectl get secret ghcr-secret -n "$ns" >/dev/null 2>&1; then
     kubectl create secret docker-registry ghcr-secret \
@@ -51,7 +56,7 @@ done
 
 kubectl create configmap grafana-dashboards \
   -n monitoring \
-  --from-file=cluster_service_metrics.json=k8s/monitoring/dashboards/cluster_service_metrics.json \
+  --from-file=cluster_service_metrics.json=.k8s/monitoring/dashboards/cluster_service_metrics.json \
   --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl label configmap -n monitoring grafana-dashboards grafana_dashboard=1 --overwrite
@@ -70,21 +75,23 @@ for image in "${IMAGES[@]}"; do
   k3d image import $image -c bmstucluster
 done
 
-kubectl apply -f k8s/monitoring/rbac.yaml
+kubectl apply -f .k8s/monitoring/rbac.yaml
 
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
 helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
   -n monitoring \
-  -f k8s/monitoring/prom-stack-values.yaml \
+  -f .k8s/monitoring/prom-stack-values.yaml \
   --wait \
   --timeout 10m
 
-kubectl apply -f k8s/idp/
-kubectl apply -f k8s/postgresql/postgres-a/
-kubectl apply -f k8s/postgresql/postgres-b/
-kubectl apply -f k8s/admin-panel/
+kubectl apply -f .k8s/idp/
+kubectl apply -f .k8s/postgresql/postgres-a/
+kubectl apply -f .k8s/postgresql/postgres-b/
+kubectl apply -f .k8s/services/service-a/
+kubectl apply -f .k8s/services/service-b/
+kubectl apply -f .k8s/admin-panel/
 # kubectl apply -f k8s/kafka/
 # kubectl apply -f k8s/redis/
 

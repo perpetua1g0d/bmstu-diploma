@@ -19,8 +19,8 @@ func main() {
 	keyPair := jwks.GenerateKeyPair()
 
 	permissions := map[string]map[string][]string{
-		"postgres-a": {"postgres-b": {"RO", "RW"}},
-		"postgres-b": {"postgres-a": {"RO"}},
+		"service-a": {"postgres-a": {"RO", "RW"}},
+		"service-b": {"postgres-b": {"RO"}},
 	}
 	repository := db.NewRepository(permissions)
 
@@ -42,9 +42,9 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 
-	mux.HandleFunc("/realms/infra2infra/.well-known/openid-configuration", controller.OpenIDConfigHandler())
-	mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/token", tokenHandler)
-	mux.HandleFunc("/realms/infra2infra/protocol/openid-connect/certs", controller.CertsHandler())
+	mux.HandleFunc("/realms/service2infra/.well-known/openid-configuration", controller.OpenIDConfigHandler())
+	mux.HandleFunc("/realms/service2infra/protocol/openid-connect/token", tokenHandler)
+	mux.HandleFunc("/realms/service2infra/protocol/openid-connect/certs", controller.CertsHandler())
 
 	mux.HandleFunc("/update_permissions", controller.NewUpdatePermissionsHandler(ctx))
 	mux.HandleFunc("/get_permissions", controller.NewGetPermissionsHandler(ctx))

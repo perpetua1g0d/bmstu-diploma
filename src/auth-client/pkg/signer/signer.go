@@ -3,10 +3,11 @@ package signer
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 	"time"
 
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/config"
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/tokens"
+	"github.com/perpetua1g0d/bmstu-diploma/src/auth-client/internal/config"
+	"github.com/perpetua1g0d/bmstu-diploma/src/auth-client/internal/tokens"
 )
 
 type TokenSigner struct {
@@ -15,12 +16,14 @@ type TokenSigner struct {
 	tokenSet *tokens.TokenSet
 }
 
-func NewTokenSigner(ctx context.Context, clientID string, scopes []string) (*TokenSigner, error) {
+func NewTokenSigner(ctx context.Context, clientID string, scopes []string, initSign bool) (*TokenSigner, error) {
 	cfg := &config.Config{
 		ClientID:        clientID,
 		RequestTimeout:  5 * time.Second,
 		ErrTokenBackoff: 10 * time.Second,
+		SignAuthEnabled: atomic.Pointer[bool]{},
 	}
+	cfg.SignAuthEnabled.Store(&initSign)
 
 	s := &TokenSigner{
 		cfg: cfg,

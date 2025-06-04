@@ -7,12 +7,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
-	auth_client "github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/auth/client"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
+	auth_verifier "github.com/perpetua1g0d/bmstu-diploma/src/auth-client/pkg/verifier"
 
 	_ "github.com/lib/pq"
 )
@@ -22,61 +21,9 @@ type QueryRequest struct {
 	Params []any  `json:"params"`
 }
 
-func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_client.AuthClient) http.HandlerFunc {
+func NewQueryHandler(ctx context.Context, cfg *config.Config, db *sql.DB, tokenVerifier *auth_verifier.Verifier) http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		// log.Printf("Incoming request: %s %s", r.Method, r.URL)
-
-		var verifyEnabled bool
-		var verifyResult = "ok"
-		scope := cfg.ServiceName
-		verifyEnabled = getVerifyEnabled(cfg)
-		verifyStart := time.Now()
-		if verifyEnabled {
-			token := r.Header.Get("X-I2I-Token")
-			if token == "" {
-				verifyResult = "missing_token"
-				verifyDuration := float64(time.Since(verifyStart).Milliseconds())
-				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Inc()
-				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Observe(verifyDuration)
-
-				respondError(w, "missing token", http.StatusUnauthorized)
-				return
-			}
-
-			requiredRole := "RO"
-			if !strings.Contains(strings.ToUpper(r.URL.Query().Get("sql")), "SELECT") {
-				requiredRole = "RW"
-			}
-
-			if verifyErr := authClient.VerifyToken(token, []string{requiredRole}); verifyErr != nil {
-				log.Printf("failed to verify token: %v", verifyErr)
-				verifyResult = "permissions_denied"
-				verifyDuration := float64(time.Since(verifyStart).Milliseconds())
-				tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Inc()
-				tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Observe(verifyDuration)
-
-				respondError(w, "forbidden: token has no required roles", http.StatusUnauthorized)
-				return
-			}
-		}
-
-		verifyDuration := float64(time.Since(verifyStart).Milliseconds())
-		tokenVerifyTotal.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Inc()
-		tokenVerifyDuration.WithLabelValues(scope, verifyResult, strconv.FormatBool(verifyEnabled), cfg.ServiceName).Observe(verifyDuration)
-
-		db, err := sql.Open("postgres", fmt.Sprintf(
-			"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-			cfg.PostgresHost,
-			cfg.PostgresPort,
-			cfg.PostgresUser,
-			cfg.PostgresPassword,
-			cfg.PostgresDB,
-		))
-		if err != nil {
-			respondError(w, "database connection failed", http.StatusInternalServerError)
-			return
-		}
-		defer db.Close()
+		log.Printf("start process /query request")
 
 		var req QueryRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -84,40 +31,33 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, authClient *auth_c
 			return
 		}
 
-		start := time.Now()
-		defer func() {
-			operation := "read"
-			if !strings.Contains(strings.ToUpper(req.SQL), "SELECT") {
-				operation = "write"
-			}
-			durationMs := float64(time.Since(start).Milliseconds())
-			dbQueryDuration.WithLabelValues(operation, cfg.ServiceName).Observe(durationMs)
-		}()
+		log.Printf("decoded request body: %+v", req)
 
+		start := time.Now()
 		rows, err := db.Query(req.SQL, req.Params...)
 		if err != nil {
 			respondError(w, fmt.Sprintf("query failed: %v", err), http.StatusBadRequest)
 			return
 		}
 		defer rows.Close()
+		operation := "read"
+		if !strings.Contains(strings.ToUpper(req.SQL), "SELECT") {
+			operation = "write"
+		}
+		durationMs := float64(time.Since(start).Milliseconds())
+		dbQueryDuration.WithLabelValues(operation, cfg.ServiceName).Observe(durationMs)
 
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		if err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"status":  "success",
 			"latency": time.Since(start).String(),
-		})
+		}); err != nil {
+			respondError(w, fmt.Sprintf("response wirte failed: %v", err), http.StatusInternalServerError)
+			return
+		}
 	}
 
-	return baseMetricsMiddleware(handler, cfg.ServiceName)
-}
-
-func getVerifyEnabled(cfg *config.Config) bool {
-	loaded := cfg.VerifyAuthEnabled.Load()
-	if loaded == nil {
-		log.Printf("config pointer[VerifyAuthEnabled] is empty! Veryfy is enabled as fallback")
-		return true
-	}
-
-	return *loaded
+	authorizedHandler := auth_verifier.VerifySQLMiddleware(handler, tokenVerifier)
+	return baseMetricsMiddleware(authorizedHandler, cfg.ServiceName)
 }
 
 func respondError(w http.ResponseWriter, message string, code int) {

@@ -7,11 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/go-jose/go-jose/v3"
 	"github.com/go-jose/go-jose/v3/jwt"
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/config"
+	"github.com/perpetua1g0d/bmstu-diploma/src/auth-client/internal/config"
 	"github.com/samber/lo"
 )
 
@@ -32,12 +33,14 @@ type Verifier struct {
 	certs *jose.JSONWebKeySet
 }
 
-func NewVerifier(ctx context.Context, clientID string) (*Verifier, error) {
+func NewVerifier(ctx context.Context, clientID string, initVerify bool) (*Verifier, error) {
 	cfg := &config.Config{
-		ClientID:        clientID,
-		RequestTimeout:  5 * time.Second,
-		ErrTokenBackoff: 10 * time.Second,
+		ClientID:          clientID,
+		RequestTimeout:    5 * time.Second,
+		ErrTokenBackoff:   10 * time.Second,
+		VerifyAuthEnabled: atomic.Pointer[bool]{},
 	}
+	cfg.VerifyAuthEnabled.Store(&initVerify)
 
 	v := &Verifier{
 		cfg: cfg,
@@ -65,7 +68,7 @@ func (v *Verifier) fetchIdPEndpoints(_ context.Context) error {
 	return nil
 }
 
-func (v *Verifier) VerifyToken(rawToken string, needRoles []string) error {
+func (v *Verifier) verifyToken(rawToken string, needRoles []string) error {
 	claims, err := verifyToken(rawToken, v.certs)
 	if err != nil {
 		return err
