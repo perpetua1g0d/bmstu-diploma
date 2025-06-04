@@ -4,7 +4,6 @@ metadata:
   name: postgresql-config
   namespace: postgres-a
 data:
-  auth-enabled: "false"
   postgresql.conf: |
     listen_addresses = 'localhost'
     port = 5434

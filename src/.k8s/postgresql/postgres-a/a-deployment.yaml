@@ -74,8 +74,6 @@ spec:
           env:
             - name: SERVICE_NAME
               value: "postgres-a"
-            - name: INIT_TARGET_SERVICE
-              value: "postgres-b"
             - name: VERIFY_AUTH_ENABLED
               valueFrom:
                 configMapKeyRef:
@@ -104,6 +102,10 @@ spec:
         - name: init-script
           configMap:
             name: postgres-init-script
+            items:
+              - key: init.sql
+                path: init.sql
+                mode: 0644
         - name: shared-env
           emptyDir: {}
         - name: auth-config

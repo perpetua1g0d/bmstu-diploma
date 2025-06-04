@@ -42,8 +42,8 @@ func (t *SignerTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	}
 	signDuration := float64(time.Since(signStart).Milliseconds())
 
-	metrics.TokenSignedTotal.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.scope).Inc()
-	metrics.TokenSignDuration.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.scope).Observe(signDuration)
+	metrics.TokenSignedTotal.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.signer.cfg.ClientID).Inc()
+	metrics.TokenSignDuration.WithLabelValues(t.scope, signResult, strconv.FormatBool(signEnabled), t.signer.cfg.ClientID).Observe(signDuration)
 
 	return t.defaultRT.RoundTrip(r)
 }

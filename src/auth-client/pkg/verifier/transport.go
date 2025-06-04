@@ -49,6 +49,8 @@ func VerifySQLMiddleware(next http.HandlerFunc, verifier *Verifier) http.Handler
 			requiredRoles = []string{"RW"}
 		}
 
+		log.Printf("query: %s, required_roles=%v", dbQuery, requiredRoles)
+
 		if verifyEnabled {
 			token := r.Header.Get("X-S2I-Token")
 			if token == "" {

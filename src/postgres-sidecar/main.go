@@ -71,7 +71,7 @@ func main() {
 }
 
 func collectDBMetrics(db *sql.DB, dbName string) {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
@@ -85,7 +85,11 @@ func updateDBMetrics(db *sql.DB, dbName string) {
 		log.Printf("failed to collect pg_database_size in %s: %v", dbName, err)
 	}
 
+	idle := db.Stats().Idle
+	opened := db.Stats().OpenConnections
 	dbSizeBytes.WithLabelValues(dbName).Set(float64(size))
-	dbIdleConnections.WithLabelValues(dbName).Set(float64(db.Stats().Idle))
-	dbOpenConnections.WithLabelValues(dbName).Set(float64(db.Stats().OpenConnections))
+	dbIdleConnections.WithLabelValues(dbName).Set(float64(idle))
+	dbOpenConnections.WithLabelValues(dbName).Set(float64(opened))
+
+	// log.Printf("db metrics updated (sz=%d, idle=%d, open=%d).", size, idle, opened)
 }

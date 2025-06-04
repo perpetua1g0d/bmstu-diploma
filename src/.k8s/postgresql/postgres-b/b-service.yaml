@@ -10,3 +10,6 @@ spec:
     - name: postgres
       port: 5435
       targetPort: 5435
+    - name: sidecar
+      port: 8080
+      targetPort: 8080

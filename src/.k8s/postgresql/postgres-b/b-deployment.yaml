@@ -74,10 +74,6 @@ spec:
           env:
             - name: SERVICE_NAME
               value: "postgres-b"
-            - name: INIT_TARGET_SERVICE
-              value: "postgres-a"
-            - name: INIT_SQL_QUERY
-              value: "INSERT INTO log (message) VALUES ('Init from B')"
             - name: VERIFY_AUTH_ENABLED
               valueFrom:
                 configMapKeyRef:

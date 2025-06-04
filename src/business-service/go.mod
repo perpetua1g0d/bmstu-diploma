@@ -5,7 +5,7 @@ go 1.23
 // replace github.com/perpetua1g0d/bmstu-diploma/src/auth-client => ../auth-client
 
 require (
-	github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.1
+	github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.2
 	github.com/prometheus/client_golang v1.22.0
 )
 
