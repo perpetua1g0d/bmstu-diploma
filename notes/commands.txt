@@ -64,3 +64,17 @@ kubectl rollout restart deployment -n postgres-b
 
 # fswatch -o ./postgres-sidecar | xargs -n1 -I{} ./update-sidecar.sh
 
+kubectl delete -f .k8s/postgresql/postgres-a/
+kubectl delete -f .k8s/postgresql/postgres-b/
+
+kubectl delete -f .k8s/services/service-a/
+kubectl delete -f .k8s/services/service-b/
+
+kubectl apply -f .k8s/postgresql/postgres-a/
+kubectl apply -f .k8s/postgresql/postgres-b/
+kubectl apply -f .k8s/services/service-a/
+kubectl apply -f .k8s/services/service-b/
+
+git tag src/auth-client/v1.0.5
+git push origin src/auth-client/v1.0.5
+

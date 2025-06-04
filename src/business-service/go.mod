@@ -7,7 +7,7 @@ go 1.23
 // github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.3
 require github.com/prometheus/client_golang v1.22.0
 
-require github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.3
+require github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.5
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
