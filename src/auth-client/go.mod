@@ -1,4 +1,4 @@
-module github.com/perpetua1g0d/bmstu-diploma/auth-client
+module github.com/perpetua1g0d/bmstu-diploma/src/auth-client
 
 go 1.23
 

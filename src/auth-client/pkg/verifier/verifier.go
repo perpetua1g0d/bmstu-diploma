@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-jose/go-jose/v3"
 	"github.com/go-jose/go-jose/v3/jwt"
-	"github.com/perpetua1g0d/bmstu-diploma/auth-client/internal/config"
+	"github.com/perpetua1g0d/bmstu-diploma/src/auth-client/internal/config"
 	"github.com/samber/lo"
 )
 
