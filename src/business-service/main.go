@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	auth_signer "github.com/perpetua1g0d/bmstu-diploma/auth-client/pkg/signer"
 	"github.com/perpetua1g0d/bmstu-diploma/business-service/config"
+	auth_signer "github.com/perpetua1g0d/bmstu-diploma/src/auth-client/pkg/signer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	auth_verifier "github.com/perpetua1g0d/bmstu-diploma/auth-client/pkg/verifier"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/handlers"
+	auth_verifier "github.com/perpetua1g0d/bmstu-diploma/src/auth-client/pkg/verifier"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

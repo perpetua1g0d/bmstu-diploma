@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	auth_verifier "github.com/perpetua1g0d/bmstu-diploma/auth-client/pkg/verifier"
 	"github.com/perpetua1g0d/bmstu-diploma/postgres-sidecar/config"
+	auth_verifier "github.com/perpetua1g0d/bmstu-diploma/src/auth-client/pkg/verifier"
 
 	_ "github.com/lib/pq"
 )
