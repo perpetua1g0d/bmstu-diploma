@@ -74,6 +74,8 @@ spec:
           env:
             - name: SERVICE_NAME
               value: "postgres-a"
+            - name: SERVICE_ENDPOINT
+              value: "/query"
             - name: VERIFY_AUTH_ENABLED
               valueFrom:
                 configMapKeyRef:

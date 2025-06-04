@@ -39,7 +39,7 @@ func NewConfig() *Config {
 			PostgresDB:        getEnv("POSTGRES_DB", "not_found_postgres_db"),
 		}
 	})
-	log.Printf("sidecar config: %v", instance)
+	log.Printf("sidecar config: %+v", instance)
 	return instance
 }
 

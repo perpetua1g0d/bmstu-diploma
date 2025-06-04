@@ -23,11 +23,15 @@ type QueryRequest struct {
 
 func NewQueryHandler(ctx context.Context, cfg *config.Config, db *sql.DB, tokenVerifier *auth_verifier.Verifier) http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("start process /query request")
+
 		var req QueryRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			respondError(w, fmt.Sprintf("invalid request: %v", err), http.StatusBadRequest)
 			return
 		}
+
+		log.Printf("decoded request body: %+v", req)
 
 		start := time.Now()
 		rows, err := db.Query(req.SQL, req.Params...)
@@ -36,20 +40,20 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, db *sql.DB, tokenV
 			return
 		}
 		defer rows.Close()
+		operation := "read"
+		if !strings.Contains(strings.ToUpper(req.SQL), "SELECT") {
+			operation = "write"
+		}
+		durationMs := float64(time.Since(start).Milliseconds())
+		dbQueryDuration.WithLabelValues(operation, cfg.ServiceName).Observe(durationMs)
 
-		func() {
-			operation := "read"
-			if !strings.Contains(strings.ToUpper(req.SQL), "SELECT") {
-				operation = "write"
-			}
-			durationMs := float64(time.Since(start).Milliseconds())
-			dbQueryDuration.WithLabelValues(operation, cfg.ServiceName).Observe(durationMs)
-		}()
-
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		if err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"status":  "success",
 			"latency": time.Since(start).String(),
-		})
+		}); err != nil {
+			respondError(w, fmt.Sprintf("response wirte failed: %v", err), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	authorizedHandler := auth_verifier.VerifySQLMiddleware(handler, tokenVerifier)

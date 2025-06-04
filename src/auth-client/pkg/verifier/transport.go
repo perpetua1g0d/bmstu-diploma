@@ -1,7 +1,9 @@
 package verifier
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -43,8 +45,23 @@ func VerifySQLMiddleware(next http.HandlerFunc, verifier *Verifier) http.Handler
 
 		}()
 
+		origBody, _ := io.ReadAll(r.Body)
+		r.Body = io.NopCloser(bytes.NewBuffer(origBody))
+
+		var reqBody SqlQueryRequest
+		if err := json.Unmarshal(origBody, &reqBody); err != nil {
+			log.Printf("req body is invalid: %v", err)
+			verifyResult = "invalid_request"
+			respondError(w, "missing token", http.StatusBadRequest)
+			return
+		} else if reqBody.SQL == "" {
+			verifyResult = "missing_sql_query"
+			respondError(w, "missing sql query", http.StatusBadRequest)
+			return
+		}
+
+		dbQuery := strings.ToUpper(reqBody.SQL)
 		requiredRoles := []string{"RO"}
-		dbQuery := strings.ToUpper(r.URL.Query().Get("sql"))
 		if strings.Contains(dbQuery, "INSERT") || strings.Contains(dbQuery, "UPDATE") || strings.Contains(dbQuery, "DELETE") {
 			requiredRoles = []string{"RW"}
 		}
@@ -66,6 +83,8 @@ func VerifySQLMiddleware(next http.HandlerFunc, verifier *Verifier) http.Handler
 				return
 			}
 		}
+
+		next(w, r)
 	}
 }
 
@@ -91,4 +110,9 @@ func respondError(w http.ResponseWriter, message string, code int) {
 
 type RespErr struct {
 	Error string `json:"error"`
+}
+
+type SqlQueryRequest struct {
+	SQL    string `json:"sql"`
+	Params []any  `json:"params"`
 }

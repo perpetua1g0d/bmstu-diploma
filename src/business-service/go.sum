@@ -16,8 +16,8 @@ github.com/kylelemons/godebug v1.1.0 h1:RPNrshWIDI6G2gRW9EHilWtl7Z6Sb1BR0xunSBf0
 github.com/kylelemons/godebug v1.1.0/go.mod h1:9/0rRGxNHcop5bhtWyNeEfOS8JIWk580+fNqagV/RAw=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
-github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.2 h1:4yK1ht0Lq5koH1KwyO1bu6t6CtFyfgo81fkM4AmGySE=
-github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.2/go.mod h1:UBwXd1B18LcSwnmMhYPAa1jVSANHsbDaruQc3yiNeXA=
+github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.3 h1:CqU/0J5Wyq/bp2DRAUpG8djnsZFjkaypG/J4MMMBw48=
+github.com/perpetua1g0d/bmstu-diploma/src/auth-client v1.0.3/go.mod h1:UBwXd1B18LcSwnmMhYPAa1jVSANHsbDaruQc3yiNeXA=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_golang v1.22.0 h1:rb93p9lokFEsctTys46VnV1kLCDpVZ0a/Y92Vm0Zc6Q=
