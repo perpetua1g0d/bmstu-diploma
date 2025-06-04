@@ -225,7 +225,7 @@ def notify_sidecars(service, sign, verify):
         try:
             data = {"sign": sign, "verify": verify}
             requests.post(
-                f"http://{pod.status.pod_ip}:8080/reload-config",
+                f"http://{pod.status.pod_ip}:8080/reload_config",
                 json=data,
                 timeout=1
             )
