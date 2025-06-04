@@ -8,8 +8,7 @@ app.secret_key = os.getenv("FLASK_SECRET", "supersecretkey")
 config.load_incluster_config()
 v1 = client.CoreV1Api()
 
-# Список доступных сервисов из переменных окружения
-SERVICES = os.getenv("SERVICES", "postgres-a,postgres-b").split(',')
+SERVICES = os.getenv("SERVICES", "service-a,service-b,postgres-a,postgres-b").split(',')
 
 # Кэш для хранения текущих настроек
 settings_cache = {service: {"sign": True, "verify": True} for service in SERVICES}
@@ -24,7 +23,7 @@ def fetch_current_settings(service):
         return sign_enabled, verify_enabled
     except Exception as e:
         app.logger.error(f"Error fetching settings for {service}: {str(e)}")
-        return True, True  # Значения по умолчанию
+        return True, True
 
 @app.route('/refresh_tokens', methods=['POST'])
 def refresh_tokens():
@@ -88,7 +87,6 @@ def update():
         cm.data["VERIFY_AUTH_ENABLED"] = str(verify).lower()
         v1.replace_namespaced_config_map("auth-settings", service, cm)
 
-        # Отправляем уведомление сайдкарам
         notify_sidecars(service, sign, verify)
 
         return redirect(url_for('index', service=service, message=f"Настройки авторизации для {service} успешно применены."))
@@ -108,7 +106,6 @@ def update_all():
             cm.data["VERIFY_AUTH_ENABLED"] = str(verify).lower()
             v1.replace_namespaced_config_map("auth-settings", service, cm)
 
-            # Отправляем уведомление сайдкарам
             notify_sidecars(service, sign, verify)
 
         return redirect(url_for('index', message="Глобальные настройки авторизации для всех сервисов успешно применены."))

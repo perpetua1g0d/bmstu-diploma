@@ -20,17 +20,17 @@ var (
 	dbSizeBytes = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "postgres_db_size_bytes",
 		Help: "Size of PostgreSQL database in bytes",
-	}, []string{"database"})
+	}, []string{"database", "service_name"})
 
 	dbIdleConnections = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "postgres_idle_connections",
 		Help: "Number of idle connections to the PostgreSQL database",
-	}, []string{"database"})
+	}, []string{"database", "service_name"})
 
 	dbOpenConnections = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "postgres_open_connections",
 		Help: "Number of opened connections to the PostgreSQL database",
-	}, []string{"database"})
+	}, []string{"database", "service_name"})
 )
 
 func main() {
@@ -62,7 +62,7 @@ func main() {
 	}
 	defer db.Close()
 
-	go collectDBMetrics(db, cfg.PostgresDB)
+	go collectDBMetrics(db, cfg.PostgresDB, cfg.ServiceName)
 
 	mux.HandleFunc(cfg.ServiceEndpoint, handlers.NewQueryHandler(ctx, cfg, db, verifier))
 
@@ -70,16 +70,16 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", mux)) // root handler promhttp.Handler()
 }
 
-func collectDBMetrics(db *sql.DB, dbName string) {
+func collectDBMetrics(db *sql.DB, dbName, service string) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		updateDBMetrics(db, dbName)
+		updateDBMetrics(db, dbName, service)
 	}
 }
 
-func updateDBMetrics(db *sql.DB, dbName string) {
+func updateDBMetrics(db *sql.DB, dbName, service string) {
 	var size int64
 	if err := db.QueryRow("SELECT pg_database_size($1)", dbName).Scan(&size); err != nil {
 		log.Printf("failed to collect pg_database_size in %s: %v", dbName, err)
@@ -87,9 +87,9 @@ func updateDBMetrics(db *sql.DB, dbName string) {
 
 	idle := db.Stats().Idle
 	opened := db.Stats().OpenConnections
-	dbSizeBytes.WithLabelValues(dbName).Set(float64(size))
-	dbIdleConnections.WithLabelValues(dbName).Set(float64(idle))
-	dbOpenConnections.WithLabelValues(dbName).Set(float64(opened))
+	dbSizeBytes.WithLabelValues(dbName, service).Set(float64(size))
+	dbIdleConnections.WithLabelValues(dbName, service).Set(float64(idle))
+	dbOpenConnections.WithLabelValues(dbName, service).Set(float64(opened))
 
 	// log.Printf("db metrics updated (sz=%d, idle=%d, open=%d).", size, idle, opened)
 }
