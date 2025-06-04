@@ -55,6 +55,7 @@ func (s *Service) startBenchmark(req BenchmarkRequest) error {
 	go func() {
 		s.benchmark.wg.Wait()
 		s.stopBenchmark()
+		log.Printf("Benchmark succefully finished, results in %s", resultsCSVFile)
 	}()
 
 	return nil
