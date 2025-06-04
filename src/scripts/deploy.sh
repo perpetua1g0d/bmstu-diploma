@@ -2,8 +2,8 @@
 
 k3d cluster create bmstucluster \
   --api-port 6443 \
-  --servers-memory 4G \
-  --agents-memory 4G \
+  --servers-memory 5G \
+  --agents-memory 5G \
   --k3s-arg "--kubelet-arg=eviction-hard=memory.available<500Mi@server:*" \
   --k3s-arg "--kubelet-arg=eviction-hard=memory.available<500Mi@agent:*" \
   --k3s-arg "--kubelet-arg=image-gc-high-threshold=90@server:*" \

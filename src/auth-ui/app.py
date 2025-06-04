@@ -112,6 +112,75 @@ def update_all():
     except Exception as e:
         return redirect(url_for('index', message=f"Ошибка: {str(e)}"))
 
+@app.route('/start_benchmark', methods=['POST'])
+def start_benchmark():
+    service = request.args.get('service')
+    try:
+        data = request.get_json()
+
+        pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
+
+        service_pod = None
+        if len(pods.items) > 0:
+            service_pod = pods.items[0]
+        else:
+            print('no pod in namespace=', service)
+
+        if not service_pod:
+            return jsonify({
+                "status": "error",
+                "message": f"Сервис не найден в неймспейсе {service}"
+            }), 404
+
+        url = f"http://{service_pod.status.pod_ip}:8080/benchmark/start"
+        app.logger.info(f"Sending benchmark request to {url} with data: {data}")
+
+        response = requests.post(
+            url,
+            json=data,
+            timeout=5
+        )
+        rrep = jsonify(response.json()), response.status_code
+        print(rrep)
+        return rrep
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Ошибка запуска: {str(e)}"
+        }), 500
+
+@app.route('/stop_benchmark', methods=['POST'])
+def stop_benchmark():
+    service = request.args.get('service')
+    try:
+        pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
+
+        service_pod = None
+        if len(pods.items) > 0:
+            service_pod = pods.items[0]
+        else:
+            print('no pod in namespace=', service)
+
+
+        if not service_pod:
+            return jsonify({
+                "status": "error",
+                "message": f"Сервис не найден в неймспейсе {service}"
+            }), 404
+
+        url = f"http://{service_pod.status.pod_ip}:8080/benchmark/stop"
+
+        response = requests.post(
+            url,
+            timeout=5
+        )
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Ошибка остановки: {str(e)}"
+        }), 500
+
 @app.route('/get_permissions', methods=['POST'])
 def get_permissions():
     client_id = request.form.get('client')
