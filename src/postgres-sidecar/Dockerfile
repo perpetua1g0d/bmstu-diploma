@@ -11,7 +11,6 @@ WORKDIR /app
 
 COPY --from=builder /app/postgres-sidecar .
 COPY --from=builder /app/config ./config
-COPY --from=builder /app/auth ./auth
 COPY --from=builder /app/handlers ./handlers
 
 COPY postgres-setup.sh /postgres-setup.sh

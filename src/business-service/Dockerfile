@@ -8,10 +8,7 @@ COPY business-service/go.mod business-service/go.sum ./
 
 # Копируем go.mod auth-client в ожидаемое расположение
 RUN mkdir -p /go/src/github.com/perpetua1g0d/bmstu-diploma
-COPY auth-client /go/src/github.com/perpetua1g0d/bmstu-diploma/auth-client
-
-# Обновляем replace-директиву для использования абсолютного пути
-RUN go mod edit -replace github.com/perpetua1g0d/bmstu-diploma/auth-client=/go/src/github.com/perpetua1g0d/bmstu-diploma/auth-client
+COPY auth-client /go/src/github.com/perpetua1g0d/bmstu-diploma/src/auth-client
 
 # Скачиваем зависимости
 RUN go mod download
