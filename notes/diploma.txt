@@ -12,7 +12,7 @@
 - Кубовые токены вместо волта?
 - мини-талос вместо keycloak? но для u2i удобнее keycloak видимо
 
-
+Про service account, RBAC https://habr.com/ru/articles/779190/
 k8s дока: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/
 
 В каждом кластере есть корневой CA (Certificate Authority), который используется для подписи различных сертификатов, включая сертификаты API-сервера. Когда под создается, он автоматически монтирует секрет service account, который включает токен и CA сертификат. Этот CA сертификат — это публичная часть корневого CA кластера.
