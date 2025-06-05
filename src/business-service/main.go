@@ -42,7 +42,7 @@ func main() {
 			if service.benchmark.running {
 				continue
 			}
-			// service.sendRegularQuery()
+			service.sendRegularQuery()
 		}
 	}()
 
