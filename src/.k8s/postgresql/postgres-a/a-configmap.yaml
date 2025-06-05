@@ -5,9 +5,10 @@ metadata:
   namespace: postgres-a
 data:
   postgresql.conf: |
-    listen_addresses = 'localhost'
     port = 5434
     shared_buffers = 128MB
     work_mem = 4MB
     maintenance_work_mem = 32MB
     max_connections = 10
+
+# listen_addresses = 'localhost'

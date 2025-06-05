@@ -143,13 +143,6 @@
 
                     <div class="form-group">
                         <label>
-                            <input type="checkbox" name="sign" {% if sign_enabled %}checked{% endif %}>
-                            Подпись запросов включена
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
                             <input type="checkbox" name="verify" {% if verify_enabled %}checked{% endif %}>
                             Проверка подлинности запросов включена
                         </label>
@@ -167,13 +160,6 @@
             <div class="section">
                 <h2>Глобальные настройки</h2>
                 <form action="/update_all" method="post">
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" name="sign_all" checked>
-                            Подпись запросов включена (все сервисы)
-                        </label>
-                    </div>
-
                     <div class="form-group">
                         <label>
                             <input type="checkbox" name="verify_all" checked>
@@ -195,12 +181,20 @@
                 <form id="permissionsForm">
                     <div class="form-group">
                         <label>Client:</label>
-                        <input type="text" name="client" required>
+                        <select name="client" required>
+                            {% for service in services %}
+                            <option value="{{ service }}">{{ service }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <div class="form-group">
                         <label>Scope:</label>
-                        <input type="text" name="scope" required>
+                        <select name="scope" required>
+                            {% for service in services %}
+                            <option value="{{ service }}">{{ service }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <button type="button" onclick="getPermissions()">Посмотреть текущие права</button>
@@ -216,12 +210,20 @@
                 <form id="updatePermissionsForm">
                     <div class="form-group">
                         <label>Client:</label>
-                        <input type="text" name="client" required>
+                        <select name="client" required>
+                            {% for service in services %}
+                            <option value="{{ service }}">{{ service }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <div class="form-group">
                         <label>Scope:</label>
-                        <input type="text" name="scope" required>
+                        <select name="scope" required>
+                            {% for service in services %}
+                            <option value="{{ service }}">{{ service }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -235,13 +237,47 @@
         </div>
     </div>
 
+    <div class="stress-test">
+        <h2>Исследование</h2>
+        <div class="stress-grid">
+            <div class="form-group">
+                <label>Запросы:</label>
+                <input type="number" name="requests" min="1" value="100" required>
+            </div>
+
+            <div class="form-group">
+                <label>Потоки:</label>
+                <input type="number" name="concurrency" min="1" value="10" required>
+            </div>
+
+            <div class="form-group">
+                <label>Тип запроса:</label>
+                <select name="query_type" required>
+                    <option value="light">Лёгкий</option>
+                    <option value="heavy">Тяжёлый</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Задержка (мс):</label>
+                <input type="number" name="delay" min="0" value="100" required>
+            </div>
+        </div>
+
+        <div class="stress-buttons">
+            <button type="button" onclick="startBenchmark()">Начать исследование</button>
+            <button type="button" onclick="stopBenchmark()">Остановить исследование</button>
+        </div>
+
+        <div id="benchmarkStatus" class="stress-status"></div>
+    </div>
+
     <script>
         function updateCheckboxes(service) {
             window.history.replaceState(null, null, `?service=${service}`);
             fetch(`/settings?service=${service}`)
                 .then(response => response.json())
                 .then(data => {
-                    document.querySelector('input[name="sign"]').checked = data.sign;
                     document.querySelector('input[name="verify"]').checked = data.verify;
                 });
         }
@@ -323,6 +359,81 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                });
+        }
+
+        function startBenchmark() {
+            const service = document.querySelector('select[name="service"]').value;
+            const form = document.querySelector('.stress-test');
+
+            const data = {
+                requests: parseInt(form.querySelector('[name="requests"]').value),
+                concurrency: parseInt(form.querySelector('[name="concurrency"]').value),
+                query_type: form.querySelector('[name="query_type"]').value,
+                delay: parseInt(form.querySelector('[name="delay"]').value) * 1000000
+            };
+
+            const statusDiv = document.getElementById('benchmarkStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = 'Запуск исследования...';
+            statusDiv.className = 'stress-status';
+
+            fetch(`/start_benchmark?service=${service}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    console.log(response);
+
+                    if (!response.ok) throw new Error('Ошибка сервера');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === "started") {
+                        statusDiv.textContent = `Исследование запущено: ${data.message}`;
+                        statusDiv.className = 'stress-status success';
+                    } else {
+                        statusDiv.textContent = `Ошибка: ${data.message || 'Неизвестная ошибка'}`;
+                        statusDiv.className = 'stress-status error';
+                    }
+                })
+                .catch(error => {
+                    statusDiv.textContent = `Сетевая ошибка: ${error.message}`;
+                    statusDiv.className = 'stress-status error';
+                });
+        }
+
+        function stopBenchmark() {
+            const service = document.querySelector('select[name="service"]').value;
+            const statusDiv = document.getElementById('benchmarkStatus');
+
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = 'Остановка исследования...';
+            statusDiv.className = 'stress-status';
+
+            fetch(`/stop_benchmark?service=${service}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    console.log(response);
+                    if (!response.ok) throw new Error('Ошибка сервера');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === "stopped") {
+                        statusDiv.textContent = 'Исследование остановлено';
+                        statusDiv.className = 'stress-status success';
+                    } else {
+                        statusDiv.textContent = `Ошибка: ${data.message || 'Неизвестная ошибка'}`;
+                        statusDiv.className = 'stress-status error';
+                    }
+                })
+                .catch(error => {
+                    statusDiv.textContent = `Сетевая ошибка: ${error.message}`;
+                    statusDiv.className = 'stress-status error';
                 });
         }
 

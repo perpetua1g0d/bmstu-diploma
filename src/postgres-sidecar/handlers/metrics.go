@@ -33,5 +33,10 @@ var (
 		Name:    "db_query_duration_milliseconds",
 		Help:    "Duration of database queries in milliseconds",
 		Buckets: []float64{1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000},
-	}, []string{"operation", "service_name"}) // todo: add target
+	}, []string{"operation", "service_name"})
+
+	dbQueryTypes = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "db_query_types_total",
+		Help: "Count of different query types",
+	}, []string{"type", "service_name"})
 )

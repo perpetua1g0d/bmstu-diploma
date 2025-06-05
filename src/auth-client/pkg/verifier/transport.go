@@ -14,22 +14,6 @@ import (
 	"github.com/perpetua1g0d/bmstu-diploma/src/auth-client/internal/metrics"
 )
 
-// type VerifierMiddleware struct {
-// 	verifier *Verifier
-// 	cfg      *config.Config
-// 	scope    string
-
-// 	defaultRT http.RoundTripper
-// }
-
-// func NewVerifierTransport(verifier *Verifier, scope string) *VerifierMiddleware {
-// 	return &VerifierMiddleware{
-// 		verifier:  verifier,
-// 		scope:     scope,
-// 		defaultRT: http.DefaultTransport,
-// 	}
-// }
-
 func VerifySQLMiddleware(next http.HandlerFunc, verifier *Verifier) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cfg := verifier.cfg
@@ -43,7 +27,13 @@ func VerifySQLMiddleware(next http.HandlerFunc, verifier *Verifier) http.Handler
 			metrics.TokenVerifyTotal.WithLabelValues(verifyResult, strconv.FormatBool(verifyEnabled), cfg.ClientID).Inc()
 			metrics.TokenVerifyDuration.WithLabelValues(verifyResult, strconv.FormatBool(verifyEnabled), cfg.ClientID).Observe(verifyDuration)
 
+			next(w, r)
 		}()
+
+		if !verifyEnabled {
+			verifyResult = "disabled"
+			return
+		}
 
 		origBody, _ := io.ReadAll(r.Body)
 		r.Body = io.NopCloser(bytes.NewBuffer(origBody))
@@ -83,8 +73,6 @@ func VerifySQLMiddleware(next http.HandlerFunc, verifier *Verifier) http.Handler
 				return
 			}
 		}
-
-		next(w, r)
 	}
 }
 

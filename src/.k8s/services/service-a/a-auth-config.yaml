@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-settings
+  namespace: service-a
+data:
+  SIGN_AUTH_ENABLED: "true"

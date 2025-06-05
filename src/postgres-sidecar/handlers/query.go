@@ -23,7 +23,7 @@ type QueryRequest struct {
 
 func NewQueryHandler(ctx context.Context, cfg *config.Config, db *sql.DB, tokenVerifier *auth_verifier.Verifier) http.HandlerFunc {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("start process /query request")
+		// log.Printf("start process /query request")
 
 		var req QueryRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -31,7 +31,7 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, db *sql.DB, tokenV
 			return
 		}
 
-		log.Printf("decoded request body: %+v", req)
+		// log.Printf("decoded request body: %+v", req)
 
 		start := time.Now()
 		rows, err := db.Query(req.SQL, req.Params...)
@@ -46,6 +46,7 @@ func NewQueryHandler(ctx context.Context, cfg *config.Config, db *sql.DB, tokenV
 		}
 		durationMs := float64(time.Since(start).Milliseconds())
 		dbQueryDuration.WithLabelValues(operation, cfg.ServiceName).Observe(durationMs)
+		dbQueryTypes.WithLabelValues(operation, cfg.ServiceName).Inc()
 
 		if err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"status":  "success",

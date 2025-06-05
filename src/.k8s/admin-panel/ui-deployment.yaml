@@ -23,4 +23,4 @@ spec:
             - containerPort: 5000
           env:
             - name: SERVICES
-              value: "postgres-a,postgres-b"
+              value: "service-a,service-b,postgres-a,postgres-b"

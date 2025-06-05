@@ -11,19 +11,18 @@ v1 = client.CoreV1Api()
 SERVICES = os.getenv("SERVICES", "service-a,service-b,postgres-a,postgres-b").split(',')
 
 # Кэш для хранения текущих настроек
-settings_cache = {service: {"sign": True, "verify": True} for service in SERVICES}
+settings_cache = {service: {"verify": True} for service in SERVICES}
 
 IDP_SERVICE_URL = "http://idp.idp.svc.cluster.local:80"
 
 def fetch_current_settings(service):
     try:
         cm = v1.read_namespaced_config_map("auth-settings", service)
-        sign_enabled = cm.data.get("SIGN_AUTH_ENABLED", "true") == "true"
         verify_enabled = cm.data.get("VERIFY_AUTH_ENABLED", "true") == "true"
-        return sign_enabled, verify_enabled
+        return verify_enabled
     except Exception as e:
         app.logger.error(f"Error fetching settings for {service}: {str(e)}")
-        return True, True
+        return True
 
 @app.route('/refresh_tokens', methods=['POST'])
 def refresh_tokens():
@@ -49,15 +48,12 @@ def refresh_tokens():
 def index():
     try:
         selected_service = request.args.get('service', SERVICES[0])
-        app.logger.info(f"Fetching settings for: {selected_service}")
-        sign_enabled, verify_enabled = fetch_current_settings(selected_service)
-        app.logger.info(f"Settings: sign={sign_enabled}, verify={verify_enabled}")
+        verify_enabled = fetch_current_settings(selected_service)
 
         return render_template(
             'index.html',
             services=SERVICES,
             selected_service=selected_service,
-            sign_enabled=sign_enabled,
             verify_enabled=verify_enabled,
             message=request.args.get('message', '')
         )
@@ -68,26 +64,21 @@ def index():
 @app.route('/settings')
 def get_settings():
     service = request.args.get('service', SERVICES[0])
-    sign_enabled, verify_enabled = fetch_current_settings(service)
-    return jsonify({
-        "sign": sign_enabled,
-        "verify": verify_enabled
-    })
+    verify_enabled = fetch_current_settings(service)
+    return jsonify({"verify": verify_enabled})
 
 @app.route('/update', methods=['POST'])
 def update():
     service = request.form['service']
-    sign = request.form.get('sign') == 'on'
     verify = request.form.get('verify') == 'on'
 
     try:
         # Обновляем ConfigMap
         cm = v1.read_namespaced_config_map("auth-settings", service)
-        cm.data["SIGN_AUTH_ENABLED"] = str(sign).lower()
         cm.data["VERIFY_AUTH_ENABLED"] = str(verify).lower()
         v1.replace_namespaced_config_map("auth-settings", service, cm)
 
-        notify_sidecars(service, sign, verify)
+        notify_sidecars(service, verify)
 
         return redirect(url_for('index', service=service, message=f"Настройки авторизации для {service} успешно применены."))
     except Exception as e:
@@ -95,22 +86,88 @@ def update():
 
 @app.route('/update_all', methods=['POST'])
 def update_all():
-    sign = request.form.get('sign_all') == 'on'
     verify = request.form.get('verify_all') == 'on'
 
     try:
         for service in SERVICES:
             # Обновляем ConfigMap для каждого сервиса
             cm = v1.read_namespaced_config_map("auth-settings", service)
-            cm.data["SIGN_AUTH_ENABLED"] = str(sign).lower()
             cm.data["VERIFY_AUTH_ENABLED"] = str(verify).lower()
             v1.replace_namespaced_config_map("auth-settings", service, cm)
 
-            notify_sidecars(service, sign, verify)
+            notify_sidecars(service, verify)
 
         return redirect(url_for('index', message="Глобальные настройки авторизации для всех сервисов успешно применены."))
     except Exception as e:
         return redirect(url_for('index', message=f"Ошибка: {str(e)}"))
+
+@app.route('/start_benchmark', methods=['POST'])
+def start_benchmark():
+    service = request.args.get('service')
+    try:
+        data = request.get_json()
+
+        pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
+
+        service_pod = None
+        if len(pods.items) > 0:
+            service_pod = pods.items[0]
+        else:
+            print('no pod in namespace=', service)
+
+        if not service_pod:
+            return jsonify({
+                "status": "error",
+                "message": f"Сервис не найден в неймспейсе {service}"
+            }), 404
+
+        url = f"http://{service_pod.status.pod_ip}:8080/benchmark/start"
+        app.logger.info(f"Sending benchmark request to {url} with data: {data}")
+
+        response = requests.post(
+            url,
+            json=data,
+            timeout=5
+        )
+        rrep = jsonify(response.json()), response.status_code
+        print(rrep)
+        return rrep
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Ошибка запуска: {str(e)}"
+        }), 500
+
+@app.route('/stop_benchmark', methods=['POST'])
+def stop_benchmark():
+    service = request.args.get('service')
+    try:
+        pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
+
+        service_pod = None
+        if len(pods.items) > 0:
+            service_pod = pods.items[0]
+        else:
+            print('no pod in namespace=', service)
+
+        if not service_pod:
+            return jsonify({
+                "status": "error",
+                "message": f"Сервис не найден в неймспейсе {service}"
+            }), 404
+
+        url = f"http://{service_pod.status.pod_ip}:8080/benchmark/stop"
+
+        response = requests.post(
+            url,
+            timeout=5
+        )
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Ошибка остановки: {str(e)}"
+        }), 500
 
 @app.route('/get_permissions', methods=['POST'])
 def get_permissions():
@@ -149,14 +206,14 @@ def update_permissions():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def notify_sidecars(service, sign, verify):
+def notify_sidecars(service, verify):
     pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
 
     for pod in pods.items:
         try:
-            data = {"sign": sign, "verify": verify}
+            data = {"verify": verify}
             requests.post(
-                f"http://{pod.status.pod_ip}:8080/reload-config",
+                f"http://{pod.status.pod_ip}:8080/reload_config",
                 json=data,
                 timeout=1
             )
