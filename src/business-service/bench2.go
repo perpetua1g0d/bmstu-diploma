@@ -17,6 +17,7 @@ type BenchmarkRequest struct {
 	Concurrency int           `json:"concurrency"`
 	QueryType   string        `json:"query_type"`
 	Delay       time.Duration `json:"delay"`
+	UseDirect   bool          `json:"use_direct"`
 }
 
 type BenchmarkResponse struct {
@@ -39,6 +40,7 @@ func (s *Service) startBenchmark(req BenchmarkRequest) error {
 	s.benchmark.totalRequests = req.Requests
 	s.benchmark.concurrency = req.Concurrency
 	s.benchmark.queryType = req.QueryType
+	s.benchmark.useDirect = req.UseDirect
 	s.benchmark.delay = req.Delay
 	atomic.StoreInt64(&s.benchmark.counter, 0)
 	s.benchmark.results = &BenchmarkResults{

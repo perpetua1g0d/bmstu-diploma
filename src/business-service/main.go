@@ -9,6 +9,8 @@ import (
 	"github.com/perpetua1g0d/bmstu-diploma/business-service/config"
 	auth_signer "github.com/perpetua1g0d/bmstu-diploma/src/auth-client/pkg/signer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -27,6 +29,7 @@ func main() {
 	}
 
 	service := NewService(cfg, signer)
+	defer service.db.Close()
 
 	mux.Handle("/benchmark/start", http.HandlerFunc(service.benchmarkHandler))
 	mux.Handle("/benchmark/stop", http.HandlerFunc(service.stopBenchmarkHandler))
@@ -39,7 +42,7 @@ func main() {
 			if service.benchmark.running {
 				continue
 			}
-			service.sendRegularQuery()
+			// service.sendRegularQuery()
 		}
 	}()
 

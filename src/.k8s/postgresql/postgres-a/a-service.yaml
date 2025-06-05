@@ -6,6 +6,7 @@ metadata:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8080"
+    networking.k8s.io/service-binding: "true"
 spec:
   selector:
     app: postgres-a

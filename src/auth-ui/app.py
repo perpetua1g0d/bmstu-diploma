@@ -117,6 +117,7 @@ def start_benchmark():
     service = request.args.get('service')
     try:
         data = request.get_json()
+        # data['use_direct'] = True
 
         pods = v1.list_namespaced_pod(namespace=service, label_selector=f"app={service}")
 
