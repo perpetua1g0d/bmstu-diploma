@@ -134,9 +134,9 @@ def plot_comparison(data, title):
         auth_values,
         width,
         label='С аутентификацией',
-        color='#ff7043',  # Оранжево-красный
-        hatch='////',
-        edgecolor='#c43e1c',
+        color='#f97c56', #f6cdc1
+        hatch='//',
+        edgecolor='#000000', # c43e1c
         linewidth=1.2,
         alpha=0.9
     )
