@@ -122,9 +122,6 @@
       \field{year}{2021}
       \field{volume}{1}
       \range{volume}{1}
-      \verb{doi}
-      \verb 10.55621/idpro.78
-      \endverb
     \endentry
     \entry{m_auth}{article}{}{}
       \name{author}{2}{}{%
@@ -160,9 +157,6 @@
       \range{pages}{4}
       \field{volume}{6}
       \range{volume}{1}
-      \verb{doi}
-      \verb 10.24327/ijcar.2017.3345.0267
-      \endverb
     \endentry
     \entry{kubernetes}{misc}{}{}
       \field{sortinit}{5}
@@ -200,9 +194,6 @@
       \field{month}{06}
       \field{title}{Sidecar-based Path-aware Security for Microservices}
       \field{year}{2023}
-      \verb{doi}
-      \verb 10.1145/3589608.3594742
-      \endverb
     \endentry
     \entry{svc_mesh_cite}{misc}{}{}
       \field{sortinit}{1}
@@ -244,9 +235,6 @@
       \field{month}{11}
       \field{title}{Technical Report: Performance Comparison of Service Mesh Frameworks: the MTLS Test Case}
       \field{year}{2024}
-      \verb{doi}
-      \verb 10.48550/arXiv.2411.02267
-      \endverb
     \endentry
     \entry{spiffe}{misc}{}{}
       \field{sortinit}{2}
@@ -263,23 +251,31 @@
       \field{title}{SPIRE Concepts [Электронный доступ].}
     \endentry
     \entry{access_control}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=3393018b0b56ce78f7ebef871e1b0175}{%
-           family={Rahaman\bibnamedelima MS},
-           familyi={R\bibinitperiod\bibinitdelim M\bibinitperiod},
-           given={Song\bibnamedelima E},
-           giveni={S\bibinitperiod\bibinitdelim E\bibinitperiod},
-           suffix={Tisha\bibnamedelima SN},
-           suffixi={T\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      \name{author}{3}{}{%
+        {{hash=0e1c2aa293d669d46fd91ff3913a3dfc}{%
+           family={Rahaman},
+           familyi={R\bibinitperiod},
+           given={Mmm},
+           giveni={M\bibinitperiod}}}%
+        {{hash=adf79e5275915f99b419a7357a826172}{%
+           family={Tisha},
+           familyi={T\bibinitperiod},
+           given={Sss},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f39fe950f846cefeaf27d71f9c209ffb}{%
+           family={Song},
+           familyi={S\bibinitperiod},
+           given={Eee},
+           giveni={E\bibinitperiod}}}%
       }
-      \strng{namehash}{3393018b0b56ce78f7ebef871e1b0175}
-      \strng{fullhash}{3393018b0b56ce78f7ebef871e1b0175}
-      \strng{fullhashraw}{3393018b0b56ce78f7ebef871e1b0175}
-      \strng{bibnamehash}{3393018b0b56ce78f7ebef871e1b0175}
-      \strng{authorbibnamehash}{3393018b0b56ce78f7ebef871e1b0175}
-      \strng{authornamehash}{3393018b0b56ce78f7ebef871e1b0175}
-      \strng{authorfullhash}{3393018b0b56ce78f7ebef871e1b0175}
-      \strng{authorfullhashraw}{3393018b0b56ce78f7ebef871e1b0175}
+      \strng{namehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{fullhash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{fullhashraw}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{bibnamehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authorbibnamehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authornamehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authorfullhash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authorfullhashraw}{88e660e0a5b23949e87aafd8dddd4d6a}
       \field{sortinit}{2}
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
@@ -288,9 +284,6 @@
       \field{month}{03}
       \field{title}{Access Control Design Practice and Solutions in Cloud-Native Architecture: A Systematic Mapping Study}
       \field{year}{2023}
-      \verb{doi}
-      \verb 10.3390/s23073413
-      \endverb
     \endentry
     \entry{oauth2_spec}{misc}{}{}
       \field{sortinit}{2}
@@ -364,9 +357,6 @@
       \field{year}{2020}
       \field{pages}{664\bibrangedash 6732}
       \range{pages}{6069}
-      \verb{doi}
-      \verb 10.1109/EuroSPW51379.2020.00095
-      \endverb
     \endentry
     \entry{saml}{thesis}{}{}
       \name{author}{1}{}{%
@@ -392,9 +382,6 @@
       \field{title}{User-controlled Identity Management Systems using mobile devices}
       \field{type}{phdthesis}
       \field{year}{2015}
-      \verb{doi}
-      \verb 10.13140/RG.2.1.3905.3287
-      \endverb
     \endentry
   \enddatalist
 \endrefsection
