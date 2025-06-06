@@ -1,17 +1,17 @@
 [0] Config.pm:308> INFO - This is Biber 2.20
 [0] Config.pm:311> INFO - Logfile is 'report.blg'
-[142] biber-MSWIN64:340> INFO - === 
-[219] Biber.pm:420> INFO - Reading 'report.bcf'
-[429] Biber.pm:994> INFO - Found 15 citekeys in bib section 0
-[449] Biber.pm:4463> INFO - Processing section 0
-[463] Biber.pm:4654> INFO - Looking for bibtex file 'inc/biblio/sources.bib' for section 0
-[530] bibtex.pm:1713> INFO - LaTeX decoding ...
-[555] bibtex.pm:1519> INFO - Found BibTeX data source 'inc/biblio/sources.bib'
-[656] UCollate.pm:68> INFO - Overriding locale 'ru-RU' defaults 'variable = shifted' with 'variable = non-ignorable'
-[656] UCollate.pm:68> INFO - Overriding locale 'ru-RU' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[656] Biber.pm:4283> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'ru-RU'
-[656] Biber.pm:4289> INFO - No sort tailoring available for locale 'ru-RU'
-[669] bbl.pm:676> INFO - Writing 'report.bbl' with encoding 'UTF-8'
-[676] bbl.pm:779> INFO - Output to report.bbl
-[677] Biber.pm:131> WARN - BibTeX subsystem: warning: comma(s) at end of name (removing)
-[677] Biber.pm:133> INFO - WARNINGS: 1
+[145] biber-MSWIN64:340> INFO - === 
+[200] Biber.pm:420> INFO - Reading 'report.bcf'
+[400] Biber.pm:994> INFO - Found 15 citekeys in bib section 0
+[419] Biber.pm:4463> INFO - Processing section 0
+[433] Biber.pm:4654> INFO - Looking for bibtex file 'inc/biblio/sources.bib' for section 0
+[501] bibtex.pm:1713> INFO - LaTeX decoding ...
+[520] bibtex.pm:1519> INFO - Found BibTeX data source 'inc/biblio/sources.bib'
+[629] UCollate.pm:68> INFO - Overriding locale 'ru-RU' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[629] UCollate.pm:68> INFO - Overriding locale 'ru-RU' defaults 'variable = shifted' with 'variable = non-ignorable'
+[629] Biber.pm:4283> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'ru-RU'
+[630] Biber.pm:4289> INFO - No sort tailoring available for locale 'ru-RU'
+[642] bbl.pm:676> INFO - Writing 'report.bbl' with encoding 'UTF-8'
+[651] bbl.pm:779> INFO - Output to report.bbl
+[651] Biber.pm:131> WARN - BibTeX subsystem: warning: comma(s) at end of name (removing)
+[651] Biber.pm:133> INFO - WARNINGS: 1
