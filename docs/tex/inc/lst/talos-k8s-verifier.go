@@ -1,18 +1,6 @@
 type Verifier struct {
 	publicKey *rsa.PublicKey
 }
-
-func NewVerifier(_ context.Context) (*Verifier, error) {
-	publicKey, err := getPublicKey()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get k8s public key: %w", err)
-	}
-
-	return &Verifier{
-		publicKey: publicKey,
-	}, nil
-}
-
 func (v *Verifier) VerifyWithClient(k8sToken string) (string, jwt.Claims, error) {
 	var claims privateClaims
 	token, err := jwt.ParseWithClaims(k8sToken, &claims, func(token *jwt.Token) (interface{}, error) {

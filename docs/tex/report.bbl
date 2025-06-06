@@ -80,7 +80,6 @@
       \field{internalsortvolume}{181}
       \field{issn}{1877-0509}
       \field{journaltitle}{Procedia Computer Science}
-      \field{note}{(Дата обращения: 10.02.2025)}
       \field{title}{Security in Microservices Architectures}
       \field{year}{2021}
       \field{pages}{1225\bibrangedash 1236}
@@ -89,12 +88,6 @@
       \range{volume}{1}
       \verb{doi}
       \verb https://doi.org/10.1016/j.procs.2021.01.320
-      \endverb
-      \verb{urlraw}
-      \verb https://www.sciencedirect.com/science/article/pii/S1877050921003719
-      \endverb
-      \verb{url}
-      \verb https://www.sciencedirect.com/science/article/pii/S1877050921003719
       \endverb
     \endentry
     \entry{iam}{article}{}{}
@@ -129,9 +122,6 @@
       \field{year}{2021}
       \field{volume}{1}
       \range{volume}{1}
-      \verb{doi}
-      \verb 10.55621/idpro.78
-      \endverb
     \endentry
     \entry{m_auth}{article}{}{}
       \name{author}{2}{}{%
@@ -167,22 +157,140 @@
       \range{pages}{4}
       \field{volume}{6}
       \range{volume}{1}
-      \verb{doi}
-      \verb 10.24327/ijcar.2017.3345.0267
-      \endverb
     \endentry
-    \entry{oauth2_spec}{online}{}{}
+    \entry{kubernetes}{misc}{}{}
       \field{sortinit}{5}
       \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labeltitlesource}{title}
-      \field{note}{(Дата обращения: 10.02.2025)}
-      \field{title}{The OAuth 2.0 Authorization Framework}
-      \verb{urlraw}
-      \verb https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
-      \endverb
-      \verb{url}
-      \verb https://datatracker.ietf.org/doc/html/rfc6749#section-2.1
-      \endverb
+      \field{howpublished}{Режим доступа URL: \url{https://kubernetes.io/docs/home/} (дата обращения: 05.06.2025)}
+      \field{title}{Kubernetes Documentation [Электронный доступ].}
+    \endentry
+    \entry{sidecar}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=9cb4cd747233179aa9ff7e8caa97c8a9}{%
+           family={Catherine\bibnamedelima Meadows},
+           familyi={C\bibinitperiod\bibinitdelim M\bibinitperiod},
+           given={Sena\bibnamedelima Hounsinou},
+           giveni={S\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=d9d5804f1dbdca2546f8c3f6cf0d5ab9}{%
+           family={Bloom},
+           familyi={B\bibinitperiod},
+           given={Gedare},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \strng{fullhash}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \strng{fullhashraw}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \strng{bibnamehash}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \strng{authorbibnamehash}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \strng{authornamehash}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \strng{authorfullhash}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \strng{authorfullhashraw}{f1bd790eb6d01b96e593e3a919d3e93d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{ACM Symposium on Access Control Models and Technologies}
+      \field{month}{06}
+      \field{title}{Sidecar-based Path-aware Security for Microservices}
+      \field{year}{2023}
+    \endentry
+    \entry{svc_mesh_cite}{misc}{}{}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Режим доступа URL: \url{https://www.wallarm.com/cloud-native-products-101/istio-vs-linkerd-service-mesh-technologies} (дата обращения: 05.06.2025)}
+      \field{title}{Introduction to Service Mesh Technologies [Электронный доступ].}
+    \endentry
+    \entry{svcmesh_tls}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=0b05253ecf6b818b74cdbba64264b7a2}{%
+           family={Barr},
+           familyi={B\bibinitperiod},
+           given={Anat\bibnamedelima Bremler},
+           giveni={A\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=7545f4dca576319ce6ae8f7507033851}{%
+           family={Lavi},
+           familyi={L\bibinitperiod},
+           given={Ofek},
+           giveni={O\bibinitperiod}}}%
+        {{hash=fea4d0fffa3e0223b42ad9c46c2f65cc}{%
+           family={Naor},
+           familyi={N\bibinitperiod},
+           given={Yaniv},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \strng{fullhash}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \strng{fullhashraw}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \strng{bibnamehash}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \strng{authorbibnamehash}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \strng{authornamehash}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \strng{authorfullhash}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \strng{authorfullhashraw}{a382767a1dca32c1cd8faa8ffa8999bc}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{11}
+      \field{title}{Technical Report: Performance Comparison of Service Mesh Frameworks: the MTLS Test Case}
+      \field{year}{2024}
+    \endentry
+    \entry{spiffe}{misc}{}{}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Режим доступа URL: \url{https://spiffe.io/docs/latest/spiffe-about/overview/} (дата обращения: 05.06.2025)}
+      \field{title}{SPIFFE Overview [Электронный доступ].}
+    \endentry
+    \entry{spire}{misc}{}{}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Режим доступа URL: \url{https://spiffe.io/docs/latest/spire-about/spire-concepts/} (дата обращения: 05.06.2025)}
+      \field{title}{SPIRE Concepts [Электронный доступ].}
+    \endentry
+    \entry{access_control}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=0e1c2aa293d669d46fd91ff3913a3dfc}{%
+           family={Rahaman},
+           familyi={R\bibinitperiod},
+           given={Mmm},
+           giveni={M\bibinitperiod}}}%
+        {{hash=adf79e5275915f99b419a7357a826172}{%
+           family={Tisha},
+           familyi={T\bibinitperiod},
+           given={Sss},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f39fe950f846cefeaf27d71f9c209ffb}{%
+           family={Song},
+           familyi={S\bibinitperiod},
+           given={Eee},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{fullhash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{fullhashraw}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{bibnamehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authorbibnamehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authornamehash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authorfullhash}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \strng{authorfullhashraw}{88e660e0a5b23949e87aafd8dddd4d6a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Sensors (Basel)}
+      \field{month}{03}
+      \field{title}{Access Control Design Practice and Solutions in Cloud-Native Architecture: A Systematic Mapping Study}
+      \field{year}{2023}
+    \endentry
+    \entry{oauth2_spec}{misc}{}{}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Режим доступа URL: \url{https://datatracker.ietf.org/doc/html/rfc6749} (дата обращения: 05.06.2025)}
+      \field{title}{The OAuth 2.0 Authorization Framework [Электронный доступ].}
     \endentry
     \entry{oauth2_artc}{article}{}{}
       \name{author}{3}{}{%
@@ -210,10 +318,11 @@
       \strng{authornamehash}{0c30a8f542a9ffd8ee0074669ebf3fda}
       \strng{authorfullhash}{0c30a8f542a9ffd8ee0074669ebf3fda}
       \strng{authorfullhashraw}{0c30a8f542a9ffd8ee0074669ebf3fda}
-      \field{sortinit}{6}
-      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
+      \field{journaltitle}{Bernaoui Abdelhamid}
       \field{month}{05}
       \field{title}{Securing Web APIs with OAuth 2.0}
       \field{year}{2014}
@@ -239,8 +348,8 @@
       \strng{authornamehash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
       \strng{authorfullhash}{6ce7d30dbaf59c6e13c0d740bb77eda1}
       \strng{authorfullhashraw}{6ce7d30dbaf59c6e13c0d740bb77eda1}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{month}{09}
@@ -248,9 +357,6 @@
       \field{year}{2020}
       \field{pages}{664\bibrangedash 6732}
       \range{pages}{6069}
-      \verb{doi}
-      \verb 10.1109/EuroSPW51379.2020.00095
-      \endverb
     \endentry
     \entry{saml}{thesis}{}{}
       \name{author}{1}{}{%
@@ -268,17 +374,14 @@
       \strng{authornamehash}{446ebb57e6b23d4b27bbc2971d78cf28}
       \strng{authorfullhash}{446ebb57e6b23d4b27bbc2971d78cf28}
       \strng{authorfullhashraw}{446ebb57e6b23d4b27bbc2971d78cf28}
-      \field{sortinit}{9}
-      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{month}{06}
       \field{title}{User-controlled Identity Management Systems using mobile devices}
       \field{type}{phdthesis}
       \field{year}{2015}
-      \verb{doi}
-      \verb 10.13140/RG.2.1.3905.3287
-      \endverb
     \endentry
   \enddatalist
 \endrefsection

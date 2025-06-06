@@ -1,49 +1,18 @@
 func Test_Verify(t *testing.T) {
 	// Arrange
-	token := "eyJhbGciOiJSUzI1NiIsImtpZCI6Ilp2UFNpYlpISzk1YlhGRjh
-		KSjJlY25MWHZRZ29aV25lMXB3UV9IYUh5TmsifQ.eyJhdWQiOlsiaHR0c
-		HM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiLC
-		JrM3MiXSwiZXhwIjoxNzc5NjUxMTU2LCJpYXQiOjE3NDgxMTUxNTYsIml
-		zcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2YyIsImp0aSI6
-		ImM0ZWUzNWFmLTFmZWYtNDNmYi1iNDYyLTJiNjk0OTM5MTdjMCIsImt1Y
-		mVybmV0ZXMuaW8iOnsibmFtZXNwYWNlIjoicG9zdGdyZXMtYSIsIm5vZG
-		UiOnsibmFtZSI6ImszZC1ibXN0dWNsdXN0ZXItc2VydmVyLTAiLCJ1aWQ
-		iOiI3YzEwM2NlOC05OTA2LTQ3NWMtOGM5Ni1jNGZiZjIyOWM1YTAifSwi
-		cG9kIjp7Im5hbWUiOiJwb3N0Z3Jlcy1hLTY3OTRmY2I1ZjctcWI5em0iL
-		CJ1aWQiOiI5MTE3NDllNy01NTFiLTQ2M2UtYmNmZC03ZjEyNGFhZTgxNW
-		UifSwic2VydmljZWFjY291bnQiOnsibmFtZSI6ImRlZmF1bHQiLCJ1aWQ
-		iOiIyNDhkNDE3Mi0xZDdlLTRiMWEtYmRlNS05NzAyN2FiNDFlMmQifSwi
-		d2FybmFmdGVyIjoxNzQ4MTE4NzYzfSwibmJmIjoxNzQ4MTE1MTU2LCJzd
-		WIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6cG9zdGdyZXMtYTpkZWZhdW
-		x0In0.spCWGajmAAENHgK5zG5NTX2dz82S0gunARu9-ncvurmV5XqEKOK
-		SEypC9Rm3ap2WfwOei0zm4-0Hbi3fdYZUZkSDZO-HLSHxPZcQoGvVjiKD
-		OAIRDGwNb8bNVqkPPyy1Q8K5cD1anJwPiXYFzIQ4ZKDu_Ikp5ajkA3KYp
-		ZUmPLFQ3a09k8ycTpvdnjSzCfIdEaUiO4jFlGJWEYKGo9XuY0VVjyyjwJ
-		AdDOj6Ry0aIJzJzQTjS-IUs_dL7XVQUSlxp4mZvhLhnrhiL6uU59tX1QV
-		tliZ3MgkO3XN_F2G5kuoigFN0NQp8EpiCeC2-e9T-rchZ3MR8KbPp8lgs
-		4SA1iA"
-
+	token := "ey..."
 	jwk := JWK{
-		N: `xItwcttR4qVTD4bBfsUDgpICFnoBk1H8qyN3jSVemH1wlPyn6CLn2
-		aUmjQHW25f2LcraZr1_t7l0ogmaR46Gn7uyYGBEtIsNnjvvoAUVbmd8vI
-		hPJI9flzDjJys4CEjefo1YFooD4YfqDei0GEYG2TYy42mO3TR6O3--47P
-		bLIyZ2cbmHTwU-t_apqc3NUs0Sd6_gjDb0hrX0cFlOvBfL-J-3XEe4Zxe
-		w7-qDnjQGIKdSEgS-v-wCwr30iqK9yDfHO9cHUtRNirLb4dybeOh3_vBM
-		MLCVpKtH6GonDEVyRv7qJCigEinpHB78Uq0PAb_l8SOHougk2qp8-Cp3n
-		b7rw`,
+		N: `xItwc...`,
 		E: "AQAB",
 	}
-
 	wantAud := jwt.ClaimStrings{
 		"https://kubernetes.default.svc.cluster.local",
 		"k3s",
 	}
-
 	publicKey, err := makeRSAPublicKey(jwk)
 	if err != nil {
 		t.Fatalf("failed to create public rsa key: %v", err)
 	}
-
 	verifier := &Verifier{
 		publicKey: publicKey,
 	}
